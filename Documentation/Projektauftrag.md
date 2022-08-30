@@ -2,7 +2,7 @@
 
 ## Projekt Erläuterung
 
-Wir haben den Auftrag bekommen, ein Tool zu entwickeln, mit dem man verschiedene Kompetenzen für den Unterricht verwalten kann. Dieses Tool hat bestimmte Anforderungen zu erfüllen. Diese sind unten aufgelistet!
+Inhaltlich geht es in der Projektarbeit des Moduls 326 um die Erstellung einer Software, welche von den Lehrpersonen des GIBZ zur längerfristigen Evaluation ihrer digitalen, unterrichtsbezogenen Anwendungskompetenzen genutzt werden kann: Aus einem Set definierter Kompetenzen sollen Lehrpersonen per Selbstdeklaration die individuelle Erreichung unterschiedlicher Kompetenzen erfassen und planen. Zur Unterstützung der Lehrpersonen können für die Kompetenzen unterschiedliche Ressourcen bereit- gestellt werden. Wir haben uns hier für ein Webtool entschieden. Dieses Tool hat bestimmte Anforderungen zu erfüllen. Diese sind unten aufgelistet!
 
 ## Anforderungen
 
