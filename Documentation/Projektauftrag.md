@@ -11,15 +11,14 @@ Die Anforderungen an dieses Tool sind unten aufgelistet.
 
 - Rollensystem ("Sys"Admin, Guest, User)
 	- Berechtigungen "User":
-		- Kompetenzen erstellen
+        - Kompetenzen einsehen und als "kann ich" / "kann ich nicht" markieren
+	- Berechtigungen "Admin":
 		- Kompetenzen löschen
 		- Resourcen für Kompetenzen zur Verfügung stellen
-	- Berechtigungen "Admin":
-		- User löschen, bearbeiten, Account deaktivieren -> CRUD (plus/minus)
+        - Kompetenzen erstellen
+		- User registrieren, löschen, bearbeiten, Account deaktivieren -> CRUD (plus/minus)
 	- Berechtigungen "Guest":
 		- Login nicht möglich d.h. Applikation nicht benutzbar -> kann Lehrer - Profile einsehen
-- Kompetenzen:
-	- "Fields": Name, Skill level (1-4), Links / Hilfestellungen / Material zur Kompetenz (PDF's, Cheatsheets, etc)
 ### Nicht Funktional
 
 #### Vom PDF
@@ -28,18 +27,22 @@ Die Anforderungen an dieses Tool sind unten aufgelistet.
 - Testing
 	- Testkonzept & Testfälle dokumentieren
 	- Unit Tests decken **>60%** ab (API Tests, UI Tests)
+- Kompetenzen:
+	- "Fields": Name, Skill level (1-4), Hilfestellungen (PDF's, Cheatsheets, etc)
 
 #### Eigene
-
+##### Muss
 - Dark-Mode Switch
 - Responsive UI Design / Layout
+- Auth für API - Requests
+- Passwörter hashed
+
+##### Kann
 - Blockiert den Loginbutton nach 3 Fehlversuchen
 - Erweiterte Logfunktionen:
 	- Login / Logout wird Dokumentiert -> Sichtbar für Sysadmin
 	- Login - IP's werden geloggt
-- Auth für API - Requests
-- Passwörter hashed (z.B. SHA256)
-- Minimaler Traffic -> nur die nötigen Daten schicken
+
 
 
 ## Technologien
@@ -50,7 +53,13 @@ Fürs Frontend haben wir uns für **Svelte** Entschieden. Es ist einfach zu vers
 
 Beim Backend fiel unsere Entscheidung auf **Rust**, da es eine moderne, effiziente bzgl. der Resourcen und beliebte Sprache ist, die für Backend - Services viel verwendet wird.
 
-Natürlich müssen die Daten auch irgendwo gespeichert werden. Unsere Wahl fällt auf **MongoDB**, da wir mit diesem Tool schon vertraut sind und es Erfahrungsgemäss einfach zu verwenden ist.
+Natürlich müssen die Daten auch irgendwo gespeichert werden. Unsere Wahl fällt auf **MongoDB**, da wir mit diesem Tool schon vertraut sind und es Erfahrungsgemäss einfach zu verwenden ist. Obwohl die Applikation eigentlich für eine relationale Datenbank eignen würde, haben wir uns trotzdem dagegen entschieden, weil:
+- Schutz vor SQL - Injections (Mongo - Injections gibts auch, aber viel seltener)
+- Responses von Queries sind direkt in JSON - Format (keine Umwandlung nötig)
+- Integrierte Library für div. Sprachen zur einfachen Verwendung von Queries
+- Skalierbarer als MySQL (Resourcenfreundlicher)
+- Bessere Übersicht 
+- Schnellere Responses bei simplen Queries
 
 ### Erfahrung
 
