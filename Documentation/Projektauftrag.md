@@ -32,12 +32,14 @@ Die Anforderungen an dieses Tool sind unten aufgelistet.
 
 #### Eigene
 ##### Muss
+
 - Dark-Mode Switch
 - Responsive UI Design / Layout
 - Auth für API - Requests
 - Passwörter hashed
 
 ##### Kann
+
 - Blockiert den Loginbutton nach 3 Fehlversuchen
 - Erweiterte Logfunktionen:
 	- Login / Logout wird Dokumentiert -> Sichtbar für Sysadmin
