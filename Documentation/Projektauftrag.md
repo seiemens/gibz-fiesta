@@ -26,9 +26,9 @@ Die Anforderungen an dieses Tool sind unten aufgelistet.
 - Muss mit OOP Sprache gemacht werden
 - Testing
 	- Testkonzept & Testfälle dokumentieren
-	- Unit Tests decken **>60%** ab (API Tests, UI Tests)
+	- Unit Tests decken **>60%** ab (API Tests)
 - Kompetenzen:
-	- "Fields": Name, Skill level (1-4), Hilfestellungen (PDF's, Cheatsheets, etc)
+	- Name, Skill level (1-4), Hilfestellungen (PDF's, Cheatsheets, etc)
 
 #### Eigene
 ##### Muss
