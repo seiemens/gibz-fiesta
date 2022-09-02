@@ -16,7 +16,7 @@ Die Anforderungen an dieses Tool sind unten aufgelistet.
 		- Kompetenzen löschen
 		- Resourcen für Kompetenzen zur Verfügung stellen
         - Kompetenzen erstellen
-		- User registrieren, löschen, bearbeiten, Account deaktivieren -> CRUD (plus/minus)
+		- User registrieren, löschen, bearbeiten, Account deaktivieren -> CRUD
 	- Berechtigungen "Guest":
 		- Login nicht möglich d.h. Applikation nicht benutzbar -> kann Lehrer - Profile einsehen
 ### Nicht Funktional
@@ -27,8 +27,6 @@ Die Anforderungen an dieses Tool sind unten aufgelistet.
 - Testing
 	- Testkonzept & Testfälle dokumentieren
 	- Unit Tests decken **>60%** ab (API Tests)
-- Kompetenzen:
-	- Name, Skill level (1-4), Hilfestellungen (PDF's, Cheatsheets, etc)
 
 #### Eigene
 ##### Muss
@@ -40,11 +38,10 @@ Die Anforderungen an dieses Tool sind unten aufgelistet.
 
 ##### Kann
 
-- Blockiert den Loginbutton nach 3 Fehlversuchen
+- Blockiert den Login für 3min für den user, wenn das Passwort 3x falsch eingegeben wurde.
 - Erweiterte Logfunktionen:
 	- Login / Logout wird Dokumentiert -> Sichtbar für Sysadmin
 	- Login - IP's werden geloggt
-
 
 
 ## Technologien
