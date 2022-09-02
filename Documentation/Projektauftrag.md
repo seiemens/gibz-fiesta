@@ -15,7 +15,8 @@ Die Anforderungen an dieses Tool sind unten aufgelistet.
 	- Berechtigungen "Admin":
 		- Kompetenzen löschen
 		- Resourcen für Kompetenzen zur Verfügung stellen
-        - Kompetenzen erstellen
+        	- Kompetenzen erstellen
+        	- Kann Kompetenzlevels NICHT anpassen
 		- User registrieren, löschen, bearbeiten, Account deaktivieren -> CRUD
 	- Berechtigungen "Guest":
 		- Login nicht möglich d.h. Applikation nicht benutzbar -> kann Lehrer - Profile einsehen
