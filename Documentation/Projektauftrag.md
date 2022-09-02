@@ -16,27 +16,29 @@ Die Anforderungen an dieses Tool sind unten aufgelistet.
 		- Resourcen für Kompetenzen zur Verfügung stellen
 	- Berechtigungen "Admin":
 		- User löschen, bearbeiten, Account deaktivieren -> CRUD (plus/minus)
+	- Berechtigungen "Guest":
+		- Login nicht möglich d.h. Applikation nicht benutzbar. 
 - Kompetenzen:
 	- "Fields": Name, Skill level (1-4), Links / Hilfestellungen / Material zur Kompetenz (PDF's, Cheatsheets, etc)
 ### Nicht Funktional
 
 #### Vom PDF
 
-- muss mit OOP sprache gemacht werden
-- testing
+- Muss mit OOP sprache gemacht werden
+- Testing
 	- Testkonzept & Testfälle dokumentieren
-	- Unit Tests decken **>60%** ab (API Tests, UI Tests)
+	- Unit Tests decken **>60%** ab (API Tests, UI Tests).
 
 #### Eigene
 
 - Dark-Mode Switch
 - Responsive UI Design / Layout
-- Blockiert den Loginbutton nach 3 Versuchen
+- Blockiert den Loginbutton nach 3 Fehlversuche
 - Erweiterte Logfunktionen:
 	- Login / Logout wird Dokumentiert -> Sichtbar für Sysadmin
 	- Login - IP's werden geloggt
 - Auth für API - Requests
-- Passwörter encrypted (z.B. SHA256)
+- Passwörter hashed (z.B. SHA256)
 - Minimaler Traffic -> nur die nötigen Daten schicken
 
 
