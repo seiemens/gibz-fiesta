@@ -17,23 +17,23 @@ Die Anforderungen an dieses Tool sind unten aufgelistet.
 	- Berechtigungen "Admin":
 		- User löschen, bearbeiten, Account deaktivieren -> CRUD (plus/minus)
 	- Berechtigungen "Guest":
-		- Login nicht möglich d.h. Applikation nicht benutzbar. 
+		- Login nicht möglich d.h. Applikation nicht benutzbar -> kann Lehrer - Profile einsehen
 - Kompetenzen:
 	- "Fields": Name, Skill level (1-4), Links / Hilfestellungen / Material zur Kompetenz (PDF's, Cheatsheets, etc)
 ### Nicht Funktional
 
 #### Vom PDF
 
-- Muss mit OOP sprache gemacht werden
+- Muss mit OOP Sprache gemacht werden
 - Testing
 	- Testkonzept & Testfälle dokumentieren
-	- Unit Tests decken **>60%** ab (API Tests, UI Tests).
+	- Unit Tests decken **>60%** ab (API Tests, UI Tests)
 
 #### Eigene
 
 - Dark-Mode Switch
 - Responsive UI Design / Layout
-- Blockiert den Loginbutton nach 3 Fehlversuche
+- Blockiert den Loginbutton nach 3 Fehlversuchen
 - Erweiterte Logfunktionen:
 	- Login / Logout wird Dokumentiert -> Sichtbar für Sysadmin
 	- Login - IP's werden geloggt
