@@ -53,12 +53,12 @@ Fürs Frontend haben wir uns für **Svelte** Entschieden. Es ist einfach zu vers
 
 Beim Backend fiel unsere Entscheidung auf **Rust**, da es eine moderne, effiziente bzgl. der Resourcen und beliebte Sprache ist, die für Backend - Services viel verwendet wird.
 
-Natürlich müssen die Daten auch irgendwo gespeichert werden. Unsere Wahl fällt auf **MongoDB**, da wir mit diesem Tool schon vertraut sind und es Erfahrungsgemäss einfach zu verwenden ist. Obwohl die Applikation eigentlich für eine relationale Datenbank eignen würde, haben wir uns trotzdem dagegen entschieden, weil:
+Natürlich müssen die Daten auch irgendwo gespeichert werden. Unsere Wahl fällt auf **MongoDB**, da wir mit diesem Tool schon vertraut sind und es Erfahrungsgemäss einfach zu verwenden ist. Obwohl die Applikation sich eigentlich für eine relationale Datenbank eignen würde, haben wir uns trotzdem dagegen entschieden, weil:
 - Schutz vor SQL - Injections (Mongo - Injections gibts auch, aber viel seltener)
 - Responses von Queries sind direkt in JSON - Format (keine Umwandlung nötig)
 - Integrierte Library für div. Sprachen zur einfachen Verwendung von Queries
 - Skalierbarer als MySQL (Resourcenfreundlicher)
-- Bessere Übersicht 
+- Bessere Übersicht für Admins
 - Schnellere Responses bei simplen Queries
 
 ### Erfahrung
