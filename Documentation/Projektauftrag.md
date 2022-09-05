@@ -2,62 +2,70 @@
 
 ## Projekt Erläuterung
 
-Inhaltlich geht es in der Projektarbeit des Moduls 326 um die Erstellung einer Software, welche von den Lehrpersonen des GIBZ zur längerfristigen Evaluation ihrer digitalen, unterrichtsbezogenen Anwendungskompetenzen genutzt werden kann: Aus einem Set definierter Kompetenzen sollen Lehrpersonen per Selbstdeklaration die individuelle Erreichung unterschiedlicher Kompetenzen erfassen und planen. Zur Unterstützung der Lehrpersonen können für die Kompetenzen unterschiedliche Ressourcen bereit- gestellt werden. Wir haben uns hier für ein Webtool entschieden. Dieses Tool hat bestimmte Anforderungen zu erfüllen. Diese sind unten aufgelistet!
+Inhaltlich geht es in der Projektarbeit des Moduls 326 um die Erstellung einer Software, welche von den Lehrpersonen des GIBZ zur langfristigen Evaluation ihrer digitalen, unterrichtsbezogenen Anwendungskompetenzen genutzt werden kann: Aus einem Set definierter Kompetenzen sollen Lehrpersonen per Selbstdeklaration die individuelle Erreichung unterschiedlicher Kompetenzen erfassen und planen. Zur Unterstützung der Lehrpersonen können für die Kompetenzen unterschiedliche Ressourcen bereitgestellt werden. Wir haben uns hier für ein Webtool entschieden.
+Die Anforderungen an dieses Tool sind unten aufgelistet.
 
 ## Anforderungen
 
 ### Funktional
 
-- rollen verwaltung
-	- spezielle rechte für lehrer
-		- kompetenzen erstellen
-		- kompetenzen löschen
-		- resourcen für kompetenzen hinzufügen
-		- etc
-	- versch. berufe
-- kompetenzen
-	- bereiche e.g. *html seite erstellen*
-	- level e.g. *w3 validator keine fehler - 3 punkte aka position* `|o|o|x|o|`
-	- unendlich viele resourcen aka links. z.b. wie in teams eine word vorlage oder so
-
+- Rollensystem ("Sys"Admin, Guest, User)
+	- Berechtigungen "User":
+        - Kompetenzen einsehen und als "kann ich" / "kann ich nicht" markieren
+	- Berechtigungen "Admin":
+		- Kompetenzen löschen
+		- Resourcen für Kompetenzen zur Verfügung stellen
+        	- Kompetenzen erstellen
+        	- Kann Kompetenzlevels NICHT anpassen
+		- User registrieren, löschen, bearbeiten, Account deaktivieren -> CRUD
+	- Berechtigungen "Guest":
+		- Login nicht möglich d.h. Applikation nicht benutzbar -> kann Lehrer - Profile einsehen
 ### Nicht Funktional
 
 #### Vom PDF
 
-- muss mit OOP sprache gemacht werden
-- testing
-	- [DOC] test konzept
-	- [DOC] test fälle
-	- unit tests decken **60%** ab
+- Muss mit OOP Sprache gemacht werden
+- Testing
+	- Testkonzept & Testfälle dokumentieren
+	- Unit Tests decken **>60%** ab (API Tests)
 
 #### Eigene
+##### Muss
 
 - Dark-Mode Switch
-- responsive
-- block nach x falschen logins
-- erweiterte log funktionen
-	- online zeiten
-	- ips
-- (3rd Party OAUTH) authentifizierung für API requests
-- DB encrypted & pws hashed
-- keine unnötigen daten schicken bzgl. API und Datenbank read aka ~~select **\*** from table~~
+- Responsive UI Design / Layout
+- Auth für API - Requests
+- Passwörter hashed
+
+##### Kann
+
+- Blockiert den Login für 3min für den user, wenn das Passwort 3x falsch eingegeben wurde.
+- Erweiterte Logfunktionen:
+	- Login / Logout wird Dokumentiert -> Sichtbar für Sysadmin
+	- Login - IP's werden geloggt
 
 
 ## Technologien
 
-Da unser Plan eine Web-Applikation zu entwickeln ist, brauchen wir passende Programmiersprachen und tools, um dieses Vorhaben umzusetzen.
+Da unser Plan eine Web-Applikation zu entwickeln ist brauchen wir passende Programmiersprachen und Tools, um dieses Vorhaben umzusetzen.
 
 Fürs Frontend haben wir uns für **Svelte** Entschieden. Es ist einfach zu verstehen und vielseitig einsetzbar.
 
-Beim Backend legten wir uns auf **Rust** fest, da es Modern, effizient bzgl. der Resourcen und eine beliebte sprache ist, vorallem für Backend Services.
+Beim Backend fiel unsere Entscheidung auf **Rust**, da es eine moderne, effiziente bzgl. der Resourcen und beliebte Sprache ist, die für Backend - Services viel verwendet wird.
 
-Natürlich müssen die User Daten auch irgendwo gespeichert werden. Um es uns einfacher zu machen, setzen wir hierbei nicht auf neue Technologie, sondern auf etwas, mit dem wir schon vertraut sind, nicht so wie beim Front- und Backend. Unsere Wahl ist **MongoDB**.
+Natürlich müssen die Daten auch irgendwo gespeichert werden. Unsere Wahl fällt auf **MongoDB**, da wir mit diesem Tool schon vertraut sind und es Erfahrungsgemäss einfach zu verwenden ist. Obwohl die Applikation sich eigentlich für eine relationale Datenbank eignen würde, haben wir uns trotzdem dagegen entschieden, weil:
+- Schutz vor SQL - Injections (Mongo - Injections gibts auch, aber viel seltener)
+- Responses von Queries sind direkt in JSON - Format (keine Umwandlung nötig)
+- Integrierte Library für div. Sprachen zur einfachen Verwendung von Queries
+- Skalierbarer als MySQL (Resourcenfreundlicher)
+- Bessere Übersicht für Admins
+- Schnellere Responses bei simplen Queries
 
 ### Erfahrung
 
-Für uns alle ist **Svelte** und **Rust** eigentlich neu. Ramon hat zum Teil aber schon ein kleiner Projekt mit Go und Svelte gemacht, das ist allerdings schon eine weile her. Timo hat sich auch bereits ein wenig in Rust eingearbeitet. MongoDB allerdings haben wir alle schon genutzt und verstehen wir zum grossen Teil auch recht gut.
+Ramon hat schon kleine Svelte-Kenntnisse, Rust hingegen ist für alle neu. MongoDB allerdings haben wir alle schon genutzt und verstehen wir zum grossen Teil auch recht gut.
 
 ### Tools
 
-Um die seite zu entwickeln werden wir verschiedene Tools in anspruch nehmen. Zum einen wäre da **VSCode**, ein gratis open-source text editor. Allerdings haben wir in der Gruppe verschiedene prefärenzen, darum wird auch noch die **Jetbrains Toolbox** genutz, von der wir hauptsächlich **WebStorm** für die Frontend entwicklung und **DataGrip** für die Datenbank erstellung benutzen.
-Normalerweiese kostet die JB Toolbox etwas, allerdings kann man als Schüler die Software Suite kostenlos benutzen. Von dem Angebot wird gerne gebrauch gemacht.
+Um die Seite zu entwickeln werden wir verschiedene Tools verwenden. Zum einen wäre da **VSCode**, ein gratis Open-Source Texteditor.
+Zusätzlich werden wir **Datagrip** und **Webstorm** der Jetbrains Toolbox verwenden, um allfällige Probleme mit **VSCode** zu kompensieren.
