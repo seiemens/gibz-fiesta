@@ -3,6 +3,7 @@ mod models;
 mod routes;
 //use em
 use mongodb::bson;
+use rocket::serde::{json::Json, Deserialize};
 use routes::{skills, users};
 
 #[macro_use]
@@ -15,5 +16,5 @@ fn index() -> &'static str {
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index])
+    rocket::build().mount("/", routes![index, users::new_user])
 }
