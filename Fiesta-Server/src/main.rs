@@ -1,9 +1,16 @@
+//include routes
+mod models;
+mod routes;
+//use em
+use mongodb::bson;
+use routes::{skills, users};
+
 #[macro_use]
 extern crate rocket;
 
 #[get("/")]
 fn index() -> &'static str {
-    "Hello, world!"
+    "yay."
 }
 
 #[launch]

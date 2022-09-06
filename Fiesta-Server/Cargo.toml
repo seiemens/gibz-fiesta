@@ -1,5 +1,5 @@
 [package]
-name = "Fiesta-Server"
+name = "fiesta_server"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,3 +8,5 @@ edition = "2021"
 # To add other dependencies, add them in the format stated below.
 [dependencies]
 rocket = "0.5.0-rc.2"
+mongodb = "2.3.0"
+tokio = { version = "1", features = ["full"] }
