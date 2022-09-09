@@ -9,22 +9,23 @@ Die Anforderungen an dieses Tool sind unten aufgelistet.
 
 ### Funktional
 
-- Rollensystem ("Sys"Admin, Guest, User)
+- Rollensystem (Admin, Guest, User)
 	- Berechtigungen "User":
         - Kompetenzen einsehen und als "kann ich" / "kann ich nicht" markieren
 	- Berechtigungen "Admin":
 		- Kompetenzen löschen
+        - Kompetenzen erstellen
 		- Resourcen für Kompetenzen zur Verfügung stellen
-        	- Kompetenzen erstellen
-        	- Kann Kompetenzlevels NICHT anpassen
 		- User registrieren, löschen, bearbeiten, Account deaktivieren -> CRUD
 	- Berechtigungen "Guest":
-		- Login nicht möglich d.h. Applikation nicht benutzbar -> kann Lehrer - Profile einsehen
+		- Login nicht möglich d.h. Applikation nicht benutzbar
+		- kann Lehrer - Profile einsehen (abgeschlossene Kompetenzen & unsensitive Details (Name, Email, Geburtsjahr / Alter))
+- Filterung der Kompetenzen
 ### Nicht Funktional
 
 #### Vom PDF
 
-- Muss mit OOP Sprache gemacht werden
+- Wird mit Rust & Svelte (JS) gemacht
 - Testing
 	- Testkonzept & Testfälle dokumentieren
 	- Unit Tests decken **>60%** ab (API Tests)
@@ -39,9 +40,9 @@ Die Anforderungen an dieses Tool sind unten aufgelistet.
 
 ##### Kann
 
-- Blockiert den Login für 3min für den user, wenn das Passwort 3x falsch eingegeben wurde.
+- Blockiert den Login für 3min für den User, wenn das Passwort 3x falsch eingegeben wurde.
 - Erweiterte Logfunktionen:
-	- Login / Logout wird Dokumentiert -> Sichtbar für Sysadmin
+	- Login / Logout wird Dokumentiert -> Sichtbar für Admin
 	- Login - IP's werden geloggt
 
 
