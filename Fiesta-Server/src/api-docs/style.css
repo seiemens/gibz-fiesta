@@ -8,15 +8,14 @@ body,
 html {
     height: 100%;
     width: 100%;
-    background-color: #2B303A;
+    background-color: #183e4b;
+    color: #eaeaea;
+
 }
 
 h2 {
     font-size: 5rem;
-    background-image: linear-gradient(#0C7C59, #D64933);
-
 }
-
 
 .header {
     display: flex;
@@ -38,7 +37,6 @@ h2 {
 
 .text {
     width: 100%;
-    color: white;
 }
 
 .sep {
@@ -47,6 +45,5 @@ h2 {
 }
 
 h4 {
-    color: white;
     font-size: 2rem;
 }

@@ -5,6 +5,7 @@ mod routes;
 use mongodb::bson;
 use rocket::serde::{json::Json, Deserialize};
 use routes::{skills, users};
+use users::*;
 
 #[macro_use]
 extern crate rocket;
@@ -16,5 +17,5 @@ fn index() -> &'static str {
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index, users::new_user])
+    rocket::build().mount("/", routes![index, get_users])
 }

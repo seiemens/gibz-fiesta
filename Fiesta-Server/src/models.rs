@@ -4,8 +4,8 @@ use rocket::serde::Deserialize;
 pub struct User<'a> {
     pub name: &'a str,
     pub email: &'a str,
-    pub access_type: i32,       // 0..2 -> 0:Admin, 1:Teacher, 2:Guest
-    pub skills: Vec<Skill<'a>>, //unaccessible if access_type > 1
+    pub role: i32,              // 0..2 -> 0:Admin, 1:Teacher, 2:Guest
+    pub skills: Vec<Skill<'a>>, //unaccessible if role > 1
     pub auth_token: &'a str,
     //maybe add some other relevant data here
 }
