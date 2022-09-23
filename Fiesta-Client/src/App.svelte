@@ -7,8 +7,4 @@ import Header from "./lib/Header.svelte";
 </main>
 
 <style>
-    Header {
-        top:0;
-        left: 0;
-    }
 </style>
