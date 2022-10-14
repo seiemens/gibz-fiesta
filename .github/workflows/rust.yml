@@ -19,4 +19,4 @@ jobs:
     - name: Build
       run: cd Fiesta-Server && cargo build --verbose
     - name: Run tests
-      run: cargo test --verbose
+      run: cd Fiesta-Server && cargo test --verbose
