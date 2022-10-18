@@ -4,7 +4,7 @@
     let timer = 7;
 
     onMount(async () => {
-        let i = timer*2;
+        let i = timer * 2;
         let interval = setInterval(() => {
             i--;
             if (i === 0) {
@@ -43,6 +43,7 @@
 
     .stretch {
         z-index: 10;
+        pointer-events: none; /* make click-thru */
         position: absolute;
         display: block;
         top: 0;

@@ -1,18 +1,13 @@
 <script>
-    import {fly} from 'svelte/transition';
     import {onMount} from "svelte";
+    import {Navbar, NavBrand, NavLi, NavUl, NavHamburger} from 'flowbite-svelte'
 
     let links = [
         {label: "Home", href: "/"}
     ]
 
-    let visible = false;
     let isSignedIn = false;
     let isAdmin = true;
-
-    function menutToggle() {
-        visible = !visible;
-    }
 
     function checkSignIn() {
         return [true, true];
@@ -35,103 +30,18 @@
             links = [...links, {label: "Login", href: "/login"}];
         }
     });
-
 </script>
 
-<header>
-    <img src="pepe.webp" alt="reading pepe">
-    <h1 class="text-4xl">GIBZ FIEŚTA</h1>
-    <ul class="nav-big">
+<Navbar let:hidden let:toggle rounded color="form">
+    <NavBrand href="/" style="z-index: 100">
+        <img src="pepe.webp" class="mr-3 h-6 sm:h-9" alt="Reading Pepe"/>
+        <span class="self-center whitespace-nowrap text-xl font-semibold dark:text-white">GIBZ FIEŚTA</span>
+    </NavBrand>
+    <NavHamburger on:click={toggle}/>
+    <NavUl {hidden}>
         {#each links as link}
-            <li><a href="{link.href}">{link.label}</a></li>
+            <NavLi href="{link.href}">{link.label}</NavLi>
         {/each}
-    </ul>
-    <div class="nav-small">
-        <a on:click={menutToggle} id="hamburger" href="#"><i class="material-icons">menu</i></a>
-        {#if visible}
-            <ul transition:fly={{x:200}}>
-                {#each links as link}
-                    <li><a href="{link.href}" on:click={menutToggle}>{link.label}</a></li>
-                {/each}
-            </ul>
-        {/if}
-    </div>
-</header>
-<style>
-    header, .nav-big {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 20px;
-        background-color: #535bf2;
-    }
+    </NavUl>
+</Navbar>
 
-    /*for error page :)*/
-    .nav-big li, .nav-small li, #hamburger {
-        z-index: 11;
-    }
-
-    header {
-        color: #f9f9f9;
-        height: 60px;
-        padding-left: 20px;
-        width: min-content;
-        min-width: calc(100vw - 20px);
-    }
-
-    ul {
-        padding: 0;
-        text-align: left;
-        list-style: none;
-        margin-right: 20px;
-        /*move to the left*/
-        margin-left: auto;
-    }
-
-    li {
-        width: max-content;
-    }
-
-    a {
-        cursor: pointer;
-        text-decoration: none;
-        color: #f9f9f9;
-    }
-
-    img {
-        height: 50px;
-    }
-
-    h1 {
-        width: max-content;
-    }
-
-    .nav-small {
-        display: none;
-        flex-direction: row;
-        align-items: center;
-        gap: 20px;
-        background-color: #535bf2;
-        margin: 0 20px 0 auto;
-    }
-
-    .nav-small ul {
-        position: absolute;
-        top: 60px;
-        right: 0;
-        background-color: #3d45b8;
-        width: 70vw;
-        margin: 0;
-        z-index: 11;
-    }
-
-    @media (max-width: 620px) {
-        .nav-big {
-            display: none;
-        }
-
-        .nav-small {
-            display: flex;
-        }
-    }
-</style>
