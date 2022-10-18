@@ -1,31 +1,55 @@
 <script>
     import {fly} from 'svelte/transition';
+    import {onMount} from "svelte";
 
     let links = [
-        {label: "Home", href: "/"},
-        {label: "Skills", href: "/skills"},
-        {label: "Admin Panel", href: "/admin"},
+        {label: "Home", href: "/"}
     ]
 
     let visible = false;
+    let isSignedIn = false;
+    let isAdmin = true;
 
     function menutToggle() {
         visible = !visible;
     }
+
+    function checkSignIn() {
+        return [true, true];
+    }
+
+    onMount(() => {
+        //TODO: Check for logged in user
+
+        let res = checkSignIn();
+        isSignedIn = res[0];
+        isAdmin = res[1];
+        if (isSignedIn) {
+            //order is important, else it looks ugly and makes no sense from ergonomics perspective
+            links = [...links, {label: "Skills", href: "/skills"}];
+            if (isAdmin) {
+                links = [...links, {label: "Admin Panel", href: "/admin"}];
+            }
+            links = [...links, {label: "Logout", href: "/logout"}];
+        } else {
+            links = [...links, {label: "Login", href: "/login"}];
+        }
+    });
+
 </script>
 
 <header>
-    <img src="https://cdn.discordapp.com/emojis/873878094333747251.webp" alt="reading pepe">
-    <h1>GIBZ FIEŚTA</h1>
+    <img src="pepe.webp" alt="reading pepe">
+    <h1 class="text-4xl">GIBZ FIEŚTA</h1>
     <ul class="nav-big">
         {#each links as link}
             <li><a href="{link.href}">{link.label}</a></li>
         {/each}
     </ul>
     <div class="nav-small">
-        <a on:click={menutToggle}><i class="material-icons">menu</i></a>
+        <a on:click={menutToggle} id="hamburger" href="#"><i class="material-icons">menu</i></a>
         {#if visible}
-            <ul transition:fly="{{ x: 200, duration: 200 }}">
+            <ul transition:fly={{x:200}}>
                 {#each links as link}
                     <li><a href="{link.href}" on:click={menutToggle}>{link.label}</a></li>
                 {/each}
@@ -43,11 +67,12 @@
     }
 
     /*for error page :)*/
-    .nav-big li {
+    .nav-big li, .nav-small li, #hamburger {
         z-index: 11;
     }
 
     header {
+        color: #f9f9f9;
         height: 60px;
         padding-left: 20px;
         width: min-content;
@@ -97,7 +122,7 @@
         background-color: #3d45b8;
         width: 70vw;
         margin: 0;
-        z-index: 9;
+        z-index: 11;
     }
 
     @media (max-width: 620px) {
