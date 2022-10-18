@@ -4,4 +4,6 @@
 </script>
 
 <Header></Header>
-<slot></slot>
+<div class="container mx-auto px-10">
+    <slot></slot>
+</div>
