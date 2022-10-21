@@ -1,7 +1,17 @@
 <script>
     import {Button, ButtonGroup, Input, InputAddon, Label} from "flowbite-svelte";
+    import {isAdmin, isLoggedIn} from "../../lib/stores.js";
+    import {goto} from "$app/navigation";
 
     let showPW = false;
+
+    function doLogin(){
+        //TODO: CHECK WITH DB OFC
+        isLoggedIn.set(()=>true);
+        isAdmin.set(()=>true);
+        goto("/skills");
+    }
+
 </script>
 <div class="container mx-auto w-full sm:w-2/3 my-56 outline outline-offset-2 outline-1 outline-gray-200  dark:outline-gray-700 p-10 rounded-lg">
     <div>
@@ -35,7 +45,7 @@
                    placeholder="{showPW ? 'passw0rd' : '********'}"/>
         </ButtonGroup>
         <div class="flex flex-row justify-center">
-            <Button pill={true} class="mt-5">Login</Button>
+            <Button pill={true} class="mt-5" on:click={()=>doLogin()}>Login</Button>
         </div>
     </div>
 </div>

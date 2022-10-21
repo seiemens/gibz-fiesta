@@ -2,37 +2,44 @@
     import {onMount} from "svelte";
     import {Navbar, NavBrand, NavLi, NavUl, NavHamburger} from 'flowbite-svelte'
     import {DarkMode} from "flowbite-svelte";
+    import {isAdmin, isLoggedIn} from "../lib/stores.js";
+    import {navigating} from "$app/stores";
 
     let btnClass = "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm 5 z-50";
 
-    let links = [
-        {label: "Home", href: "/"}
-    ]
-
-    let isSignedIn = false;
-    let isAdmin = true;
+    let links = []
 
     function checkSignIn() {
-        return [false, true];
+        //TODO: Check for logged in user
+        return [$isLoggedIn, $isAdmin];
     }
 
-    onMount(() => {
-        //TODO: Check for logged in user
-
+    function generateNavLinks() {
         let res = checkSignIn();
-        isSignedIn = res[0];
-        isAdmin = res[1];
-        if (isSignedIn) {
+        isLoggedIn.update(() => res[0]);
+        isAdmin.update(() => res[1]);
+
+        links = []
+        links = [...links, {label: "Home", href: "/"}];
+
+        if ($isLoggedIn) {
             //order is important, else it looks ugly and makes no sense from ergonomics perspective
             links = [...links, {label: "Skills", href: "/skills"}];
-            if (isAdmin) {
+            if ($isAdmin) {
                 links = [...links, {label: "Admin Panel", href: "/admin"}];
             }
             links = [...links, {label: "Logout", href: "/logout"}];
         } else {
             links = [...links, {label: "Login", href: "/login"}];
         }
+    }
+
+    $: if ($navigating) generateNavLinks();
+
+    onMount(() => {
+        generateNavLinks();
     });
+
 </script>
 
 <Navbar let:hidden let:toggle rounded color="form">
