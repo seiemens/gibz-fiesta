@@ -1,6 +1,8 @@
 <script>
-    import {Accordion, AccordionItem, Button, ButtonGroup, Spinner} from "flowbite-svelte";
+    import {Accordion, AccordionItem, Button, Hr, Mark, Spinner} from "flowbite-svelte";
     import {onMount} from "svelte";
+    import {beforeNavigate, goto} from "$app/navigation";
+    import {isLoggedIn} from "../../lib/stores.js";
 
     async function loadSkills() {
         const response = await fetch('/testdata.json', {
@@ -16,12 +18,26 @@
     let loading = true;
 
     onMount(async () => {
+
+        if (!$isLoggedIn) {
+            goto("/login")
+        }
+
         skills = await loadSkills();
         loading = false;
     })
 
+    //fix accordion being visible for 1s after navigating
+    beforeNavigate(({from, to}) => {
+        if (from.url.pathname !== to.url.pathname) {
+            let e = document.getElementById("rootDiv");
+            if (e != null)
+                e.style.display = "none";
+        }
+    })
+
     async function changeComplete(skillId, levelIndex, status) {
-        $: for (let i = 0; i < skills.skills.length; i++) {
+        for (let i = 0; i < skills.skills.length; i++) {
             if (skills.skills[i].id === skillId) {
                 for (let j = 0; j < skills.skills[i].levels.length; j++) {
                     if (skills.skills[i].levels[j].index === levelIndex) {
@@ -30,13 +46,19 @@
                         break;
                     }
                 }
-
+                for (let j = 0; j < skills.skills[i].levels.length; j++) {
+                    if (skills.skills[i].levels[j].completed === false) {
+                        skills.skills[i].all_completed = false;
+                        return;
+                    }
+                }
+                skills.skills[i].all_completed = true;
             }
         }
     }
 
     async function changeMark(skillId, status) {
-        $: for (let i = 0; i < skills.skills.length; i++) {
+        for (let i = 0; i < skills.skills.length; i++) {
             if (skills.skills[i].id === skillId) {
                 skills.skills[i].marked = status;
                 //TODO: SYNC WITH DB
@@ -46,7 +68,7 @@
     }
 
 </script>
-<div class="container my-24">
+<div class="container my-24" id="rootDiv">
     <h1 class="text-4xl text-center mb-8 text-gray-700 dark:text-gray-300">Skills</h1>
 
     {#if loading}
@@ -58,9 +80,18 @@
                 activeClasses="bg-blue-100 dark:bg-gray-700 text-blue-600 dark:text-white"
                 inactiveClasses="text-gray-500 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-gray-700">
             {#each skills.skills as skill}
-                <AccordionItem open>
+                <AccordionItem>
                     <div slot="header" class="flex items-center w-full">
-                        <p>{skill.display_name}</p>
+                        <p>
+                            {#if skill.marked}
+                                <Mark bgColor="bg-yellow-300 dark:bg-yellow-400">{skill.display_name}</Mark>
+                            {:else}
+                                {skill.display_name}
+                            {/if}
+                            {#if skill.all_completed}
+                                <Mark bgColor="bg-green-500 dark:bg-green-700">Done!</Mark>
+                            {/if}
+                        </p>
                         <div class="ml-auto">
                             {#if skill.marked}
                                 <Button outline color="yellow" class="scale-75" on:click={()=>{changeMark(skill.id,false)}}>Unmark</Button>
@@ -75,7 +106,13 @@
                         {#each skill.levels as level}
                             <AccordionItem>
                                 <div slot="header" class="flex items-center w-full">
-                                    <p>{level.display_name}</p>
+                                    <p>
+                                        {#if level.completed}
+                                            <Mark bgColor="bg-green-500 dark:bg-green-700">{level.display_name}</Mark>
+                                        {:else}
+                                            {level.display_name}
+                                        {/if}
+                                    </p>
                                     <div class="ml-auto">
                                         {#if level.completed}
                                             <Button gradient shadow="green" color="green" class="scale-75" on:click={()=>{changeComplete(skill.id, level.index, false)}}>Uncomplete</Button>
@@ -86,6 +123,7 @@
                                     </div>
                                 </div>
                                 <p class="mb-2 text-gray-500 dark:text-gray-400">{level.description}</p>
+                                <Hr class="my-8" height="h-px"/>
                                 {#each level.resources as resource}
                                     <Button gradient color="purpleToBlue" shadow="blue" href="{resource.url}" class="ml-2 mb-2">{resource.display_name}</Button>
                                 {/each}
