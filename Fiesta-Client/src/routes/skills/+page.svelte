@@ -84,12 +84,12 @@
                     <div slot="header" class="flex items-center w-full">
                         <p>
                             {#if skill.marked}
-                                <Mark bgColor="bg-yellow-300 dark:bg-yellow-400">{skill.display_name}</Mark>
+                                <span class="px-2 text-white rounded bg-yellow-300 dark:bg-yellow-400">{skill.display_name}</span>
                             {:else}
                                 {skill.display_name}
                             {/if}
                             {#if skill.all_completed}
-                                <Mark bgColor="bg-green-500 dark:bg-green-700">Done!</Mark>
+                                <span class="px-2 text-white rounded bg-green-500 dark:bg-green-700">Done!</span>
                             {/if}
                         </p>
                         <div class="ml-auto">
@@ -108,7 +108,7 @@
                                 <div slot="header" class="flex items-center w-full">
                                     <p>
                                         {#if level.completed}
-                                            <Mark bgColor="bg-green-500 dark:bg-green-700">{level.display_name}</Mark>
+                                            <span class="px-2 text-white rounded bg-green-500 dark:bg-green-700">{level.display_name}</span>
                                         {:else}
                                             {level.display_name}
                                         {/if}
