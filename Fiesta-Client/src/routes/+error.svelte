@@ -33,6 +33,9 @@
     * {
         animation: 5s explode;
     }
+    :global(body){
+        overflow: hidden;
+    }
 
     .center {
         position: absolute;
