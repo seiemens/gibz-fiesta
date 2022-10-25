@@ -1,5 +1,5 @@
 <script>
-    import {Button, ButtonGroup, Input, InputAddon, Label} from "flowbite-svelte";
+    import {Button, ButtonGroup, Input, InputAddon, Label, Tooltip} from "flowbite-svelte";
     import {isAdmin, isLoggedIn} from "../../lib/stores.js";
     import {goto} from "$app/navigation";
 
@@ -20,7 +20,7 @@
             <span>Username</span>
             <Input type="email" placeholder="Peter" size="md"/>
         </Label>
-        <Label for="show-password1" class="mb-2 dark:text-gray-400">Your password</Label>
+        <Label for="show-password" class="mb-2 dark:text-gray-400">Your password</Label>
         <ButtonGroup class="w-full">
             <InputAddon>
                 <button on:click={() => (showPW = !showPW)}>
@@ -41,9 +41,11 @@
                     {/if}
                 </button>
             </InputAddon>
-            <Input id="show-password1" type={showPW ? 'text' : 'password'}
+            <Input id="show-password" type={showPW ? 'text' : 'password'}
                    placeholder="{showPW ? 'passw0rd' : '********'}"/>
         </ButtonGroup>
+        <a id="pw-forgor" class="mb-2 dark:text-gray-600 text-sm font-medium">Password forgotten?</a>
+        <Tooltip triggeredBy="#pw-forgor" bottom >Ask your Administrator to reset the password for you!</Tooltip>
         <div class="flex flex-row justify-center">
             <Button pill={true} class="mt-5" on:click={()=>doLogin()}>Login</Button>
         </div>
