@@ -36,7 +36,8 @@
         }
     })
 
-    async function changeComplete(skillId, levelIndex, status) {
+    async function changeComplete(e,skillId, levelIndex, status) {
+        e.stopPropagation();
         for (let i = 0; i < skills.skills.length; i++) {
             if (skills.skills[i].id === skillId) {
                 for (let j = 0; j < skills.skills[i].levels.length; j++) {
@@ -57,7 +58,8 @@
         }
     }
 
-    async function changeMark(skillId, status) {
+    async function changeMark(e, skillId, status) {
+        e.stopPropagation();
         for (let i = 0; i < skills.skills.length; i++) {
             if (skills.skills[i].id === skillId) {
                 skills.skills[i].marked = status;
@@ -94,9 +96,9 @@
                         </p>
                         <div class="ml-auto">
                             {#if skill.marked}
-                                <Button outline color="yellow" class="scale-75" on:click={()=>{changeMark(skill.id,false)}}>Unmark</Button>
+                                <Button outline color="yellow" class="scale-75" on:click={(e)=>{changeMark(e,skill.id,false)}}>Unmark</Button>
                             {:else}
-                                <Button outline color="yellow" class="scale-75" on:click={()=>{changeMark(skill.id,true)}}>Mark</Button>
+                                <Button outline color="yellow" class="scale-75" on:click={(e)=>{changeMark(e,skill.id,true)}}>Mark</Button>
                             {/if}
                         </div>
                     </div>
@@ -115,9 +117,9 @@
                                     </p>
                                     <div class="ml-auto">
                                         {#if level.completed}
-                                            <Button gradient shadow="green" color="green" class="scale-75" on:click={()=>{changeComplete(skill.id, level.index, false)}}>Uncomplete</Button>
+                                            <Button gradient shadow="green" color="green" class="scale-75" on:click={(e)=>{changeComplete(e,skill.id, level.index, false)}}>Uncomplete</Button>
                                         {:else}
-                                            <Button gradient shadow="green" color="green" class="scale-75" on:click={()=>{changeComplete(skill.id, level.index, true)}}>Complete</Button>
+                                            <Button gradient shadow="green" color="green" class="scale-75" on:click={(e)=>{changeComplete(e,skill.id, level.index, true)}}>Complete</Button>
 
                                         {/if}
                                     </div>
