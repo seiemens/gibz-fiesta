@@ -1,5 +1,7 @@
 # Fiesta - Server
 ## Setup & Configuration
+In case of compiler errors, ensure that the current rust branch is `nightly`.
+To switch, use `rustup override set nightly`.
 ### Dependencies
 - [Rust](https://www.rust-lang.org/) & RustUp (Installed per Default)
 - [rocket.rs](https://rocket.rs/)
