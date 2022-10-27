@@ -20,7 +20,7 @@
     onMount(async () => {
 
         if (!$isLoggedIn) {
-            goto("/login")
+            await goto("/login")
         }
 
         skills = await loadSkills();
