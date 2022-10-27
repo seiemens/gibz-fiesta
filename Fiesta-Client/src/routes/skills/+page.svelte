@@ -2,7 +2,7 @@
     import {Accordion, AccordionItem, Button, Hr, Mark, Spinner} from "flowbite-svelte";
     import {onMount} from "svelte";
     import {beforeNavigate, goto} from "$app/navigation";
-    import {isLoggedIn} from "../../lib/stores.js";
+    import {isLoggedIn} from "$lib/stores.js";
 
     async function loadSkills() {
         const response = await fetch('/testdata.json', {
@@ -117,7 +117,7 @@
                                     </p>
                                     <div class="ml-auto">
                                         {#if level.completed}
-                                            <Button gradient shadow="green" color="green" class="scale-75" on:click={(e)=>{changeComplete(e,skill.id, level.index, false)}}>Uncomplete</Button>
+                                            <Button gradient shadow="red" color="red" class="scale-75" on:click={(e)=>{changeComplete(e,skill.id, level.index, false)}}>Uncomplete</Button>
                                         {:else}
                                             <Button gradient shadow="green" color="green" class="scale-75" on:click={(e)=>{changeComplete(e,skill.id, level.index, true)}}>Complete</Button>
 
