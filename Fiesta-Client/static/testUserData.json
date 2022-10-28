@@ -1,0 +1,48 @@
+{
+  "users": [
+    {
+      "username": "pedda",
+      "name": "Peter Meier",
+      "email": "peter@peter.com",
+      "field": "IT",
+      "role": 1,
+      "auth_token": "aswdefrgthzujkiolö0o9786543ewsadfghjz",
+      "completed_skills": [
+        {
+          "id": 1,
+          "marked": true,
+          "levels": [
+            {
+              "index": 0
+            },
+            {
+              "index": 1
+            },
+            {
+              "index": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "username": "erika",
+      "name": "Erika Iten",
+      "email": "Erika@Iten.com",
+      "field": "IT",
+      "role": 0,
+      "auth_token": "aswdefrgthzujkiolö0o9786543ewsadfghjz",
+      "completed_skills": [
+        {
+          "id": 2,
+          "marked": false,
+          "levels": [
+            {
+              "index": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
