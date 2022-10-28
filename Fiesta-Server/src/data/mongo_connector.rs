@@ -5,13 +5,9 @@
 
 extern crate dotenv;
 
-use crate::models::user_model::User;
+use crate::models::{skill_model::Skill, user_model::User};
 use dotenv::dotenv;
-use mongodb::{
-    bson::extjson::de::Error,
-    results::InsertOneResult,
-    sync::{Client, Collection},
-};
+use mongodb::{bson::extjson::de::Error, results::InsertOneResult, Client, Collection};
 use std::env;
 
 pub struct Database {
@@ -45,10 +41,11 @@ impl Database {
         let new = User {
             id: None,
             name: u.name,
+            username: u.username,
             email: u.email,
             role: u.role,
             auth_token: u.auth_token,
-            completed_skills: 0,
+            completed_skills: Vec::<Skill>::new(),
         };
         let user = self
             .col

@@ -12,3 +12,8 @@ dotenv = "0.15.0"
 rocket_contrib = "0.4.10"
 mongodb = "2.3.0"
 tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+rand = "0.8.4"
+r2d2 = "0.8.10"
+r2d2-mongodb = "*"
+

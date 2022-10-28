@@ -2,20 +2,31 @@
 --- IMPORTANT NOTICE ---
     auth_token: used for API authentication to prohibit access from unauthorized sources.
 */
-
-use crate::{models::user_model::User, repository::mongo_connector::Database};
+use crate::{
+    data::mongo_connector::Database,
+    models::{skill_model::Skill, user_model::User},
+};
 use mongodb::results::InsertOneResult;
-use rocket::figment::providers::Data;
+use rand::{distributions::Alphanumeric, Rng};
 use rocket::{http::Status, serde::json::Json, State};
 
-#[post("/user", data = "<new_user>")]
-pub fn create_user(
-    db: &State<Database>,
-    new_user: Json<User>,
-) -> Result<Json<InsertOneResult>, Status> {
+#[post("/user", data = "<u>")]
+pub fn create_user(db: &State<Database>, u: Json<User>) -> Result<Json<InsertOneResult>, Status> {
+    //generate the token randomly
+    let s: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(64)
+        .map(char::from)
+        .collect();
+
     let data = User {
         id: None,
-        name: new_user.name.to_owned(),
+        name: u.name.to_owned(),
+        username: u.username.to_owned(),
+        email: u.email.to_owned(),
+        role: u.role.to_owned(),
+        auth_token: s,
+        completed_skills: Vec::<Skill>::new(),
     };
     let user_detail = db.create_user(data);
     match user_detail {
@@ -23,8 +34,6 @@ pub fn create_user(
         Err(_) => Err(Status::InternalServerError),
     }
 }
-
-use rocket::{response::status, serde::json::Json};
 
 /*
 --- GENERAL ROUTES ---

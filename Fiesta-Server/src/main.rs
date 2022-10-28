@@ -1,16 +1,16 @@
 mod api;
+mod data;
 mod models;
-mod repository;
 
 #[macro_use]
 extern crate rocket;
 
 //add imports below
-use api::user_api::create_user;
-use repository::mongo::MongoRepo;
+use api::user::create_user;
+use data::mongo_connector::Database;
 
 #[launch]
 fn rocket() -> _ {
-    let db = MongoRepo::init();
+    let db = Database::init();
     rocket::build().manage(db).mount("/", routes![create_user])
 }
