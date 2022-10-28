@@ -4,54 +4,52 @@
 */
 
 extern crate dotenv;
-
-use crate::models::{skill_model::Skill, user_model::User};
+extern crate r2d2;
+extern crate r2d2_mongodb;
 use dotenv::dotenv;
-use mongodb::{bson::extjson::de::Error, results::InsertOneResult, Client, Collection};
-use std::env;
+use r2d2::PooledConnection;
+use r2d2_mongodb::{mongodb::db, ConnectionOptions, MongodbConnectionManager};
+use std::{env, ops::Deref};
 
-pub struct Database {
-    col: Collection<User>,
+type Pool = r2d2::Pool<MongodbConnectionManager>;
+pub struct Conn(pub PooledConnection<MongodbConnectionManager>);
+
+pub fn init() -> Pool {
+    /*
+    ----- SETUP CONNECTION POOLS -----
+    -> Opposed to express.js & co, connection pools have to be written "by hand", using r2d2.
+    */
+
+    // .env readouts
+    dotenv().ok();
+    let mongo_uri = env::var("MONGOURI").expect("MONGOURI MUST BE SET");
+    let mongo_port = env::var("MONGOPORT").expect("MONGOPORT MUST BE SET");
+    let db_name = env::var("DBNAME").expect("DBNAME MUST BE SET");
+    let mongo_pw = env::var("MONGOPW").expect("MONGOPW MUST BE SET");
+    let mongo_user = env::var("MONGOUSER").expect("MONGOUSER MUST BE SET");
+
+    //configure the connection pool
+    let manager = MongodbConnectionManager::new(ConnectionOptions {
+        host: mongo_uri,
+        port: mongo_port.parse::<u16>().unwrap(),
+        db: db_name,
+        username: Some(mongo_user),
+        password: Some(mongo_pw),
+    });
+
+    match Pool::builder().max_size(64).build(manager) {
+        Ok(pool) => pool,
+        Err(e) => panic!("Error: failed to create pool {}", e),
+    }
 }
 
-impl Database {
-    /*
-    ----- INITIALIZATION OF DB CONNECTION -----
-    */
-    pub fn init() -> Self {
-        dotenv().ok();
-        //change the var 'key' to change the uri (check your .env file)
-        let uri = match env::var("MONGOURI") {
-            Ok(v) => v.to_string(),
-            Err(_) => format!("Error loading env variable"),
-        };
+/*
+    Close connection if its no longer used
+*/
+impl Deref for Conn {
+    type Target = PooledConnection<MongodbConnectionManager>;
 
-        let client = Client::with_uri_str(uri).unwrap();
-        let db = client.database("fiesta");
-        let col: Collection<User> = db.collection("User");
-        Database { col }
-    }
-
-    /*
-    ----- DATABASE LAYER: FUNCTION IMPLEMENTATIONS -----
-    */
-
-    //insert a new user into the DB
-    pub fn create_user(&self, u: User) -> Result<InsertOneResult, Error> {
-        let new = User {
-            id: None,
-            name: u.name,
-            username: u.username,
-            email: u.email,
-            role: u.role,
-            auth_token: u.auth_token,
-            completed_skills: Vec::<Skill>::new(),
-        };
-        let user = self
-            .col
-            .insert_one(new, None)
-            .ok()
-            .expect("Error creating user");
-        Ok(user)
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
