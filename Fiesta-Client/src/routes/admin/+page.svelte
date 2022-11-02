@@ -1,20 +1,5 @@
 <script>
-    import {
-        Button,
-        ButtonGroup,
-        Hr,
-        Input,
-        InputAddon,
-        Label,
-        Modal,
-        TableBody,
-        TableBodyCell,
-        TableBodyRow,
-        TableHead,
-        TableHeadCell,
-        TableSearch,
-        Toggle
-    } from "flowbite-svelte";
+    import {Button, ButtonGroup, Hr, Input, InputAddon, Label, Modal, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, TableSearch, Toggle} from "flowbite-svelte";
     import {onMount} from "svelte";
     import {isAdmin} from "$lib/stores.js";
     import {goto} from "$app/navigation";
@@ -32,7 +17,8 @@
             return;
         }
         allUsers = await loadAllUsers();
-        jobFields = await loadJobFields();
+        let x = await loadJobFields();
+        jobFields = x.fields;
     })
 
     async function loadJobFields() {
@@ -65,10 +51,14 @@
     } catch (e) {
     }
 
+    function deleteUser(email) {
+        //TODO: DELETE FROM DB
+    }
+
 
 </script>
 
-<div class="container mx-auto w-full sm:w-2/3 my-24 outline outline-offset-2 outline-1 outline-gray-200  dark:outline-gray-700 p-10 rounded-lg">
+<div class="container mx-auto w-full sm:w-2/3 sm:mt-24 sm:mb-24 outline outline-offset-2 outline-1 outline-gray-200 dark:outline-gray-700 p-10 sm:rounded-lg">
     <div>
         <h1 class="text-4xl text-center mb-8 text-gray-700 dark:text-gray-300">Admin Panel</h1>
         <h2 class="text-2xl text-gray-700 dark:text-gray-300">User Management</h2>
@@ -76,13 +66,13 @@
         <h2 class="text-xl text-gray-700 dark:text-gray-300 mb-8">Create New User</h2>
         <div class="grid gap-6 mb-6 md:grid-cols-2">
             <div>
-                <Label class="space-y-2 mb-2">
+                <Label class="space-y-2">
                     <span>Username</span>
                     <Input placeholder="Peter" size="md" type="text"/>
                 </Label>
             </div>
             <div>
-                <Label class="space-y-2 mb-2">
+                <Label class="space-y-2 min-w-min">
                     <span>E-Mail</span>
                     <Input placeholder="peter@example.com" size="md" type="email"/>
                 </Label>
@@ -118,14 +108,11 @@
             <div class="flex gap-4">
                 <div>
                     <Label class="mb-2 dark:text-gray-400">Job Field</Label>
-                    <div class="inline-block relative w-64">
-                        <select class="block w-full disabled:cursor-not-allowed disabled:opacity-50 focus:border-blue-500 focus:ring-blue-500 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-600 p-2.5 text-sm rounded-lg">
-                            <option>Really long option that will likely overlap the chevron</option>
-                            <option>Option 2</option>
-                            <option>Option 3</option>
-                        </select>
-
-                    </div>
+                    <select class="block max-w-[9rem] min-w-[9rem] disabled:cursor-not-allowed disabled:opacity-50 focus:border-blue-500 focus:ring-blue-500 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-600 p-2.5 text-sm rounded-lg">
+                        {#each jobFields as j}
+                            <option value="{j.job}">{j.job}</option>
+                        {/each}
+                    </select>
                 </div>
                 <div>
                     <Label class="mb-4 dark:text-gray-400">Is Admin</Label>
@@ -139,7 +126,7 @@
                 Show All Users
             </Button>
         </div>
-        <Modal bind:open={editUserModal} title="Edit Users">
+        <Modal autoclose={false} bind:open={editUserModal} size="lg" title="Edit Users">
             <TableSearch bind:inputValue={userSearchTerm} hoverable={true} placeholder="Search by username">
                 <TableHead>
                     <TableHeadCell>Username</TableHeadCell>
@@ -147,6 +134,7 @@
                     <TableHeadCell>Email</TableHeadCell>
                     <TableHeadCell>Job Field</TableHeadCell>
                     <TableHeadCell>Admin</TableHeadCell>
+                    <TableHeadCell>Actions</TableHeadCell>
                 </TableHead>
                 <TableBody class="divide-y">
                     {#each filteredUsers as item}
@@ -156,12 +144,15 @@
                             <TableBodyCell>{item.email}</TableBodyCell>
                             <TableBodyCell>{item.field}</TableBodyCell>
                             <TableBodyCell>{item.role === 1 ? "Yes" : "No"}</TableBodyCell>
+                            <TableBodyCell>
+                                <Button gradient shadow="red" color="red" class="scale-75" on:click={()=>deleteUser(item.email)}><i class="material-icons">delete_forever</i></Button>
+                            </TableBodyCell>
                         </TableBodyRow>
                     {/each}
                 </TableBody>
             </TableSearch>
             <svelte:fragment slot='footer'>
-                <Button>Close</Button>
+                <Button on:click={()=>editUserModal=false}>Close</Button>
             </svelte:fragment>
         </Modal>
     </div>

@@ -17,7 +17,7 @@
     }
 
 </script>
-<div class="container mx-auto w-full sm:w-2/3 my-56 outline outline-offset-2 outline-1 outline-gray-200  dark:outline-gray-700 p-10 rounded-lg">
+<div class="container mx-auto w-full sm:w-2/3 my-56 outline outline-offset-2 outline-1 outline-gray-200  dark:outline-gray-700 p-10 sm:rounded-lg">
     <div>
         <h1 class="text-4xl text-center mb-8 text-gray-700 dark:text-gray-300" on:click={()=>{secret()}}>Login</h1>
         <Label class="space-y-2 mb-5">
