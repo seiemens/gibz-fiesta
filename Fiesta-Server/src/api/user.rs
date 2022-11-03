@@ -3,32 +3,29 @@
     auth_token: used for API authentication to prohibit access from unauthorized sources.
 */
 use crate::{
-    data::mongo_connector::Database,
+    data::mongo_connector::Connector,
+    helpers::{endecr, token},
     models::{skill_model::Skill, user_model::User},
 };
 use mongodb::results::InsertOneResult;
-use rand::{distributions::Alphanumeric, Rng};
 use rocket::{http::Status, serde::json::Json, State};
 
 #[post("/user", data = "<u>")]
-pub fn create_user(db: &State<Database>, u: Json<User>) -> Result<Json<InsertOneResult>, Status> {
-    //generate the token randomly
-    let s: String = rand::thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(64)
-        .map(char::from)
-        .collect();
-
+pub async fn create_user(
+    db: &State<Connector>,
+    u: Json<User>,
+) -> Result<Json<InsertOneResult>, Status> {
     let data = User {
         id: None,
         name: u.name.to_owned(),
         username: u.username.to_owned(),
         email: u.email.to_owned(),
         role: u.role.to_owned(),
-        auth_token: s,
+        auth_token: token::generate(64),
         completed_skills: Vec::<Skill>::new(),
+        password: endecr::encrypt(u.password.to_owned()),
     };
-    let user_detail = db.create_user(data);
+    let user_detail = db.create_user(data).await;
     match user_detail {
         Ok(user) => Ok(Json(user)),
         Err(_) => Err(Status::InternalServerError),

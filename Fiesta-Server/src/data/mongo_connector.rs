@@ -1,55 +1,61 @@
 /*
 ----- SUMMARY -----
--> This is basically the Base Layer of the Backend. No real "logic" here, just inserting, editing and removing data
+-> This is basically the Base Layer of the Backend.
 */
 
 extern crate dotenv;
-extern crate r2d2;
-extern crate r2d2_mongodb;
+
+use crate::models::{skill_model::Skill, user_model::User};
 use dotenv::dotenv;
-use r2d2::PooledConnection;
-use r2d2_mongodb::{mongodb::db, ConnectionOptions, MongodbConnectionManager};
-use std::{env, ops::Deref};
+use mongodb::{bson::extjson::de::Error, results::InsertOneResult, Client, Collection};
+use std::env;
 
-type Pool = r2d2::Pool<MongodbConnectionManager>;
-pub struct Conn(pub PooledConnection<MongodbConnectionManager>);
+pub struct Connector {
+    col: Collection<User>,
+}
 
-pub fn init() -> Pool {
+impl Connector {
     /*
-    ----- SETUP CONNECTION POOLS -----
-    -> Opposed to express.js & co, connection pools have to be written "by hand", using r2d2.
+    ----- INITIALIZATION OF DB CONNECTION -----
     */
+    pub async fn init() -> Self {
+        dotenv().ok();
+        //change the var 'key' to change the uri (check your .env file)
+        let uri = env::var("MONGOURI").expect("MONGOURI HAS TO BE SET");
 
-    // .env readouts
-    dotenv().ok();
-    let mongo_uri = env::var("MONGOURI").expect("MONGOURI MUST BE SET");
-    let mongo_port = env::var("MONGOPORT").expect("MONGOPORT MUST BE SET");
-    let db_name = env::var("DBNAME").expect("DBNAME MUST BE SET");
-    let mongo_pw = env::var("MONGOPW").expect("MONGOPW MUST BE SET");
-    let mongo_user = env::var("MONGOUSER").expect("MONGOUSER MUST BE SET");
-
-    //configure the connection pool
-    let manager = MongodbConnectionManager::new(ConnectionOptions {
-        host: mongo_uri,
-        port: mongo_port.parse::<u16>().unwrap(),
-        db: db_name,
-        username: Some(mongo_user),
-        password: Some(mongo_pw),
-    });
-
-    match Pool::builder().max_size(64).build(manager) {
-        Ok(pool) => pool,
-        Err(e) => panic!("Error: failed to create pool {}", e),
+        let client = Client::with_uri_str(uri).await.unwrap();
+        let db = client.database("fiesta");
+        let col: Collection<User> = db.collection("User");
+        Connector { col }
     }
 }
 
 /*
-    Close connection if its no longer used
+----- FUNCTION IMPLEMENTATIONS -----
 */
-impl Deref for Conn {
-    type Target = PooledConnection<MongodbConnectionManager>;
 
-    fn deref(&self) -> &Self::Target {
-        &self.0
+/*
+----- USER - RELATED FUNCTIONS -----
+*/
+impl Connector {
+    //insert a new user into the DB
+    pub async fn create_user(&self, u: User) -> Result<InsertOneResult, Error> {
+        let new = User {
+            id: None,
+            name: u.name,
+            username: u.username,
+            email: u.email,
+            role: u.role,
+            auth_token: u.auth_token,
+            completed_skills: Vec::new(),
+            password: u.password,
+        };
+        let user = self
+            .col
+            .insert_one(new, None)
+            .await
+            .ok()
+            .expect("Error creating user");
+        Ok(user)
     }
 }

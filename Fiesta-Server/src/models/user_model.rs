@@ -12,5 +12,6 @@ pub struct User {
     pub role: i32,                    // 0..2 -> 0:Admin, 1:Teacher, 2:Guest
     pub completed_skills: Vec<Skill>, //unaccessible if role > 1
     pub auth_token: String,
+    pub password: String,
     //maybe add some other relevant data here
 }
