@@ -11,7 +11,8 @@ use mongodb::{bson::extjson::de::Error, results::InsertOneResult, Client, Collec
 use std::env;
 
 pub struct Connector {
-    col: Collection<User>,
+    user_col: Collection<User>,
+    skill_col: Collection<Skill>,
 }
 
 impl Connector {
@@ -25,8 +26,12 @@ impl Connector {
 
         let client = Client::with_uri_str(uri).await.unwrap();
         let db = client.database("fiesta");
-        let col: Collection<User> = db.collection("User");
-        Connector { col }
+        let user_col: Collection<User> = db.collection("users");
+        let skill_col: Collection<Skill> = db.collection("skills");
+        Connector {
+            user_col,
+            skill_col,
+        }
     }
 }
 
@@ -51,7 +56,7 @@ impl Connector {
             password: u.password,
         };
         let user = self
-            .col
+            .user_col
             .insert_one(new, None)
             .await
             .ok()
