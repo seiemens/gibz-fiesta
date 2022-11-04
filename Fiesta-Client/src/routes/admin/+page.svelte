@@ -25,7 +25,6 @@
     let showNewUserPw = false;
     let listUserModal = false;
     let editUserModal = false;
-    let createUserIsAdmin = false;
 
     onMount(async () => {
         if (!$isAdmin) {
@@ -68,9 +67,11 @@
     }
 
     let userToEdit = null;
+    let userToEditPw = "";
 
     function openEditUserModal(user) {
         userToEdit = user;
+        userToEditPw = "";
         editUserModal = true;
     }
 
@@ -103,6 +104,42 @@
 
     }
 
+    let createNewUserData = {
+        "username": "",
+        "name": "",
+        "email": "",
+        "field": "",
+        "role": 0,
+        "password": "",
+        "active": true
+    }
+
+    function createNewUser() {
+        if (createNewUserData.role) {
+            createNewUserData.role = 1;
+        } else {
+            createNewUserData.role = 0;
+        }
+
+        $: allUsers.users.push(createNewUserData);
+        $: try {
+            filteredUsers = allUsers.users.filter(
+                (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
+            );
+        } catch (e) {
+        }
+        //TODO: ADD IN DB
+        createNewUserData = {
+            "username": "",
+            "name": "",
+            "email": "",
+            "field": "",
+            "role": 0,
+            "password": "",
+            "active": true
+        }
+    }
+
 
 </script>
 
@@ -116,13 +153,19 @@
             <div>
                 <Label class="space-y-2">
                     <span>Username</span>
-                    <Input placeholder="Peter" size="md" type="text"/>
+                    <Input bind:value={createNewUserData.username} placeholder="Peter.m" size="md" type="text"/>
+                </Label>
+            </div>
+            <div>
+                <Label class="space-y-2">
+                    <span>Name</span>
+                    <Input bind:value={createNewUserData.name} placeholder="Peter Meier" size="md" type="text"/>
                 </Label>
             </div>
             <div>
                 <Label class="space-y-2 min-w-min">
                     <span>E-Mail</span>
-                    <Input placeholder="peter@example.com" size="md" type="email"/>
+                    <Input bind:value={createNewUserData.email} placeholder="peter@example.com" size="md" type="email"/>
                 </Label>
             </div>
             <div>
@@ -156,7 +199,8 @@
             <div class="flex gap-4">
                 <div>
                     <Label class="mb-2 dark:text-gray-400">Job Field</Label>
-                    <select class="block max-w-[9rem] min-w-[9rem] disabled:cursor-not-allowed disabled:opacity-50 focus:border-blue-500 focus:ring-blue-500 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-600 p-2.5 text-sm rounded-lg">
+                    <select bind:value={createNewUserData.field}
+                            class="block max-w-[9rem] min-w-[9rem] disabled:cursor-not-allowed disabled:opacity-50 focus:border-blue-500 focus:ring-blue-500 dark:focus:border-blue-500 dark:focus:ring-blue-500 bg-gray-50 text-gray-900 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 border-gray-300 dark:border-gray-600 p-2.5 text-sm rounded-lg">
                         {#each jobFields as j}
                             <option value="{j.job}">{j.job}</option>
                         {/each}
@@ -164,12 +208,18 @@
                 </div>
                 <div>
                     <Label class="mb-4 dark:text-gray-400">Is Admin</Label>
-                    <Toggle bind:checked={createUserIsAdmin} color="green">{createUserIsAdmin ? "Yes" : "No"}</Toggle>
+                    <Toggle bind:checked={createNewUserData.role}
+                            color="green">{createNewUserData.role ? "Yes" : "No"}</Toggle>
+                </div>
+                <div>
+                    <Label class="mb-4 dark:text-gray-400">Is Active</Label>
+                    <Toggle bind:checked={createNewUserData.active}
+                            color="green">{createNewUserData.active ? "Yes" : "No"}</Toggle>
                 </div>
             </div>
         </div>
         <div class="flex flex-row gap-4">
-            <Button class="mt-5" color="green" gradient shadow="green">Create</Button>
+            <Button class="mt-5" color="green" gradient on:click={()=>{createNewUser()}} shadow="green">Create</Button>
             <Button class="mt-5" color="blue" gradient on:click={()=>{listUserModal= true}} shadow="blue">
                 Show All Users
             </Button>
@@ -214,7 +264,13 @@
                 <div>
                     <Label class="space-y-2">
                         <span>Username</span>
-                        <Input bind:value={userToEdit.username} placeholder="Peter" size="md" type="text"/>
+                        <Input bind:value={userToEdit.username} placeholder="Peter.m" size="md" type="text"/>
+                    </Label>
+                </div>
+                <div>
+                    <Label class="space-y-2">
+                        <span>Name</span>
+                        <Input bind:value={userToEdit.name} placeholder="Peter Meier" size="md" type="text"/>
                     </Label>
                 </div>
                 <div>
@@ -264,7 +320,13 @@
                     </div>
                     <div>
                         <Label class="mb-4 dark:text-gray-400">Is Admin</Label>
-                        <Toggle bind:checked={userToEdit.role} color="green">{createUserIsAdmin ? "Yes" : "No"}</Toggle>
+                        <Toggle bind:checked={userToEdit.role}
+                                color="green">{userToEdit.role === 1 ? "Yes" : "No"}</Toggle>
+                    </div>
+                    <div>
+                        <Label class="mb-4 dark:text-gray-400">Is Active</Label>
+                        <Toggle bind:checked={userToEdit.active}
+                                color="green">{userToEdit.active ? "Yes" : "No"}</Toggle>
                     </div>
                 </div>
             </div>
