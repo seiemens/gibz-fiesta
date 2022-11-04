@@ -76,15 +76,31 @@
 
     function closeEditUserModal() {
         editUserModal = false;
-        filteredUsers = allUsers.users.filter(
-            (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
-        );
+        $: try {
+            filteredUsers = allUsers.users.filter(
+                (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
+            );
+        } catch (e) {
+        }
 
         //TODO: EDIT IN DB
     }
 
     function deleteUser(email) {
-        //TODO: DELETE FROM DB
+        for (let i = 0; i < allUsers.users.length; i++) {
+            if (allUsers.users[i].email == email) {
+                allUsers.users.splice(i, 1);
+                $: try {
+                    filteredUsers = allUsers.users.filter(
+                        (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
+                    );
+                } catch (e) {
+                }
+                //TODO: DELETE FROM DB
+                break;
+            }
+        }
+
     }
 
 
@@ -253,7 +269,7 @@
                 </div>
             </div>
             <svelte:fragment slot='footer'>
-                <Button on:click={()=>{closeEditUserModal()}}>Close</Button>
+                <Button on:click={()=>{closeEditUserModal()}}>Save</Button>
             </svelte:fragment>
         </Modal>
     </div>

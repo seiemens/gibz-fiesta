@@ -51,7 +51,7 @@
         <a class="mb-2 dark:text-gray-600 text-sm font-medium" id="pw-forgor">Password forgotten?</a>
         <Tooltip bottom triggeredBy="#pw-forgor">Ask your Administrator to reset the password for you!</Tooltip>
         <div class="flex flex-row justify-center">
-            <Button class="mt-5" on:click={()=>doLogin()} pill={true}>Login</Button>
+            <Button class="mt-5" on:click={()=>doLogin()} >Login</Button>
         </div>
     </div>
 </div>
