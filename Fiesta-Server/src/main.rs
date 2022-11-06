@@ -13,5 +13,6 @@ use data::mongo_connector::Connector;
 #[launch]
 async fn rocket() -> _ {
     let db = Connector::init().await;
+    // .manage() -> makes the db accessible in other files.
     rocket::build().manage(db).mount("/", routes![create_user])
 }

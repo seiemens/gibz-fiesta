@@ -7,7 +7,12 @@ extern crate dotenv;
 
 use crate::models::{skill_model::Skill, user_model::User};
 use dotenv::dotenv;
-use mongodb::{bson::extjson::de::Error, results::InsertOneResult, Client, Collection};
+use mongodb::{
+    bson::{doc, extjson::de::Error},
+    options::{FindOneOptions, FindOptions},
+    results::InsertOneResult,
+    Client, Collection,
+};
 use std::env;
 
 pub struct Connector {
@@ -46,7 +51,6 @@ impl Connector {
     //insert a new user into the DB
     pub async fn create_user(&self, u: User) -> Result<InsertOneResult, Error> {
         let new = User {
-            id: None,
             name: u.name,
             username: u.username,
             email: u.email,
@@ -54,6 +58,7 @@ impl Connector {
             auth_token: u.auth_token,
             completed_skills: Vec::new(),
             password: u.password,
+            active: true,
         };
         let user = self
             .user_col
@@ -62,5 +67,14 @@ impl Connector {
             .ok()
             .expect("Error creating user");
         Ok(user)
+    }
+
+    pub async fn login_user(&self, u: User) -> Result<bool, Error> {
+        let filter = doc! { "username": u.username };
+        let opt = FindOneOptions::builder().build();
+
+        let user = self.user_col.find_one(filter, opt);
+
+        return Ok(true);
     }
 }

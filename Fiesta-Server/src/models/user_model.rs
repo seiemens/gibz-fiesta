@@ -5,7 +5,6 @@ use super::skill_model::Skill;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct User {
-    pub id: Option<ObjectId>,
     pub name: String,
     pub username: String,
     pub email: String,
@@ -13,5 +12,5 @@ pub struct User {
     pub completed_skills: Vec<Skill>, //unaccessible if role > 1
     pub auth_token: String,
     pub password: String,
-    //maybe add some other relevant data here
+    pub active: bool, //maybe add some other relevant data here
 }

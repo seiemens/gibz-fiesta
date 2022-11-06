@@ -3,7 +3,7 @@
 -> Why not MD5?
 https://www.kb.cert.org/vuls/id/836068
 -> SHA isn't a choice either, since it's been broken.
-https://en.wikipedia.org/wiki/Argon2 is what this page uses.
+https://en.wikipedia.org/wiki/Argon2 is what this API uses.
 */
 
 extern crate argon2;

@@ -16,7 +16,6 @@ pub async fn create_user(
     u: Json<User>,
 ) -> Result<Json<InsertOneResult>, Status> {
     let data = User {
-        id: None,
         name: u.name.to_owned(),
         username: u.username.to_owned(),
         email: u.email.to_owned(),
@@ -24,6 +23,7 @@ pub async fn create_user(
         auth_token: token::generate(64),
         completed_skills: Vec::<Skill>::new(),
         password: endecr::encrypt(u.password.to_owned()),
+        active: true,
     };
     let user_detail = db.create_user(data).await;
     match user_detail {
