@@ -32,6 +32,25 @@ pub async fn create_user(
     }
 }
 
+#[post("/login", data = "<u>")]
+pub async fn login_user(db: &State<Connector>, u: Json<User>) -> Result<Json<bool>, Status> {
+    let data = User {
+        name: u.name.to_owned(),
+        username: u.username.to_owned(),
+        email: u.email.to_owned(),
+        role: u.role.to_owned(),
+        auth_token: token::generate(64),
+        completed_skills: Vec::<Skill>::new(),
+        password: endecr::encrypt(u.password.to_owned()),
+        active: true,
+    };
+    let user_detail = db.login_user(data).await;
+    match user_detail {
+        Ok(user) => Ok(Json(user)),
+        Err(_) => Err(Status::InternalServerError),
+    }
+}
+
 /*
 --- GENERAL ROUTES ---
 */

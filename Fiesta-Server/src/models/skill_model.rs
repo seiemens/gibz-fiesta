@@ -1,6 +1,6 @@
 use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Skill {
     pub id: Option<ObjectId>,
     pub name: String,

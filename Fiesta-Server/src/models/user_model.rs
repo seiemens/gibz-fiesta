@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use super::skill_model::Skill;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct User {
     pub name: String,
     pub username: String,

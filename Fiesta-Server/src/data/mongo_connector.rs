@@ -5,7 +5,10 @@
 
 extern crate dotenv;
 
-use crate::models::{skill_model::Skill, user_model::User};
+use crate::{
+    helpers::endecr,
+    models::{skill_model::Skill, user_model::User},
+};
 use dotenv::dotenv;
 use mongodb::{
     bson::{doc, extjson::de::Error},
@@ -70,11 +73,14 @@ impl Connector {
     }
 
     pub async fn login_user(&self, u: User) -> Result<bool, Error> {
-        let filter = doc! { "username": u.username };
-        let opt = FindOneOptions::builder().build();
+        let filter = doc! { "username": u.username, "password": u.password };
+        let user = self.user_col.find_one(filter, None).await;
 
-        let user = self.user_col.find_one(filter, opt);
-
-        return Ok(true);
+        println!("{:?}", user);
+        if let Ok(None) = user {
+            return Ok(false);
+        } else {
+            return Ok(true);
+        }
     }
 }
