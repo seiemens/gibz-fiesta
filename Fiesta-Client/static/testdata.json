@@ -13,10 +13,12 @@
           "completed": true,
           "resources": [
             {
+              "id": 0,
               "display_name": "pdf guide",
               "url": "https://example.com/download/file1"
             },
             {
+              "id": 1,
               "display_name": "video guide",
               "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             }
@@ -29,10 +31,12 @@
           "completed": true,
           "resources": [
             {
+              "id": 0,
               "display_name": "pdf guide",
               "url": "https://example.com/download/file2"
             },
             {
+              "id": 1,
               "display_name": "video guide",
               "url": "https://www.youtube.com/watch?v=Rbgw_rduQpM"
             }
@@ -45,10 +49,12 @@
           "completed": true,
           "resources": [
             {
+              "id": 0,
               "display_name": "pdf guide",
               "url": "https://example.com/download/file3"
             },
             {
+              "id": 1,
               "display_name": "video guide",
               "url": "https://www.youtube.com/watch?v=zCeQdBCZklo"
             }
@@ -61,10 +67,12 @@
           "completed": true,
           "resources": [
             {
+              "id": 0,
               "display_name": "pdf guide",
               "url": "https://example.com/download/file4"
             },
             {
+              "id": 1,
               "display_name": "video guide",
               "url": "https://www.youtube.com/watch?v=xsRPz9PF1EE"
             }
@@ -85,6 +93,7 @@
           "completed": true,
           "resources": [
             {
+              "id": 0,
               "display_name": "video guide",
               "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             }
