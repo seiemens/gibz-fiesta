@@ -9,6 +9,7 @@ extern crate rocket;
 //add imports below
 use api::user::{create_user, login_user};
 use data::mongo_connector::Connector;
+use rocket::Request;
 
 #[launch]
 async fn rocket() -> _ {

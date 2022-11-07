@@ -4,17 +4,19 @@
 */
 use crate::{
     data::mongo_connector::Connector,
-    helpers::{endecr, token},
+    helpers::{biscuit::biscuit, endecr, token},
     models::{skill_model::Skill, user_model::User},
 };
+use argon2::Error;
 use mongodb::results::InsertOneResult;
-use rocket::{http::Status, serde::json::Json, State};
+use rocket::{
+    http::{Cookie, CookieJar, Status},
+    serde::json::Json,
+    Request, Response, State,
+};
 
-#[post("/user", data = "<u>")]
-pub async fn create_user(
-    db: &State<Connector>,
-    u: Json<User>,
-) -> Result<Json<InsertOneResult>, Status> {
+/// -> NON - ENDPOINT related. Used to filter out / sort User form data easier.
+pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
     let data = User {
         name: u.name.to_owned(),
         username: u.username.to_owned(),
@@ -23,8 +25,17 @@ pub async fn create_user(
         auth_token: token::generate(64),
         completed_skills: Vec::<Skill>::new(),
         password: endecr::encrypt(u.password.to_owned()),
-        active: true,
+        active: u.active,
     };
+    return Ok(data);
+}
+
+#[post("/user/create", data = "<u>")]
+pub async fn create_user(
+    db: &State<Connector>,
+    u: Json<User>,
+) -> Result<Json<InsertOneResult>, Status> {
+    let data = get_user_data(u).unwrap();
     let user_detail = db.create_user(data).await;
     match user_detail {
         Ok(user) => Ok(Json(user)),
@@ -32,22 +43,20 @@ pub async fn create_user(
     }
 }
 
-#[post("/login", data = "<u>")]
-pub async fn login_user(db: &State<Connector>, u: Json<User>) -> Result<Json<bool>, Status> {
-    let data = User {
-        name: u.name.to_owned(),
-        username: u.username.to_owned(),
-        email: u.email.to_owned(),
-        role: u.role.to_owned(),
-        auth_token: token::generate(64),
-        completed_skills: Vec::<Skill>::new(),
-        password: endecr::encrypt(u.password.to_owned()),
-        active: true,
-    };
-    let user_detail = db.login_user(data).await;
-    match user_detail {
-        Ok(user) => Ok(Json(user)),
-        Err(_) => Err(Status::InternalServerError),
+#[post("/user/login", data = "<u>")]
+pub async fn login_user(
+    jar: &CookieJar<'_>,
+    db: &State<Connector>,
+    u: Json<User>,
+) -> Result<Status, Status> {
+    let data = get_user_data(u).unwrap();
+    let user = db.get_user(data).await;
+
+    if user.username.len() > 1 {
+        jar.add(biscuit(String::from("auth"), user.auth_token));
+        return Ok(Status::Accepted);
+    } else {
+        return Err(Status::ImATeapot);
     }
 }
 

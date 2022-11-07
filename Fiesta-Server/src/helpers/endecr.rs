@@ -1,5 +1,5 @@
 /*
------ ENCRYPTION / DECRYPTION HELPER
+----- ENCRYPTION / DECRYPTION HELPER -----
 -> Why not MD5?
 https://www.kb.cert.org/vuls/id/836068
 -> SHA isn't a choice either, since it's been broken.

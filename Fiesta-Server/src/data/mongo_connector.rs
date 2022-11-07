@@ -6,7 +6,7 @@
 extern crate dotenv;
 
 use crate::{
-    helpers::endecr,
+    helpers::biscuit::biscuit,
     models::{skill_model::Skill, user_model::User},
 };
 use dotenv::dotenv;
@@ -14,8 +14,9 @@ use mongodb::{
     bson::{doc, extjson::de::Error},
     options::{FindOneOptions, FindOptions},
     results::InsertOneResult,
-    Client, Collection,
+    Client, Collection, Cursor,
 };
+use rocket::http::{Cookie, Status};
 use std::env;
 
 pub struct Connector {
@@ -51,7 +52,7 @@ impl Connector {
 ----- USER - RELATED FUNCTIONS -----
 */
 impl Connector {
-    //insert a new user into the DB
+    /// insert a new user into the DB
     pub async fn create_user(&self, u: User) -> Result<InsertOneResult, Error> {
         let new = User {
             name: u.name,
@@ -72,15 +73,12 @@ impl Connector {
         Ok(user)
     }
 
-    pub async fn login_user(&self, u: User) -> Result<bool, Error> {
+    /// get user based on password & username
+    pub async fn get_user(&self, u: User) -> User {
+        // println!("{} {}", u.username, u.password);
         let filter = doc! { "username": u.username, "password": u.password };
-        let user = self.user_col.find_one(filter, None).await;
-
-        println!("{:?}", user);
-        if let Ok(None) = user {
-            return Ok(false);
-        } else {
-            return Ok(true);
-        }
+        let user = self.user_col.find_one(filter, None).await.unwrap();
+        // println!("{:?}", user);
+        return user.unwrap();
     }
 }
