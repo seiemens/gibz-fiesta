@@ -25,7 +25,7 @@ Contains the Database Models, currently 2: `Skill` & `User`.
 
 
 ## Endpoints
-<center>IMPORTANT: <br/> ERROR CODE FOR ALL FAILURES IS <br/> <b>318.</b></center>
+<p align="center">IMPORTANT: <br/> ERROR CODE FOR ALL FAILURES IS <br/> <b>318.</b></p>
 
 ### User - Related
 User - Related Endpoints are accessible through the `/user/` proxy.
