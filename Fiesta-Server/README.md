@@ -1,4 +1,4 @@
-# Fiesta - Server
+# FIEŚTA-BACKEND
 ## Setup & Configuration
 In case of compiler errors, ensure that the current rust branch is `nightly`.
 To switch, use `rustup override set nightly`.
@@ -8,4 +8,29 @@ To switch, use `rustup override set nightly`.
 ### Setup
 Install Rust, navigate to git Repo, run `cargo run`. Enjoy!
 ### Config
-Configurations to the Server (e.g. Ports and IP's) can be made in `Rocket.toml`.
+Configurations to the Server (e.g. Ports and IP's) can be made in `Rocket.toml`. `.env` File needed!
+
+## Structure
+### `api`
+Contains all files related to the API endpoints & routes.
+
+### `data`
+Contains all files related to Data interaction such as the `mongo_connector`.
+
+### `helpers`
+Contains small "helper" functions such as token generation & encryption. Those have been put into separate files due to the lazyness of the backend dev.
+
+### `models`
+Contains the Database Models, currently 2: `Skill` & `User`.
+
+
+## Endpoints
+<center>IMPORTANT: <br/> ERROR CODE FOR ALL FAILURES IS <br/> <b>318.</b></center>
+### User - Related
+User - Related Endpoints are accessible through the `/user/` proxy.
+| Endpoint    |    Required Values     | Type |          Success - Response |
+| ----------- | :--------------------: | ---: | --------------------------: |
+| /create     | [User Json](#usr-json) | POST |                         200 |
+| /login      |   Username, Password   | POST | [Auth Cookie](#auth-cookie) |
+| /logout     |          WIP           |  WIP |                         WIP |
+| coming soon |      banana bread      | MONK |                         WIP |
