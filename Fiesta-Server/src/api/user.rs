@@ -20,11 +20,12 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
     let data = User {
         name: u.name.to_owned(),
         username: u.username.to_owned(),
+        password: endecr::encrypt(u.password.to_owned()),
         email: u.email.to_owned(),
         role: u.role.to_owned(),
-        auth_token: token::generate(64),
+        field: u.field.to_owned(),
         completed_skills: Vec::<Skill>::new(),
-        password: endecr::encrypt(u.password.to_owned()),
+        auth_token: token::generate(64),
         active: u.active,
     };
     return Ok(data);

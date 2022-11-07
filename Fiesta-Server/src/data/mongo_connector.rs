@@ -57,11 +57,12 @@ impl Connector {
         let new = User {
             name: u.name,
             username: u.username,
+            password: u.password,
             email: u.email,
             role: u.role,
+            field: u.field,
             auth_token: u.auth_token,
             completed_skills: Vec::new(),
-            password: u.password,
             active: true,
         };
         let user = self
