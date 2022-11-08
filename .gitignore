@@ -1,5 +1,6 @@
 */target
 */Cargo.Lock
+*/.env
 
 # Logs
 logs

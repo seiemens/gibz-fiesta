@@ -6,7 +6,7 @@
 extern crate dotenv;
 
 use crate::{
-    helpers::biscuit::biscuit,
+    helpers::{biscuit::biscuit, endecr},
     models::{skill_model::Skill, user_model::User},
 };
 use dotenv::dotenv;
@@ -14,10 +14,13 @@ use mongodb::{
     bson::doc,
     error::Error,
     options::{FindOneOptions, FindOptions},
-    results::InsertOneResult,
+    results::{DeleteResult, InsertOneResult, UpdateResult},
     Client, Collection, Cursor,
 };
-use rocket::http::{Cookie, Status};
+use rocket::{
+    futures::stream::TryFilter,
+    http::{Cookie, Status},
+};
 use std::env;
 
 pub struct Connector {
@@ -85,5 +88,24 @@ impl Connector {
             None => Ok(None),
             Some(res) => Ok(Some(res)),
         }
+    }
+
+    ///update password of specified user
+    pub async fn update_user(
+        &self,
+        u: User,
+        auth: String,
+        pw: String,
+    ) -> Result<UpdateResult, Error> {
+        let filter = doc! { "username":u.username, "auth_token":auth };
+        let update = doc! {"$set": {"password":pw}};
+        let result = self.user_col.update_one(filter, update, None).await?;
+        return Ok(result);
+    }
+
+    pub async fn delete_user(&self, u: User, auth: String) -> Result<DeleteResult, Error> {
+        let filter = doc! {"username":u.username, "auth_token":auth};
+        let result = self.user_col.delete_one(filter, None).await?;
+        return Ok(result);
     }
 }
