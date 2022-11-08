@@ -33,7 +33,7 @@ User - Related Endpoints are accessible through the `/user/` proxy.
 | ----------- | :---------------------: | ---: | ----------------------------: |
 | /create     | [User Json](#user-json) | POST |                           200 |
 | /login      |   Username, Password    | POST | [Auth Biscuit](#auth-biscuit) |
-| /logout     |           WIP           |  WIP |                           WIP |
+| /logout     |         Nothing         |  GET |                           200 |
 | coming soon |      banana bread       | MONK |                           WIP |
 
 #### User Json

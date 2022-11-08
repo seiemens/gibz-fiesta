@@ -57,13 +57,18 @@ pub async fn login_user(
         return Err(Status::ImATeapot);
     } else {
         jar.add(biscuit(
-            String::from("auth"),
+            String::from("auth_biscuit"),
             String::from(user.unwrap().unwrap().auth_token.unwrap()),
         ));
         return Ok(Status::Accepted);
     }
 }
 
+#[get("/user/logout")]
+pub fn logout_user(jar: &CookieJar<'_>) -> Result<Status, Status> {
+    jar.remove(Cookie::named("auth_biscuit"));
+    return Ok(Status::Ok);
+}
 /*
 --- GENERAL ROUTES ---
 */
