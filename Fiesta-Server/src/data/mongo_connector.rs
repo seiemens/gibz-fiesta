@@ -62,8 +62,8 @@ impl Connector {
             role: u.role,
             field: u.field,
             auth_token: u.auth_token,
-            completed_skills: Vec::new(),
-            active: true,
+            completed_skills: u.completed_skills,
+            active: u.active,
         };
         let user = self
             .user_col

@@ -15,7 +15,7 @@ use rocket::{
     Request, Response, State,
 };
 
-/// -> NON - ENDPOINT related. Used to filter out / sort User form data easier.
+/// NON - ENDPOINT related. Used to filter out / sort User form data easier.
 pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
     let data = User {
         name: u.name.to_owned(),
@@ -24,9 +24,9 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
         email: u.email.to_owned(),
         role: u.role.to_owned(),
         field: u.field.to_owned(),
-        completed_skills: Vec::<Skill>::new(),
-        auth_token: token::generate(64),
-        active: u.active,
+        completed_skills: Some(Vec::<Skill>::new()),
+        auth_token: Some(token::generate(64)),
+        active: Some(true),
     };
     return Ok(data);
 }
@@ -54,7 +54,10 @@ pub async fn login_user(
     let user = db.get_user(data).await;
 
     if user.username.len() > 1 {
-        jar.add(biscuit(String::from("auth"), user.auth_token));
+        jar.add(biscuit(
+            String::from("auth"),
+            String::from(user.auth_token.unwrap()),
+        ));
         return Ok(Status::Accepted);
     } else {
         return Err(Status::ImATeapot);
