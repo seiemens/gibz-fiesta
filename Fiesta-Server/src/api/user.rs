@@ -3,7 +3,7 @@
     auth_token: used for API authentication to prohibit access from unauthorized sources.
 */
 use crate::{
-    data::mongo_connector::Connector,
+    data::{self, mongo_connector::Connector},
     helpers::{endecr, grandmas_bakery::biscuit, token},
     models::{skill_model::Skill, user_model::User},
 };
@@ -31,6 +31,11 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
     return Ok(data);
 }
 
+/// NON - ENDPOINT related. Used to extract value from cookie.
+pub fn get_biscuit_recipe(jar: &CookieJar<'_>, name: String) -> String {
+    return String::from(jar.get(&name).map(|cookie| cookie.value()).unwrap());
+}
+
 #[post("/user/create", data = "<u>")]
 pub async fn create_user(
     db: &State<Connector>,
@@ -40,7 +45,7 @@ pub async fn create_user(
     let user_detail = db.create_user(data).await;
     match user_detail {
         Ok(user) => Ok(Json(user)),
-        Err(_) => Err(Status::InternalServerError),
+        Err(_) => Err(Status::ImATeapot),
     }
 }
 
@@ -68,6 +73,35 @@ pub async fn login_user(
 pub fn logout_user(jar: &CookieJar<'_>) -> Result<Status, Status> {
     jar.remove(Cookie::named("auth_biscuit"));
     return Ok(Status::Ok);
+}
+
+#[post("/user/update", data = "<u>")]
+pub async fn update_user(
+    jar: &CookieJar<'_>,
+    db: &State<Connector>,
+    u: Json<User>, //contains username and new pw
+) -> Result<Status, Status> {
+    //extract cookie from request and process it
+    let auth_token = get_biscuit_recipe(jar, String::from("auth_biscuit"));
+
+    let data = get_user_data(u).unwrap();
+
+    //authenticate user
+    let auth = db.verify_auth(auth_token.to_owned()).await;
+    if auth == false {
+        return Err(Status::Forbidden);
+    } else {
+        let res = db
+            .update_user(data.username, data.password, auth_token)
+            .await
+            .unwrap();
+        //send error if not modifiable / not found
+        if res.modified_count == 0 || res.matched_count == 0 {
+            return Err(Status::ImATeapot);
+        } else {
+            return Ok(Status::Accepted);
+        }
+    }
 }
 /*
 --- GENERAL ROUTES ---

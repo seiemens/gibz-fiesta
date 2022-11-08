@@ -17,10 +17,7 @@ use mongodb::{
     results::{DeleteResult, InsertOneResult, UpdateResult},
     Client, Collection, Cursor,
 };
-use rocket::{
-    futures::stream::TryFilter,
-    http::{Cookie, Status},
-};
+use rocket::http::{Cookie, CookieJar, Status};
 use std::env;
 
 pub struct Connector {
@@ -51,6 +48,26 @@ impl Connector {
 /*
 ----- FUNCTION IMPLEMENTATIONS -----
 */
+
+/*
+----- AUTH CHECKER -----
+*/
+impl Connector {
+    /// Verify the authenticity of a request.
+    pub async fn verify_auth(&self, token: String) -> bool {
+        //extract value from biscuit
+
+        let filter = doc! {"auth_token":token};
+
+        let result = self.user_col.find_one(filter, None).await;
+
+        if let Ok(None) = result {
+            return false;
+        } else {
+            return true;
+        }
+    }
+}
 
 /*
 ----- USER - RELATED FUNCTIONS -----
@@ -93,18 +110,19 @@ impl Connector {
     ///update password of specified user
     pub async fn update_user(
         &self,
-        u: User,
-        auth: String,
+        u: String,
         pw: String,
+        auth: String,
     ) -> Result<UpdateResult, Error> {
-        let filter = doc! { "username":u.username, "auth_token":auth };
+        //check auth
+        let filter = doc! { "username":u, "auth_token":auth };
         let update = doc! {"$set": {"password":pw}};
         let result = self.user_col.update_one(filter, update, None).await?;
         return Ok(result);
     }
 
-    pub async fn delete_user(&self, u: User, auth: String) -> Result<DeleteResult, Error> {
-        let filter = doc! {"username":u.username, "auth_token":auth};
+    pub async fn delete_user(&self, u: User) -> Result<DeleteResult, Error> {
+        let filter = doc! {"username":u.username, "password":u.password};
         let result = self.user_col.delete_one(filter, None).await?;
         return Ok(result);
     }
