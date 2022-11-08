@@ -11,7 +11,8 @@ use crate::{
 };
 use dotenv::dotenv;
 use mongodb::{
-    bson::{doc, extjson::de::Error},
+    bson::doc,
+    error::Error,
     options::{FindOneOptions, FindOptions},
     results::InsertOneResult,
     Client, Collection, Cursor,
@@ -75,11 +76,14 @@ impl Connector {
     }
 
     /// get user based on password & username
-    pub async fn get_user(&self, u: User) -> User {
+    pub async fn get_user(&self, u: User) -> Result<Option<User>, Error> {
         // println!("{} {}", u.username, u.password);
         let filter = doc! { "username": u.username, "password": u.password };
-        let user = self.user_col.find_one(filter, None).await.unwrap();
+        let result = self.user_col.find_one(filter, None).await?;
         // println!("{:?}", user);
-        return user.unwrap();
+        match result {
+            None => Ok(None),
+            Some(res) => Ok(Some(res)),
+        }
     }
 }

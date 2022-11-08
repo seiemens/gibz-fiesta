@@ -53,14 +53,14 @@ pub async fn login_user(
     let data = get_user_data(u).unwrap();
     let user = db.get_user(data).await;
 
-    if user.username.len() > 1 {
+    if let Ok(None) = user {
+        return Err(Status::ImATeapot);
+    } else {
         jar.add(biscuit(
             String::from("auth"),
-            String::from(user.auth_token.unwrap()),
+            String::from(user.unwrap().unwrap().auth_token.unwrap()),
         ));
         return Ok(Status::Accepted);
-    } else {
-        return Err(Status::ImATeapot);
     }
 }
 
