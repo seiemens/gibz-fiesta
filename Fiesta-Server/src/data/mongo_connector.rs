@@ -6,7 +6,7 @@
 extern crate dotenv;
 
 use crate::{
-    helpers::{biscuit::biscuit, endecr},
+    helpers::{endecr, grandmas_bakery::biscuit},
     models::{skill_model::Skill, user_model::User},
 };
 use dotenv::dotenv;

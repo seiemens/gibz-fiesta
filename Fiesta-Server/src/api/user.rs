@@ -4,7 +4,7 @@
 */
 use crate::{
     data::mongo_connector::Connector,
-    helpers::{biscuit::biscuit, endecr, token},
+    helpers::{endecr, grandmas_bakery::biscuit, token},
     models::{skill_model::Skill, user_model::User},
 };
 use argon2::Error;
