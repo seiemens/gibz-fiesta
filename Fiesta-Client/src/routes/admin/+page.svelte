@@ -4,6 +4,7 @@
     import {isAdmin} from "$lib/stores.js";
     import {beforeNavigate, goto} from "$app/navigation";
     import {hideAccordion} from "$lib/utils.js";
+    import {loadAllUsers, loadJobFields, loadSkills} from "$lib/apiCalls.js";
 
     let allUsers = []
     let jobFields = []
@@ -30,35 +31,6 @@
         loading = false;
     })
 
-    async function loadJobFields() {
-        const response = await fetch('/testJobFieldData.json', {
-            method: 'GET',
-            headers: {
-                'content-type': 'application/json'
-            }
-        });
-        return await response.json();
-    }
-
-    async function loadAllUsers() {
-        const response = await fetch('/testUserData.json', {
-            method: 'GET',
-            headers: {
-                'content-type': 'application/json'
-            }
-        });
-        return await response.json();
-    }
-
-    async function loadSkills() {
-        const response = await fetch('/testdata.json', {
-            method: 'GET',
-            headers: {
-                'content-type': 'application/json'
-            }
-        });
-        return await response.json();
-    }
 
     let userSearchTerm = '';
     let filteredUsers = [];

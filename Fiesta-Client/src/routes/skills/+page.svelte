@@ -4,16 +4,7 @@
     import {beforeNavigate, goto} from "$app/navigation";
     import {isLoggedIn} from "$lib/stores.js";
     import {hideAccordion} from "$lib/utils.js";
-
-    async function loadSkills() {
-        const response = await fetch('/testdata.json', {
-            method: 'GET',
-            headers: {
-                'content-type': 'application/json'
-            }
-        });
-        return await response.json();
-    }
+    import {loadSkills} from "$lib/apiCalls.js";
 
     let skills;
     let loading = true;

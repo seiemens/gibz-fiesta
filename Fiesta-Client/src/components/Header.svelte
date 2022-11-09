@@ -95,7 +95,7 @@
 
 <Navbar color="form" let:hidden let:toggle rounded style="transition: 0.2s">
     <NavBrand href="/" style="z-index: 49">
-        <img alt="Reading Pepe" class="mr-6 h-6 sm:h-9 scale-150 ml-3" src="pepe.webp"/>
+        <img alt="Reading Pepe" class="mr-6 h-6 sm:h-9 scale-150 ml-3" src="/pepe.webp"/>
         <span class="self-center whitespace-nowrap text-4xl font-semibold dark:text-white">GIBZ FIEŚTA</span>
     </NavBrand>
     <NavHamburger on:click={toggle}/>
