@@ -29,10 +29,10 @@ export async function loadSkills() {
 }
 
 export async function loadSpecificUser(username) {
-    let allUsers = await loadAllUsers();
-    for (let i = 0; i < allUsers.users.length; i++) {
-        if (allUsers.users[i].username === username) {
-            return allUsers.users[i];
+    let allUsers = (await loadAllUsers()).users;
+    for (let i = 0; i < allUsers.length; i++) {
+        if (allUsers[i].username === username) {
+            return allUsers[i];
         }
     }
     return null;

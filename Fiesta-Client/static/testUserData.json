@@ -36,8 +36,17 @@
       "active": false,
       "completed_skills": [
         {
-          "id": 2,
+          "id": 0,
           "marked": false,
+          "levels": [
+            {
+              "index": 1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "marked": true,
           "levels": [
             {
               "index": 1
