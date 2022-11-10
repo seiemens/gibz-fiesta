@@ -1,20 +1,34 @@
 <script>
     import {Button, ButtonGroup, Input, InputAddon, Label, Tooltip} from "flowbite-svelte";
-    import {isAdmin, isLoggedIn, secretCounter} from "../../lib/stores.js";
+    import {isAdmin, isLoggedIn, secretCounter, user} from "../../lib/stores.js";
     import {goto} from "$app/navigation";
+    import {onMount} from "svelte";
+    import {loadSpecificUser} from "../../lib/apiCalls.js";
 
     let showPW = false;
+    let username = "erika";
+    let password = "";
 
-    function doLogin() {
+    async function doLogin() {
         //TODO: CHECK WITH DB OFC
-        isLoggedIn.set(() => true);
-        isAdmin.set(() => true);
-        goto("/skills");
+        user.set(await loadSpecificUser(username));
+
+        if ($user !== null) {
+            isLoggedIn.set(true);
+            isAdmin.set($user.role === 1);
+            await goto("/skills");
+        }
     }
 
     function secret() {
         secretCounter.update(n => n + 1)
     }
+
+    onMount(async () => {
+        if ($isLoggedIn) {
+            await goto("/skills")
+        }
+    })
 
 </script>
 <div class="container mx-auto w-full sm:w-2/3 my-56 outline outline-offset-2 outline-1 outline-gray-200  dark:outline-gray-700 p-10 sm:rounded-lg">
@@ -22,7 +36,7 @@
         <h1 class="text-4xl text-center mb-8 text-gray-700 dark:text-gray-300" on:click={()=>{secret()}}>Login</h1>
         <Label class="space-y-2 mb-5">
             <span>Username</span>
-            <Input placeholder="Peter.m" size="md" type="text"/>
+            <Input bind:value={username} placeholder="Peter.m" size="md" type="text"/>
         </Label>
         <Label class="mb-2 dark:text-gray-400" for="show-password">Your password</Label>
         <ButtonGroup class="w-full">
@@ -45,13 +59,13 @@
                     {/if}
                 </button>
             </InputAddon>
-            <Input id="show-password" placeholder="{showPW ? 'passw0rd' : '********'}"
-                   type={showPW ? 'text' : 'password'}/>
+            <Input bind:value={password} id="show-password"
+                   placeholder="{showPW ? 'passw0rd' : '********'}" type={showPW ? 'text' : 'password'}/>
         </ButtonGroup>
         <a class="mb-2 dark:text-gray-600 text-sm font-medium" id="pw-forgor">Password forgotten?</a>
         <Tooltip bottom triggeredBy="#pw-forgor">Ask your Administrator to reset the password for you!</Tooltip>
         <div class="flex flex-row justify-center">
-            <Button class="mt-5" on:click={()=>doLogin()} >Login</Button>
+            <Button class="mt-5" on:click={()=>doLogin()}>Login</Button>
         </div>
     </div>
 </div>

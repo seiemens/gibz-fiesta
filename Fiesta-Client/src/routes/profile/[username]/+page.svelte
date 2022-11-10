@@ -13,7 +13,7 @@
     onMount(async () => {
         //TODO: DONT LOAD AUTH TOKEN!!! INSECURE AF
         user = await loadSpecificUser(username);
-        skills = await loadSkills();
+        skills = (await loadSkills()).skills;
         loading = false;
     })
 
@@ -26,35 +26,42 @@
             <Spinner size={10}/>
         </div>
     {:else}
-        <div class="flex flex-row gap-2 items-center">
-            <p class="text-2xl text-gray-700 dark:text-gray-300">Username: </p>
-            <p class="text-xl text-gray-700 dark:text-gray-300">{user.username}</p>
-        </div>
-        <div class="flex flex-row gap-2 items-center">
-            <p class="text-2xl text-gray-700 dark:text-gray-300">Name: </p>
-            <p class="text-xl text-gray-700 dark:text-gray-300">{user.name}</p>
-        </div>
-        <div class="flex flex-row gap-2 items-center">
-            <p class="text-2xl text-gray-700 dark:text-gray-300">Email: </p>
-            <p class="text-xl text-gray-700 dark:text-gray-300">{user.email}</p>
-        </div>
-        <div class="flex flex-row gap-2 items-center mb-6">
-            <p class="text-2xl text-gray-700 dark:text-gray-300">Field: </p>
-            <p class="text-xl text-gray-700 dark:text-gray-300">{user.field}</p>
-        </div>
-        <Heading tag="h2" customSize="text-lg font-semibold" class="mb-2 text-lg font-semibold text-gray-700 dark:text-gray-300">Finished Skills</Heading>
-        <List tag="ul" class="space-y-1">
-            {#each user.completed_skills as skill}
-                <Li>
-                    {skill.id}
-                    <List tag="ol" class="pl-5 mt-2 space-y-1">
-                        {#each skill.levels as level}
-                            <Li>{level.index}</Li>
-                        {/each}
-                    </List>
-                </Li>
-            {/each}
-        </List>
-
+        {#if user === null}
+            <div class="flex flex-row gap-2 items-center justify-center">
+                <p class="font-semibold text-xl text-center text-gray-700 dark:text-gray-300 border-b border-red-400">User Not Found!</p>
+            </div>
+        {:else}
+            <div class="flex flex-row gap-2 items-center">
+                <p class="font-semibold text-xl text-gray-700 dark:text-gray-300">Username: </p>
+                <p class="text-xl text-gray-700 dark:text-gray-300">{user.username}</p>
+            </div>
+            <div class="flex flex-row gap-2 items-center">
+                <p class="font-semibold text-xl text-gray-700 dark:text-gray-300">Name: </p>
+                <p class="text-xl text-gray-700 dark:text-gray-300">{user.name}</p>
+            </div>
+            <div class="flex flex-row gap-2 items-center">
+                <p class="font-semibold text-xl text-gray-700 dark:text-gray-300">Email: </p>
+                <p class="text-xl text-gray-700 dark:text-gray-300">{user.email}</p>
+            </div>
+            <div class="flex flex-row gap-2 items-center mb-6">
+                <p class="font-semibold text-xl text-gray-700 dark:text-gray-300">Field: </p>
+                <p class="text-xl text-gray-700 dark:text-gray-300">{user.field}</p>
+            </div>
+            <Heading tag="h2" customSize="text-xl font-semibold" class="text-gray-700 dark:text-gray-300">Finished Skills</Heading>
+            <List tag="ul" class="space-y-1" >
+                {#each user.completed_skills as skill}
+                    <Li class="mb-2">
+<!--                        get display name from skill from id from skill-->
+                        {skills.filter((item) => item.id === skill.id)[0].display_name}
+                        <List tag="ol" class="pl-5 mt space-y-1">
+                            {#each skill.levels as level}
+<!--                                get display name from index from level-->
+                                <Li>{skills.filter((item) => item.id === skill.id)[0].levels.filter((item) => item.index === level.index)[0].display_name}</Li>
+                            {/each}
+                        </List>
+                    </Li>
+                {/each}
+            </List>
+        {/if}
     {/if}
 </div>

@@ -5,6 +5,7 @@
     import {isLoggedIn} from "$lib/stores.js";
     import {hideAccordion} from "$lib/utils.js";
     import {loadSkills} from "$lib/apiCalls.js";
+    import {user} from "../../lib/stores.js";
 
     let skills;
     let loading = true;
@@ -14,8 +15,8 @@
         if (!$isLoggedIn) {
             await goto("/login")
         }
-
-        skills = await loadSkills();
+        skills = (await loadSkills()).skills;
+        setupMarkings();
         loading = false;
     })
 
@@ -24,33 +25,37 @@
         hideAccordion(from, to)
     })
 
+    function setupMarkings() {
+
+    }
+
     async function changeComplete(e, skillId, levelIndex, status) {
         e.stopPropagation();
-        for (let i = 0; i < skills.skills.length; i++) {
-            if (skills.skills[i].id === skillId) {
-                for (let j = 0; j < skills.skills[i].levels.length; j++) {
-                    if (skills.skills[i].levels[j].index === levelIndex) {
-                        skills.skills[i].levels[j].completed = status;
+        for (let i = 0; i < skills.length; i++) {
+            if (skills[i].id === skillId) {
+                for (let j = 0; j < skills[i].levels.length; j++) {
+                    if (skills[i].levels[j].index === levelIndex) {
+                        skills[i].levels[j].completed = status;
                         //TODO: SYNC WITH DB
                         break;
                     }
                 }
-                for (let j = 0; j < skills.skills[i].levels.length; j++) {
-                    if (skills.skills[i].levels[j].completed === false) {
-                        skills.skills[i].all_completed = false;
+                for (let j = 0; j < skills[i].levels.length; j++) {
+                    if (skills[i].levels[j].completed === false) {
+                        skills[i].all_completed = false;
                         return;
                     }
                 }
-                skills.skills[i].all_completed = true;
+                skills[i].all_completed = true;
             }
         }
     }
 
     async function changeMark(e, skillId, status) {
         e.stopPropagation();
-        for (let i = 0; i < skills.skills.length; i++) {
-            if (skills.skills[i].id === skillId) {
-                skills.skills[i].marked = status;
+        for (let i = 0; i < skills.length; i++) {
+            if (skills[i].id === skillId) {
+                skills[i].marked = status;
                 //TODO: SYNC WITH DB
                 break;
             }
@@ -69,7 +74,7 @@
         <Accordion
                 activeClasses="bg-blue-100 dark:bg-gray-700 text-blue-600 dark:text-white"
                 inactiveClasses="text-gray-500 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-gray-700">
-            {#each skills.skills as skill}
+            {#each skills as skill}
                 <AccordionItem>
                     <div slot="header" class="flex items-center w-full">
                         <p>

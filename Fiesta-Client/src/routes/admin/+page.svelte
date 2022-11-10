@@ -21,7 +21,7 @@
 
     onMount(async () => {
         if (!$isAdmin) {
-            goto("/login")
+            goto("/")
             return;
         }
         allUsers = await loadAllUsers();
