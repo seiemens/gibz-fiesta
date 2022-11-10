@@ -4,7 +4,6 @@
     import {isAdmin, isLoggedIn} from "../../lib/stores.js";
 
     onMount(()=>{
-        //TODO: Delete jwt or whatever we decide to do from backend to invalidate it
         localStorage.clear();
         isLoggedIn.update(()=>false);
         isAdmin.update(()=>false);

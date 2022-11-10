@@ -17,12 +17,12 @@
     }
 
 </script>
-<div class="container mx-auto w-full sm:w-2/3 my-56 outline outline-offset-2 outline-1 outline-gray-200  dark:outline-gray-700 p-10 rounded-lg">
+<div class="container mx-auto w-full sm:w-2/3 my-56 outline outline-offset-2 outline-1 outline-gray-200  dark:outline-gray-700 p-10 sm:rounded-lg">
     <div>
         <h1 class="text-4xl text-center mb-8 text-gray-700 dark:text-gray-300" on:click={()=>{secret()}}>Login</h1>
         <Label class="space-y-2 mb-5">
             <span>Username</span>
-            <Input placeholder="Peter" size="md" type="email"/>
+            <Input placeholder="Peter.m" size="md" type="text"/>
         </Label>
         <Label class="mb-2 dark:text-gray-400" for="show-password">Your password</Label>
         <ButtonGroup class="w-full">
@@ -51,7 +51,7 @@
         <a class="mb-2 dark:text-gray-600 text-sm font-medium" id="pw-forgor">Password forgotten?</a>
         <Tooltip bottom triggeredBy="#pw-forgor">Ask your Administrator to reset the password for you!</Tooltip>
         <div class="flex flex-row justify-center">
-            <Button class="mt-5" on:click={()=>doLogin()} pill={true}>Login</Button>
+            <Button class="mt-5" on:click={()=>doLogin()} >Login</Button>
         </div>
     </div>
 </div>

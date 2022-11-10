@@ -2,7 +2,7 @@
     import {Heading, P, Button, Span} from 'flowbite-svelte'
 </script>
 
-<div  class="text-center container mx-auto w-full sm:w-2/3 my-56">
+<div  class="text-center container mx-auto w-full sm:w-2/3 sm:my-56 p-10">
     <Heading tag="h1" class="mb-4" customSize="text-4xl font-extrabold  md:text-5xl lg:text-6xl">We invest in the world’s next teachers!</Heading>
     <P class="mb-6 text-lg lg:text-xl sm:px-16 xl:px-48 dark:text-gray-400">Here at <span class="font-semibold dark:text-blue-500 text-blue-600">GIBZ FIEŚTA</span> we focus on schools where technology, innovation, and capital can unlock long-term value in their students.</P>
     <Button href="/login">Get Started

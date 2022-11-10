@@ -1,18 +1,10 @@
 <script>
-    import {Accordion, AccordionItem, Button, Hr, Mark, Spinner} from "flowbite-svelte";
+    import {Accordion, AccordionItem, Button, Hr, Spinner} from "flowbite-svelte";
     import {onMount} from "svelte";
     import {beforeNavigate, goto} from "$app/navigation";
     import {isLoggedIn} from "$lib/stores.js";
-
-    async function loadSkills() {
-        const response = await fetch('/testdata.json', {
-            method: 'GET',
-            headers: {
-                'content-type': 'application/json'
-            }
-        });
-        return await response.json();
-    }
+    import {hideAccordion} from "$lib/utils.js";
+    import {loadSkills} from "$lib/apiCalls.js";
 
     let skills;
     let loading = true;
@@ -20,7 +12,7 @@
     onMount(async () => {
 
         if (!$isLoggedIn) {
-            goto("/login")
+            await goto("/login")
         }
 
         skills = await loadSkills();
@@ -29,14 +21,10 @@
 
     //fix accordion being visible for 1s after navigating
     beforeNavigate(({from, to}) => {
-        if (from.url.pathname !== to.url.pathname) {
-            let e = document.getElementById("rootDiv");
-            if (e != null)
-                e.style.display = "none";
-        }
+        hideAccordion(from, to)
     })
 
-    async function changeComplete(e,skillId, levelIndex, status) {
+    async function changeComplete(e, skillId, levelIndex, status) {
         e.stopPropagation();
         for (let i = 0; i < skills.skills.length; i++) {
             if (skills.skills[i].id === skillId) {
