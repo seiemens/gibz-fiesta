@@ -6,7 +6,7 @@
     import {loadSpecificUser} from "../../lib/apiCalls.js";
 
     let showPW = false;
-    let username = "erika";
+    let username = "pedda";
     let password = "";
 
     async function doLogin() {

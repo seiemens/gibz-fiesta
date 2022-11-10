@@ -26,6 +26,30 @@
     })
 
     function setupMarkings() {
+        for (let i = 0; i < skills.length; i++) {
+            //set markings
+            let tmp;
+            tmp = $user.marked_skills.find((item) => item.id === skills[i].id);
+            skills[i].marked = tmp !== undefined;
+
+            //set completed levels
+            for (let j = 0; j < skills[i].levels.length; j++) {
+                tmp = $user.completed_skills.find((item) => item.id === skills[i].id)
+                if (tmp !== undefined) {
+                    tmp = tmp.levels.find((item) => item.index === skills[i].levels[j].index)
+                }
+                skills[i].levels[j].completed = tmp !== undefined;
+            }
+
+            //set done mark
+            for (let j = 0; j < skills[i].levels.length; j++) {
+                skills[i].all_completed = true;
+                if (skills[i].levels[j].completed === false) {
+                    skills[i].all_completed = false;
+                    break;
+                }
+            }
+        }
 
     }
 
