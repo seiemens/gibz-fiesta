@@ -1,5 +1,5 @@
 <script>
-    import {Accordion, AccordionItem, Button, Hr, Spinner} from "flowbite-svelte";
+    import {Accordion, AccordionItem, Button, Hr, Input, Spinner} from "flowbite-svelte";
     import {onMount} from "svelte";
     import {beforeNavigate, goto} from "$app/navigation";
     import {isLoggedIn} from "$lib/stores.js";
@@ -8,6 +8,8 @@
     import {user} from "../../lib/stores.js";
 
     let skills;
+    let filteredSkills = [];
+    let filterQuery = "";
     let loading = true;
 
     onMount(async () => {
@@ -16,6 +18,7 @@
             await goto("/login")
         }
         skills = (await loadSkills()).skills;
+
         setupMarkings();
         loading = false;
     })
@@ -24,6 +27,13 @@
     beforeNavigate(({from, to}) => {
         hideAccordion(from, to)
     })
+
+    $: try {
+        filteredSkills = skills.filter(
+            (item) => item.display_name.toLowerCase().indexOf(filterQuery.toLowerCase()) !== -1
+        );
+    } catch (e) {
+    }
 
     function setupMarkings() {
         for (let i = 0; i < skills.length; i++) {
@@ -77,6 +87,8 @@
 
     async function changeMark(e, skillId, status) {
         e.stopPropagation();
+        console.log($user.completed_skills)
+        console.log($user.marked_skills)
         for (let i = 0; i < skills.length; i++) {
             if (skills[i].id === skillId) {
                 skills[i].marked = status;
@@ -88,8 +100,10 @@
 
 </script>
 <div class="container my-24" id="rootDiv">
-    <h1 class="text-4xl text-center mb-8 text-gray-700 dark:text-gray-300">Skills</h1>
-
+    <div class="flex flex-row justify-between flex-wrap">
+        <h1 class="text-4xl mb-8 text-gray-700 dark:text-gray-300 ml-auto">Skills</h1>
+        <Input bind:value={filterQuery} placeholder="Search" size="md" type="text" class="ml-auto w-2/6 h-1/2"/>
+    </div>
     {#if loading}
         <div class="text-center">
             <Spinner size={10}/>
@@ -98,7 +112,7 @@
         <Accordion
                 activeClasses="bg-blue-100 dark:bg-gray-700 text-blue-600 dark:text-white"
                 inactiveClasses="text-gray-500 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-gray-700">
-            {#each skills as skill}
+            {#each filteredSkills as skill}
                 <AccordionItem>
                     <div slot="header" class="flex items-center w-full">
                         <p>

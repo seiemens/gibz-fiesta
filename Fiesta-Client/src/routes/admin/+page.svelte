@@ -77,7 +77,6 @@
                 break;
             }
         }
-
     }
 
     let createNewUserData = {
