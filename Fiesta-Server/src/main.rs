@@ -7,7 +7,7 @@ mod models;
 extern crate rocket;
 
 //add imports below
-use api::user::{create_user, login_user, logout_user, update_user};
+use api::user::{create_user, delete_user, login_user, logout_user, update_user};
 use data::mongo_connector::Connector;
 
 #[launch]
@@ -16,6 +16,12 @@ async fn rocket() -> _ {
     // .manage() -> makes the db accessible in other files.
     rocket::build().manage(db).mount(
         "/",
-        routes![create_user, login_user, logout_user, update_user],
+        routes![
+            create_user,
+            login_user,
+            logout_user,
+            update_user,
+            delete_user
+        ],
     )
 }

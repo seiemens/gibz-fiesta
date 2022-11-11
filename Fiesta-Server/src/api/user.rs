@@ -14,6 +14,7 @@ use rocket::{
     serde::json::Json,
     Request, Response, State,
 };
+use serde::{Deserialize, Serialize};
 
 /// NON - ENDPOINT related. Used to filter out / sort User form data easier.
 pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
@@ -25,6 +26,7 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
         role: u.role.to_owned(),
         field: u.field.to_owned(),
         completed_skills: Some(Vec::<Skill>::new()),
+        marked_skills: Some(Vec::<Skill>::new()),
         auth_token: Some(token::generate(64)),
         active: Some(true),
     };
@@ -86,17 +88,41 @@ pub async fn update_user(
 
     let data = get_user_data(u).unwrap();
 
-    //authenticate user
-    let auth = db.verify_auth(auth_token.to_owned()).await;
-    if auth == false {
+    //authenticate user && check if pw isn't none
+    if db.verify_auth(auth_token.to_owned()).await == false {
         return Err(Status::Forbidden);
     } else {
-        let res = db
-            .update_user(data.username, data.password, auth_token)
-            .await
-            .unwrap();
+        let res = db.update_user(data.username, data.password).await.unwrap();
         //send error if not modifiable / not found
         if res.modified_count == 0 || res.matched_count == 0 {
+            return Err(Status::ImATeapot);
+        } else {
+            return Ok(Status::Accepted);
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct LoginData {
+    username: String,
+}
+
+#[post("/user/delete", data = "<u>")]
+pub async fn delete_user(
+    jar: &CookieJar<'_>,
+    db: &State<Connector>,
+    u: Json<LoginData>,
+) -> Result<Status, Status> {
+    let auth_token = get_biscuit_recipe(jar, String::from("auth_biscuit"));
+    let data = u.username.to_owned();
+
+    //authenticate user
+    if db.verify_auth(auth_token.to_owned()).await == false {
+        return Err(Status::Forbidden);
+    } else {
+        let res = db.delete_user(data).await.unwrap();
+        //send error if not modifiable / not found
+        if res.deleted_count == 0 {
             return Err(Status::ImATeapot);
         } else {
             return Ok(Status::Accepted);

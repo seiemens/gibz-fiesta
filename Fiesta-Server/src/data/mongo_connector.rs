@@ -84,6 +84,7 @@ impl Connector {
             field: u.field,
             auth_token: u.auth_token,
             completed_skills: u.completed_skills,
+            marked_skills: u.marked_skills,
             active: u.active,
         };
         let user = self
@@ -97,7 +98,7 @@ impl Connector {
 
     /// get user based on password & username
     pub async fn get_user(&self, u: User) -> Result<Option<User>, Error> {
-        // println!("{} {}", u.username, u.password);
+        println!("{} {}", u.username, u.password);
         let filter = doc! { "username": u.username, "password": u.password };
         let result = self.user_col.find_one(filter, None).await?;
         // println!("{:?}", user);
@@ -108,21 +109,16 @@ impl Connector {
     }
 
     ///update password of specified user
-    pub async fn update_user(
-        &self,
-        u: String,
-        pw: String,
-        auth: String,
-    ) -> Result<UpdateResult, Error> {
+    pub async fn update_user(&self, u: String, pw: String) -> Result<UpdateResult, Error> {
         //check auth
-        let filter = doc! { "username":u, "auth_token":auth };
+        let filter = doc! { "username":u };
         let update = doc! {"$set": {"password":pw}};
         let result = self.user_col.update_one(filter, update, None).await?;
         return Ok(result);
     }
 
-    pub async fn delete_user(&self, u: User) -> Result<DeleteResult, Error> {
-        let filter = doc! {"username":u.username, "password":u.password};
+    pub async fn delete_user(&self, u: String) -> Result<DeleteResult, Error> {
+        let filter = doc! {"username":u};
         let result = self.user_col.delete_one(filter, None).await?;
         return Ok(result);
     }
