@@ -7,6 +7,7 @@ mod models;
 extern crate rocket;
 
 //add imports below
+use crate::api::skill::create_skill;
 use api::user::{auth_user, create_user, delete_user, login_user, logout_user, update_user};
 use data::mongo_connector::Connector;
 
@@ -22,7 +23,8 @@ async fn rocket() -> _ {
             logout_user,
             update_user,
             delete_user,
-            auth_user
+            auth_user,
+            create_skill
         ],
     )
 }

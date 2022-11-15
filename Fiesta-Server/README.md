@@ -1,10 +1,11 @@
 # FIEŚTA-BACKEND
 ## Setup & Configuration
 In case of compiler errors, ensure that the current rust branch is `nightly`.
-To switch, use `rustup override set nightly`.
+To switch, use `rustup override set nightly`. If `nightly` isn't working, use `default`.
 ### Dependencies
 - [Rust](https://www.rust-lang.org/) & RustUp (Installed per Default)
 - [rocket.rs](https://rocket.rs/)
+- [mongo rust driver](https://www.mongodb.com/docs/drivers/rust/)
 ### Setup
 Install Rust, navigate to git Repo, run `cargo run`. Enjoy!
 ### Config

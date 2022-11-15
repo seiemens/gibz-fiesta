@@ -148,10 +148,16 @@ impl Connector {
         }
     }
 
-    pub async fn update_skill(&self, s: Skill, n: Skill) -> Result<UpdateResult, Error> {
-        let filter = doc! { "name":s.name };
+    pub async fn update_skill(&self, s: String, n: Skill) -> Result<UpdateResult, Error> {
+        let filter = doc! { "_id":s };
         let update = doc! {"$set": {"name":n.name}};
         let result = self.skill_col.update_one(filter, update, None).await?;
+        return Ok(result);
+    }
+
+    pub async fn delete_skill(&self, s: String) -> Result<DeleteResult, Error> {
+        let filter = doc! {"_id":s};
+        let result = self.user_col.delete_one(filter, None).await?;
         return Ok(result);
     }
 }
