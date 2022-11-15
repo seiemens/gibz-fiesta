@@ -23,6 +23,7 @@ pub fn get_skill_data(s: Json<Skill>) -> Result<Skill, Error> {
     return Ok(data);
 }
 
+// TODO: Implement auth verification
 #[post("/skill/create", data = "<s>")]
 pub async fn create_skill(
     db: &State<Connector>,
@@ -37,34 +38,13 @@ pub async fn create_skill(
 }
 
 #[post("/skill/complete", data = "<s>")]
+pub async fn complete_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Json<bool>, Status> {}
+
+#[post("/skill/mark", data = "<s>")]
 pub async fn mark_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Json<bool>, Status> {}
 
-// // Mark skill as completed / not completed
-// #[post("/c", format = "application/json", data = "<u>")]
-// pub fn chk_skill(u: Json<Skill>) -> status::Accepted<&'static str> {
-//     status::Accepted(Some("HEHEE"))
-// }
+#[post("/skill/delete", data = "<s>")]
+pub async fn delete_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Json<bool>, Status> {}
 
-// // [ADMIN] - Create new Skill
-// #[post("/p", format = "application/json", data = "<u>")]
-// pub fn post_skill(u: Json<Skill>) -> status::Accepted<&'static str> {
-//     status::Accepted(Some("HEHEE"))
-// }
-
-// // [ADMIN] - Delete Skill
-// #[post("/d", format = "application/json", data = "<u>")]
-// pub fn delete_skill(u: Json<Skill>) -> status::Accepted<&'static str> {
-//     status::Accepted(Some("HEHEE"))
-// }
-
-// // [ADMIN] - Create new Skill
-// #[post("/n", format = "application/json", data = "<u>")]
-// pub fn new_skill(u: Json<Skill>) -> status::Accepted<&'static str> {
-//     status::Accepted(Some("HEHEE"))
-// }
-
-// // [ADMIN] - Create new Skill
-// #[post("/u", format = "application/json", data = "<u>")]
-// pub fn upd_skill(u: Json<Skill>) -> status::Accepted<&'static str> {
-//     status::Accepted(Some("HEHEE"))
-// }
+#[post("/skill/update", data = "<s>")]
+pub async fn update_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Json<bool>, Status> {}
