@@ -53,6 +53,9 @@
 
     }
 
+
+    //Problem: What when level completed if skill not yet in completed_skills? (occurs on first complete)
+    //Solution: on complete change send request to backend with change. user object is updated on route change.
     async function changeComplete(e, skillId, levelIndex, status) {
         e.stopPropagation();
         for (let i = 0; i < skills.length; i++) {
