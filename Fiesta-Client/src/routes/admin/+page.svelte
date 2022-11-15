@@ -27,7 +27,7 @@
         allUsers = await loadAllUsers();
         let x = await loadJobFields();
         jobFields = x.fields;
-        skills = await loadSkills();
+        skills = (await loadSkills()).skills;
         loading = false;
     })
 
@@ -120,10 +120,10 @@
 
     async function deleteSkill(e, skillId) {
         e.stopPropagation();
-        for (let i = 0; i < skills.skills.length; i++) {
-            if (skills.skills[i].id === skillId) {
-                console.log(skills.skills)
-                skills.skills.splice(i, 1);
+        for (let i = 0; i < skills.length; i++) {
+            if (skills[i].id === skillId) {
+                console.log(skills)
+                skills.splice(i, 1);
                 skills = skills;
                 //TODO: DO DELETE
                 //TODO: SYNC WITH DB
@@ -134,11 +134,11 @@
 
     async function deleteLevel(e, skillId, levelIndex) {
         e.stopPropagation();
-        for (let i = 0; i < skills.skills.length; i++) {
-            if (skills.skills[i].id === skillId) {
-                for (let j = 0; j < skills.skills[i].levels.length; j++) {
-                    if (skills.skills[i].levels[j].index === levelIndex) {
-                        skills.skills[i].levels.splice(j, 1);
+        for (let i = 0; i < skills.length; i++) {
+            if (skills[i].id === skillId) {
+                for (let j = 0; j < skills[i].levels.length; j++) {
+                    if (skills[i].levels[j].index === levelIndex) {
+                        skills[i].levels.splice(j, 1);
                         skills = skills;
                         break;
                     }
@@ -148,13 +148,13 @@
     }
 
     async function deleteResource(skillId, levelIndex, resId) {
-        for (let i = 0; i < skills.skills.length; i++) {
-            if (skills.skills[i].id === skillId) {
-                for (let j = 0; j < skills.skills[i].levels.length; j++) {
-                    if (skills.skills[i].levels[j].index === levelIndex) {
-                        for (let l = 0; l < skills.skills[i].levels[j].resources.length; l++) {
-                            if (skills.skills[i].levels[j].resources[l].id === resId) {
-                                skills.skills[i].levels[j].resources.splice(l, 1);
+        for (let i = 0; i < skills.length; i++) {
+            if (skills[i].id === skillId) {
+                for (let j = 0; j < skills[i].levels.length; j++) {
+                    if (skills[i].levels[j].index === levelIndex) {
+                        for (let l = 0; l < skills[i].levels[j].resources.length; l++) {
+                            if (skills[i].levels[j].resources[l].id === resId) {
+                                skills[i].levels[j].resources.splice(l, 1);
                                 skills = skills;
                                 break;
                             }
@@ -167,7 +167,7 @@
 
     async function saveChangesSkill(e, skillId) {
         e.stopPropagation();
-        console.log(skills.skills)
+        console.log(skills)
         //TODO: sync with db
     }
 
@@ -178,12 +178,12 @@
     }
 
     async function addNewResource(skillId, levelIndex) {
-        for (let i = 0; i < skills.skills.length; i++) {
-            if (skills.skills[i].id === skillId) {
-                for (let j = 0; j < skills.skills[i].levels.length; j++) {
-                    if (skills.skills[i].levels[j].index === levelIndex) {
-                        newResourceData.id = skills.skills[i].levels[j].resources.length
-                        skills.skills[i].levels[j].resources.push(structuredClone(newResourceData))
+        for (let i = 0; i < skills.length; i++) {
+            if (skills[i].id === skillId) {
+                for (let j = 0; j < skills[i].levels.length; j++) {
+                    if (skills[i].levels[j].index === levelIndex) {
+                        newResourceData.id = skills[i].levels[j].resources.length
+                        skills[i].levels[j].resources.push(structuredClone(newResourceData))
                         //yes looks stupid but else svelte does not update the accordion
                         skills = skills;
                         isNewResourceModalOpen = false;
@@ -203,15 +203,14 @@
         "index": -1,
         "display_name": "",
         "description": "",
-        "completed": false,
         "resources": []
     }
 
     async function addNewlevel(skillId) {
-        for (let i = 0; i < skills.skills.length; i++) {
-            if (skills.skills[i].id === skillId) {
-                newLevelData.index = skills.skills[i].levels.length
-                skills.skills[i].levels.push(structuredClone(newLevelData))
+        for (let i = 0; i < skills.length; i++) {
+            if (skills[i].id === skillId) {
+                newLevelData.index = skills[i].levels.length
+                skills[i].levels.push(structuredClone(newLevelData))
                 //yes looks stupid but else svelte does not update the accordion
                 skills = skills;
                 break;
@@ -223,8 +222,6 @@
     let newSkillData = {
         "id": -1,
         "display_name": "",
-        "all_completed": false,
-        "marked": false,
         "levels": []
     }
     let resourceParent = {
@@ -233,8 +230,8 @@
     }
 
     async function addNewSkill() {
-        newSkillData.id = skills.skills.length
-        skills.skills.push(structuredClone(newSkillData))
+        newSkillData.id = skills.length
+        skills.push(structuredClone(newSkillData))
         //yes looks stupid but else svelte does not update the accordion
         skills = skills;
     }
@@ -457,12 +454,11 @@
             <Accordion
                     activeClasses="bg-blue-100 dark:bg-gray-700 text-blue-600 dark:text-white"
                     inactiveClasses="text-gray-500 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-gray-700">
-                {#each skills.skills as skill}
+                {#each skills as skill}
                     <AccordionItem>
                         <div slot="header" class="flex items-center w-full">
                             <Input bind:value={skill.display_name} size="sm" class="w-1/2" type="text" placeholder="Skill Title" on:click={(e)=>{e.stopPropagation()}}/>
                             <ButtonGroup class="ml-auto scale-75">
-                                <Button gradient color="blue" shadow="blue" on:click={(e)=>{saveChangesSkill(e,skill.id)}}>Save all changes</Button>
                                 <Button gradient color="red" shadow="red" on:click={(e)=>{deleteSkill(e,skill.id)}}>Delete</Button>
                             </ButtonGroup>
                         </div>
@@ -497,6 +493,7 @@
             </Accordion>
             <div class="flex justify-items-center">
                 <Button gradient color="green" shadow="green" class="mx-auto mt-4" on:click={()=>{addNewSkill()}}>Add New Skill</Button>
+                <Button gradient color="blue" shadow="blue" class="mx-auto mt-4" on:click={(e)=>{saveChangesSkill(e)}}>Save all changes</Button>
             </div>
 
             <Modal on:hide={()=>{closeNewResourceModal()}} bind:open={isNewResourceModalOpen} size="lg"
