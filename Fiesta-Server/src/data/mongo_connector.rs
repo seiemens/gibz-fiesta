@@ -54,17 +54,15 @@ impl Connector {
 */
 impl Connector {
     /// Verify the authenticity of a request.
-    pub async fn verify_auth(&self, token: String) -> bool {
-        //extract value from biscuit
-
+    pub async fn verify_auth(&self, token: String) -> Result<User, bool> {
         let filter = doc! {"auth_token":token};
 
         let result = self.user_col.find_one(filter, None).await;
 
         if let Ok(None) = result {
-            return false;
+            return Err(false);
         } else {
-            return true;
+            return Ok(result.unwrap().unwrap());
         }
     }
 }
@@ -98,7 +96,7 @@ impl Connector {
 
     /// get user based on password & username
     pub async fn get_user(&self, u: User) -> Result<Option<User>, Error> {
-        println!("{} {}", u.username, u.password);
+        // println!("{} {}", u.username, u.password);
         let filter = doc! { "username": u.username, "password": u.password };
         let result = self.user_col.find_one(filter, None).await?;
         // println!("{:?}", user);
@@ -110,7 +108,6 @@ impl Connector {
 
     ///update password of specified user
     pub async fn update_user(&self, u: String, pw: String) -> Result<UpdateResult, Error> {
-        //check auth
         let filter = doc! { "username":u };
         let update = doc! {"$set": {"password":pw}};
         let result = self.user_col.update_one(filter, update, None).await?;
@@ -120,6 +117,41 @@ impl Connector {
     pub async fn delete_user(&self, u: String) -> Result<DeleteResult, Error> {
         let filter = doc! {"username":u};
         let result = self.user_col.delete_one(filter, None).await?;
+        return Ok(result);
+    }
+}
+
+/*
+----- SKILLS - RELATED FUNCTIONS -----
+*/
+impl Connector {
+    pub async fn create_skill(&self, s: Skill) -> Result<InsertOneResult, Error> {
+        let new = Skill {
+            name: s.name,
+            recommended_group: s.recommended_group,
+            subcategories: s.subcategories,
+        };
+        let skill = self
+            .skill_col
+            .insert_one(new, None)
+            .await
+            .ok()
+            .expect("Error creating user");
+        Ok(skill)
+    }
+
+    pub async fn get_skills(&self) -> Result<Option<Skill>, Error> {
+        let result = self.skill_col.find_one(None, None).await?;
+        match result {
+            None => Ok(None),
+            Some(res) => Ok(Some(res)),
+        }
+    }
+
+    pub async fn update_skill(&self, s: Skill, n: Skill) -> Result<UpdateResult, Error> {
+        let filter = doc! { "name":s.name };
+        let update = doc! {"$set": {"name":n.name}};
+        let result = self.skill_col.update_one(filter, update, None).await?;
         return Ok(result);
     }
 }

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use super::skill_model::Skill;
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct User {
     pub name: Option<String>,
     pub username: String, // mandatory

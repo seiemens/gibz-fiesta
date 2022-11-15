@@ -11,6 +11,7 @@ use argon2::Error;
 use mongodb::results::InsertOneResult;
 use rocket::{
     http::{Cookie, CookieJar, Status},
+    response::content,
     serde::json::Json,
     Request, Response, State,
 };
@@ -89,7 +90,7 @@ pub async fn update_user(
     let data = get_user_data(u).unwrap();
 
     //authenticate user && check if pw isn't none
-    if db.verify_auth(auth_token.to_owned()).await == false {
+    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
         let res = db.update_user(data.username, data.password).await.unwrap();
@@ -117,7 +118,7 @@ pub async fn delete_user(
     let data = u.username.to_owned();
 
     //authenticate user
-    if db.verify_auth(auth_token.to_owned()).await == false {
+    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
         let res = db.delete_user(data).await.unwrap();
@@ -127,6 +128,21 @@ pub async fn delete_user(
         } else {
             return Ok(Status::Accepted);
         }
+    }
+}
+
+#[get("/user/auth")]
+pub async fn auth_user(
+    jar: &CookieJar<'_>,
+    db: &State<Connector>,
+) -> Result<Json<User>, Json<bool>> {
+    let auth = db
+        .verify_auth(get_biscuit_recipe(jar, String::from("auth_biscuit")))
+        .await;
+    if auth.is_ok() {
+        return Ok(Json(auth.unwrap()));
+    } else {
+        return Err(Json(false));
     }
 }
 /*
