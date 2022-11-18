@@ -18,7 +18,7 @@ use mongodb::{
     Client, Collection, Cursor,
 };
 use rocket::http::{Cookie, CookieJar, Status};
-use std::env;
+use std::{env, result};
 
 pub struct Connector {
     user_col: Collection<User>,
@@ -136,7 +136,7 @@ impl Connector {
             .insert_one(new, None)
             .await
             .ok()
-            .expect("Error creating user");
+            .expect("Error creating skill");
         Ok(skill)
     }
 
@@ -159,5 +159,25 @@ impl Connector {
         let filter = doc! {"_id":s};
         let result = self.user_col.delete_one(filter, None).await?;
         return Ok(result);
+    }
+
+    pub async fn mark_skill(&self, skill: String, auth: String) -> Result<UpdateResult, Error> {
+        let filter = doc! {"auth_token":auth};
+        let user = self.user_col.find_one(filter.clone(), None).await?;
+        let skills_vec = user.unwrap().marked_skills.unwrap();
+
+        if skills_vec.iter().any(|i| i != &skill) {
+            let result = self
+                .user_col
+                .update_one(filter, doc! {"$push":{"marked_skills":skill}}, None)
+                .await?;
+            return Ok(result);
+        } else {
+            let result = self
+                .user_col
+                .update_one(filter, doc! {"$pull":{"marked_skills":skill}}, None)
+                .await?;
+            return Ok(result);
+        }
     }
 }

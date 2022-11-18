@@ -38,13 +38,21 @@ pub async fn create_skill(
 }
 
 #[post("/skill/complete", data = "<s>")]
-pub async fn complete_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Json<bool>, Status> {}
+pub async fn complete_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Status, Status> {
+    return Ok(Status::Accepted);
+}
 
 #[post("/skill/mark", data = "<s>")]
-pub async fn mark_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Json<bool>, Status> {}
+pub async fn mark_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Status, Status> {
+    return Ok(Status::Accepted);
+}
 
 #[post("/skill/delete", data = "<s>")]
-pub async fn delete_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Json<bool>, Status> {}
+pub async fn delete_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Status, Status> {
+    return Ok(Status::Accepted);
+}
 
 #[post("/skill/update", data = "<s>")]
-pub async fn update_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Json<bool>, Status> {}
+pub async fn update_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Status, Status> {
+    return Ok(Status::Accepted);
+}
