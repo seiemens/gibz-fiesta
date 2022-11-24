@@ -25,9 +25,9 @@
 <div id="alarm" class="warning stretch"></div>
 <img src="https://media.tenor.com/AFceZ8FyeV0AAAAC/explosion-boom.gif" alt="bomb exploding" class="stretch" id="bomb">
 <div class="center">
-    <h1>Error 404</h1>
-    <h2>Page Not Found</h2>
-    <h3>Self Destruction Initiated {timer}s</h3>
+    <h1 class="text-6xl text-center mb-8 text-gray-700 dark:text-gray-300">Error 404</h1>
+    <h2 class="text-3xl text-center text-gray-700 dark:text-gray-300">Page Not Found</h2>
+    <h3 class="text-3xl text-center text-gray-700 dark:text-gray-300">Self Destruction Initiated <span class="font-bold">{timer}s</span></h3>
 </div>
 <style>
     * {
