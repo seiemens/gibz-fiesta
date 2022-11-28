@@ -14,7 +14,6 @@ use data::mongo_connector::Connector;
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{Header, Method};
 use rocket::{Request, Response};
-use rocket_cors::{AllowedOrigins, CorsOptions};
 
 #[launch]
 async fn rocket() -> _ {
