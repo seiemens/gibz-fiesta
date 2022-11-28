@@ -5,7 +5,10 @@
 use crate::{
     data::{self, mongo_connector::Connector},
     helpers::{endecr, grandmas_bakery::biscuit, token},
-    models::{skill_model::Skill, user_model::User},
+    models::{
+        skill_model::{Skill, SubSkill},
+        user_model::User,
+    },
 };
 use argon2::Error;
 use mongodb::results::InsertOneResult;
@@ -28,7 +31,7 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
         field: u.field.to_owned(),
         completed_skills: Some(Vec::<Skill>::new()),
         //TODO: Had to change <Skill> to <String> cuz error. idk if thats correct or not but baggend did not start else
-        marked_skills: Some(Vec::<String>::new()),
+        marked_skills: Some(Vec::<Skill>::new()),
         auth_token: Some(token::generate(64)),
         active: Some(true),
     };
@@ -58,18 +61,19 @@ pub async fn login_user(
     jar: &CookieJar<'_>,
     db: &State<Connector>,
     u: Json<User>,
-) -> Result<Status, Status> {
+) -> Result<Json<User>, Status> {
     let data = get_user_data(u).unwrap();
     let user = db.get_user(data).await;
 
     if let Ok(None) = user {
         return Err(Status::ImATeapot);
     } else {
+        let temp = user.clone();
         jar.add(biscuit(
             String::from("auth_biscuit"),
             String::from(user.unwrap().unwrap().auth_token.unwrap()),
         ));
-        return Ok(Status::Accepted);
+        return Ok(Json(temp.unwrap().unwrap()));
     }
 }
 
