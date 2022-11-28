@@ -27,7 +27,8 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
         role: u.role.to_owned(),
         field: u.field.to_owned(),
         completed_skills: Some(Vec::<Skill>::new()),
-        marked_skills: Some(Vec::<Skill>::new()),
+        //TODO: Had to change <Skill> to <String> cuz error. idk if thats correct or not but baggend did not start else
+        marked_skills: Some(Vec::<String>::new()),
         auth_token: Some(token::generate(64)),
         active: Some(true),
     };
