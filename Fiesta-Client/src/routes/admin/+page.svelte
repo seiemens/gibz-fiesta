@@ -5,6 +5,7 @@
     import {beforeNavigate, goto} from "$app/navigation";
     import {hideAccordion} from "$lib/utils.js";
     import {loadAllUsers, loadJobFields, loadSkills} from "$lib/apiCalls.js";
+    import {createUser} from "../../lib/apiCalls.js";
 
     let allUsers = []
     let jobFields = []
@@ -89,7 +90,7 @@
         "active": true
     }
 
-    function createNewUser() {
+    async function createNewUser() {
         if (createNewUserData.role) {
             createNewUserData.role = 1;
         } else {
@@ -97,6 +98,8 @@
         }
 
         allUsers.users.push(createNewUserData);
+        await createUser(createNewUserData);
+
         try {
             filteredUsers = allUsers.users.filter(
                 (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
@@ -306,7 +309,7 @@
                             </button>
                         </InputAddon>
                         <Input id="show-password" placeholder="{showNewUserPw ? 'passw0rd' : '********'}"
-                               type={showNewUserPw ? 'text' : 'password'}/>
+                               type={showNewUserPw ? 'text' : 'password'} bind:value={createNewUserData.password}/>
                     </ButtonGroup>
                 </div>
                 <div class="flex gap-4">

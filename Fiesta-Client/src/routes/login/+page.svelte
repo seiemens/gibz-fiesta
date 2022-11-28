@@ -1,17 +1,26 @@
 <script>
-    import {Button, ButtonGroup, Input, InputAddon, Label, Tooltip} from "flowbite-svelte";
+    import {Alert, Button, ButtonGroup, Input, InputAddon, Label, Toast, Tooltip} from "flowbite-svelte";
     import {isAdmin, isLoggedIn, secretCounter, user} from "../../lib/stores.js";
-    import {goto} from "$app/navigation";
+    import {beforeNavigate, goto} from "$app/navigation";
     import {onMount} from "svelte";
-    import {loadSpecificUser} from "../../lib/apiCalls.js";
+    import {loadSpecificUser, login} from "../../lib/apiCalls.js";
+    import {hideAccordion, setCookie} from "../../lib/utils.js";
 
     let showPW = false;
     let username = "pedda";
+    let alertHidden = "hidden"
     let password = "";
 
     async function doLogin() {
-        //TODO: CHECK WITH DB OFC
-        user.set(await loadSpecificUser(username));
+        let loginRes = await login(username, password);
+
+        if (loginRes.status !== 200) {
+            alertHidden = "block"
+            return;
+        }
+        let resJson = await loginRes.json();
+        setCookie("auth_biscuit", resJson.auth_token, 7);
+        user.set(resJson);
 
         if ($user !== null) {
             isLoggedIn.set(true);
@@ -30,8 +39,13 @@
         }
     })
 
+    beforeNavigate(({from, to}) => {
+        hideAccordion(from, to)
+    })
+
 </script>
-<div class="container mx-auto w-full sm:w-2/3 my-56 outline outline-offset-2 outline-1 outline-gray-200  dark:outline-gray-700 p-10 sm:rounded-lg">
+<div class="container mx-auto w-full sm:w-2/3 my-56 outline outline-offset-2 outline-1 outline-gray-200  dark:outline-gray-700 p-10 sm:rounded-lg"
+     id="rootDiv">
     <div>
         <h1 class="text-4xl text-center mb-8 text-gray-700 dark:text-gray-300" on:click={()=>{secret()}}>Login</h1>
         <Label class="space-y-2 mb-5">
@@ -68,4 +82,7 @@
             <Button class="mt-5" on:click={()=>doLogin()}>Login</Button>
         </div>
     </div>
+    <Alert color="red" class="mt-4 {alertHidden}">
+        <span class="font-medium">Login Error!</span> Username or Password is wrong!
+    </Alert>
 </div>

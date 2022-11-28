@@ -2,11 +2,14 @@
     import {onMount} from "svelte";
     import {goto} from "$app/navigation";
     import {isAdmin, isLoggedIn} from "../../lib/stores.js";
+    import {logout} from "../../lib/apiCalls.js";
 
-    onMount(()=>{
+    onMount(async ()=>{
+        await logout()
         localStorage.clear();
+        document.cookie = ""
         isLoggedIn.update(()=>false);
         isAdmin.update(()=>false);
-        goto("/");
+        await goto("/");
     })
 </script>

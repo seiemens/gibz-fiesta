@@ -1,3 +1,5 @@
+export const apiURL = "http://127.0.0.1:4200"
+
 export async function loadJobFields() {
     const response = await fetch('/testJobFieldData.json', {
         method: 'GET',
@@ -36,4 +38,38 @@ export async function loadSpecificUser(username) {
         }
     }
     return null;
+}
+
+export async function createUser(userData) {
+    console.log(JSON.stringify(userData))
+    const response = await fetch(apiURL + '/user/create', {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify(userData),
+
+    });
+    return await response.json();
+}
+
+export async function login(username,password) {
+    return await fetch(apiURL + '/user/login', {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({username, password}),
+
+    });
+}
+
+export async function logout() {
+    return await fetch(apiURL + '/user/logout', {
+        method: 'GET',
+        credentials: 'include'
+    });
+}
+
+export async function checkAuth(){
+    return await fetch(apiURL + '/user/auth', {
+        method: 'GET',
+        credentials: 'include'
+    });
 }

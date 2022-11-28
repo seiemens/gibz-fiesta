@@ -3,13 +3,16 @@
     import {DarkMode, Navbar, NavBrand, NavHamburger, NavLi, NavUl} from 'flowbite-svelte'
     import {isAdmin, isLoggedIn, secretCounter, user} from "../lib/stores.js";
     import {navigating} from "$app/stores";
+    import {checkAuth} from "../lib/apiCalls.js";
 
     let btnClass = "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm 5 z-50";
 
     let links = []
 
     function checkSignIn() {
-        //TODO: Check for logged in user
+        let authRes = checkAuth();
+        console.log(authRes)
+
         return [$isLoggedIn, $isAdmin];
     }
 
@@ -27,7 +30,7 @@
             if ($isAdmin) {
                 links = [...links, {label: "Admin Panel", href: "/admin"}];
             }
-            links = [...links, {label: "Profile", href: "/profile/"+$user.username}];
+            links = [...links, {label: "Profile", href: "/profile/" + $user.username}];
             links = [...links, {label: "Logout", href: "/logout"}];
         } else {
             links = [...links, {label: "Login", href: "/login"}];
