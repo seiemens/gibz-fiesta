@@ -7,9 +7,9 @@
     import {hideAccordion, setCookie} from "../../lib/utils.js";
 
     let showPW = false;
-    let username = "pedda";
+    let username = "admin";
+    let password = "123456";
     let alertHidden = "hidden"
-    let password = "";
 
     async function doLogin() {
         let loginRes = await login(username, password);
@@ -19,9 +19,7 @@
             return;
         }
         let resJson = await loginRes.json();
-        setCookie("auth_biscuit", resJson.auth_token, 7);
         user.set(resJson);
-
         if ($user !== null) {
             isLoggedIn.set(true);
             isAdmin.set($user.role === 1);

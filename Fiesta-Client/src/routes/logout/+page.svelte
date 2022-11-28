@@ -5,9 +5,8 @@
     import {logout} from "../../lib/apiCalls.js";
 
     onMount(async ()=>{
-        await logout()
+        await logout();
         localStorage.clear();
-        document.cookie = ""
         isLoggedIn.update(()=>false);
         isAdmin.update(()=>false);
         await goto("/");

@@ -10,14 +10,19 @@
     let links = []
 
     function checkSignIn() {
-        let authRes = checkAuth();
-        console.log(authRes)
-
-        return [$isLoggedIn, $isAdmin];
+        if ($isLoggedIn == false) {
+            return [false, false];
+        }
+        return checkAuth().then((res) => {
+            return res.json().then((j) => {
+                return [true, j.role === 1]
+            });
+        });
     }
 
-    function generateNavLinks() {
-        let res = checkSignIn();
+    async function generateNavLinks() {
+        let res = await checkSignIn();
+        console.log(res)
         isLoggedIn.update(() => res[0]);
         isAdmin.update(() => res[1]);
 
