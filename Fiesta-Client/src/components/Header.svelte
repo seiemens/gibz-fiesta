@@ -10,21 +10,20 @@
     let links = []
 
     function checkSignIn() {
-        if ($isLoggedIn == false) {
-            return [false, false];
+        if ($isLoggedIn === false) {
+            return {role: -1};
         }
         return checkAuth().then((res) => {
             return res.json().then((j) => {
-                return [true, j.role === 1]
+                return j;
             });
         });
     }
 
     async function generateNavLinks() {
         let res = await checkSignIn();
-        console.log(res)
-        isLoggedIn.update(() => res[0]);
-        isAdmin.update(() => res[1]);
+        isLoggedIn.update(() => res.role !== -1);
+        isAdmin.update(() => res.role === 1);
 
         links = []
         links = [...links, {label: "Home", href: "/"}];

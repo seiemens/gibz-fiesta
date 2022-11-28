@@ -1,11 +1,30 @@
 <script>
-    import {Accordion, AccordionItem, Button, ButtonGroup, Hr, Input, InputAddon, Label, Modal, Spinner, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, TableSearch, Textarea, Toggle} from "flowbite-svelte";
+    import {
+        Accordion,
+        AccordionItem,
+        Button,
+        ButtonGroup,
+        Hr,
+        Input,
+        InputAddon,
+        Label,
+        Modal,
+        Spinner,
+        TableBody,
+        TableBodyCell,
+        TableBodyRow,
+        TableHead,
+        TableHeadCell,
+        TableSearch,
+        Textarea,
+        Toggle
+    } from "flowbite-svelte";
     import {onMount} from "svelte";
     import {isAdmin} from "$lib/stores.js";
     import {beforeNavigate, goto} from "$app/navigation";
     import {hideAccordion} from "$lib/utils.js";
     import {loadAllUsers, loadJobFields, loadSkills} from "$lib/apiCalls.js";
-    import {createUser} from "../../lib/apiCalls.js";
+    import {createUser, deleteUserDb, editUser, login} from "../../lib/apiCalls.js";
 
     let allUsers = []
     let jobFields = []
@@ -60,21 +79,26 @@
             );
         } catch (e) {
         }
-
-        //TODO: EDIT IN DB
+        editUser(userToEdit.username, userToEditPw).then((res) => {
+            console.log(res)
+        })
     }
 
     function deleteUser(email) {
         for (let i = 0; i < allUsers.users.length; i++) {
             if (allUsers.users[i].email == email) {
-                allUsers.users.splice(i, 1);
-                try {
-                    filteredUsers = allUsers.users.filter(
-                        (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
-                    );
-                } catch (e) {
-                }
-                //TODO: DELETE FROM DB
+                deleteUserDb(allUsers.users[i].username).then((res) => {
+                    console.log(res)
+                    if (res.status === 202) {
+                        allUsers.users.splice(i, 1);
+                        try {
+                            filteredUsers = allUsers.users.filter(
+                                (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
+                            );
+                        } catch (e) {
+                        }
+                    }
+                })
                 break;
             }
         }
@@ -253,7 +277,8 @@
 
 </script>
 
-<div class="container mx-auto w-full sm:w-2/3 sm:mt-24 sm:mb-24 outline outline-offset-2 outline-1 outline-gray-200 dark:outline-gray-700 p-10 sm:rounded-lg" id="rootDiv">
+<div class="container mx-auto w-full sm:w-2/3 sm:mt-24 sm:mb-24 outline outline-offset-2 outline-1 outline-gray-200 dark:outline-gray-700 p-10 sm:rounded-lg"
+     id="rootDiv">
     <div>
         <h1 class="text-4xl text-center mb-8 text-gray-700 dark:text-gray-300">Admin Panel</h1>
         {#if loading}
@@ -281,7 +306,8 @@
                 <div>
                     <Label class="space-y-2 min-w-min">
                         <span>E-Mail</span>
-                        <Input bind:value={createNewUserData.email} placeholder="peter@example.com" size="md" type="email"/>
+                        <Input bind:value={createNewUserData.email} placeholder="peter@example.com" size="md"
+                               type="email"/>
                     </Label>
                 </div>
                 <div>
@@ -335,7 +361,8 @@
                 </div>
             </div>
             <div class="flex flex-row gap-4">
-                <Button class="mt-5" color="green" gradient on:click={()=>{createNewUser()}} shadow="green">Create</Button>
+                <Button class="mt-5" color="green" gradient on:click={()=>{createNewUser()}} shadow="green">Create
+                </Button>
                 <Button class="mt-5" color="blue" gradient on:click={()=>{listUserModal= true}} shadow="blue">
                     Show All Users
                 </Button>
@@ -353,11 +380,16 @@
                     <TableBody class="divide-y">
                         {#each filteredUsers as item}
                             <TableBodyRow>
-                                <TableBodyCell class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.username}</TableBodyCell>
-                                <TableBodyCell class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.name}</TableBodyCell>
-                                <TableBodyCell class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.email}</TableBodyCell>
-                                <TableBodyCell class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.field}</TableBodyCell>
-                                <TableBodyCell class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.role ? "Yes" : "No"}</TableBodyCell>
+                                <TableBodyCell
+                                        class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.username}</TableBodyCell>
+                                <TableBodyCell
+                                        class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.name}</TableBodyCell>
+                                <TableBodyCell
+                                        class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.email}</TableBodyCell>
+                                <TableBodyCell
+                                        class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.field}</TableBodyCell>
+                                <TableBodyCell
+                                        class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.role ? "Yes" : "No"}</TableBodyCell>
                                 <TableBodyCell class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">
                                     <Button gradient shadow="blue" color="blue" class="scale-75"
                                             on:click={()=>{openEditUserModal(item)}}><i class="material-icons">edit</i>
@@ -392,7 +424,8 @@
                     <div>
                         <Label class="space-y-2 min-w-min">
                             <span>E-Mail</span>
-                            <Input bind:value={userToEdit.email} placeholder="peter@example.com" size="md" type="email"/>
+                            <Input bind:value={userToEdit.email} placeholder="peter@example.com" size="md"
+                                   type="email"/>
                         </Label>
                     </div>
                     <div>
@@ -421,7 +454,7 @@
                             </InputAddon>
                             <Input id="show-password-edit"
                                    placeholder="{showNewUserPw ? 'cannot view password, only change' : '********'}"
-                                   type={showNewUserPw ? 'text' : 'password'}/>
+                                   type={showNewUserPw ? 'text' : 'password'} bind:value={userToEditPw}/>
                         </ButtonGroup>
                     </div>
                     <div class="flex gap-4">
@@ -459,9 +492,12 @@
                 {#each skills as skill}
                     <AccordionItem>
                         <div slot="header" class="flex items-center w-full">
-                            <Input bind:value={skill.display_name} size="sm" class="w-1/2" type="text" placeholder="Skill Title" on:click={(e)=>{e.stopPropagation()}}/>
+                            <Input bind:value={skill.display_name} size="sm" class="w-1/2" type="text"
+                                   placeholder="Skill Title" on:click={(e)=>{e.stopPropagation()}}/>
                             <ButtonGroup class="ml-auto scale-75">
-                                <Button gradient color="red" shadow="red" on:click={(e)=>{deleteSkill(e,skill.id)}}>Delete</Button>
+                                <Button gradient color="red" shadow="red" on:click={(e)=>{deleteSkill(e,skill.id)}}>
+                                    Delete
+                                </Button>
                             </ButtonGroup>
                         </div>
                         <Accordion
@@ -470,32 +506,48 @@
                             {#each skill.levels as level}
                                 <AccordionItem>
                                     <div slot="header" class="flex items-center w-full">
-                                        <Input bind:value={level.display_name} size="sm" class="w-1/2" type="text" placeholder="Level Title" on:click={(e)=>{e.stopPropagation()}}/>
+                                        <Input bind:value={level.display_name} size="sm" class="w-1/2" type="text"
+                                               placeholder="Level Title" on:click={(e)=>{e.stopPropagation()}}/>
                                         <ButtonGroup class="ml-auto scale-75">
-                                            <Button gradient shadow="red" color="red" on:click={(e)=>{deleteLevel(e,skill.id, level.index)}}>Delete</Button>
+                                            <Button gradient shadow="red" color="red"
+                                                    on:click={(e)=>{deleteLevel(e,skill.id, level.index)}}>Delete
+                                            </Button>
                                         </ButtonGroup>
                                     </div>
                                     <Textarea rows="4" bind:value={level.description} placeholder="Level Description"/>
                                     <Hr class="my-8" height="h-px"/>
                                     {#each level.resources as resource}
                                         <ButtonGroup class="ml-2">
-                                            <Button gradient color="purpleToBlue" shadow="blue" href="{resource.url}" class="mb-2">{resource.display_name}</Button>
-                                            <Button gradient shadow="red" color="red" class="mb-2" on:click={()=>{deleteResource(skill.id,level.index,resource.id)}}>Delete</Button>
+                                            <Button gradient color="purpleToBlue" shadow="blue" href="{resource.url}"
+                                                    class="mb-2">{resource.display_name}</Button>
+                                            <Button gradient shadow="red" color="red" class="mb-2"
+                                                    on:click={()=>{deleteResource(skill.id,level.index,resource.id)}}>
+                                                Delete
+                                            </Button>
                                         </ButtonGroup>
                                     {/each}
-                                    <Button gradient color="green" shadow="green" class="ml-2 mb-2" on:click={()=>{openNewResourceModal(skill.id, level.index)}}>Add New Resource</Button>
+                                    <Button gradient color="green" shadow="green" class="ml-2 mb-2"
+                                            on:click={()=>{openNewResourceModal(skill.id, level.index)}}>Add New
+                                        Resource
+                                    </Button>
                                 </AccordionItem>
                             {/each}
                         </Accordion>
                         <div class="flex justify-items-center">
-                            <Button gradient color="green" shadow="green" class="mx-auto mt-4" on:click={()=>{addNewlevel(skill.id)}}>Add New Level</Button>
+                            <Button gradient color="green" shadow="green" class="mx-auto mt-4"
+                                    on:click={()=>{addNewlevel(skill.id)}}>Add New Level
+                            </Button>
                         </div>
                     </AccordionItem>
                 {/each}
             </Accordion>
             <div class="flex justify-items-center">
-                <Button gradient color="green" shadow="green" class="mx-auto mt-4" on:click={()=>{addNewSkill()}}>Add New Skill</Button>
-                <Button gradient color="blue" shadow="blue" class="mx-auto mt-4" on:click={(e)=>{saveChangesSkill(e)}}>Save all changes</Button>
+                <Button gradient color="green" shadow="green" class="mx-auto mt-4" on:click={()=>{addNewSkill()}}>Add
+                    New Skill
+                </Button>
+                <Button gradient color="blue" shadow="blue" class="mx-auto mt-4" on:click={(e)=>{saveChangesSkill(e)}}>
+                    Save all changes
+                </Button>
             </div>
 
             <Modal on:hide={()=>{closeNewResourceModal()}} bind:open={isNewResourceModalOpen} size="lg"
@@ -504,13 +556,15 @@
                     <div>
                         <Label class="space-y-2 min-w-min">
                             <span>Display Name</span>
-                            <Input bind:value={newResourceData.display_name} placeholder="PDF File" size="md" type="text"/>
+                            <Input bind:value={newResourceData.display_name} placeholder="PDF File" size="md"
+                                   type="text"/>
                         </Label>
                     </div>
                     <div>
                         <Label class="space-y-2 min-w-min">
                             <span>Link</span>
-                            <Input bind:value={newResourceData.url} placeholder="https://example.com" size="md" type="text"/>
+                            <Input bind:value={newResourceData.url} placeholder="https://example.com" size="md"
+                                   type="text"/>
                         </Label>
                     </div>
                 </div>

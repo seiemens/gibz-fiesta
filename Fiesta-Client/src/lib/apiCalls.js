@@ -51,7 +51,7 @@ export async function createUser(userData) {
     return await response.json();
 }
 
-export async function login(username,password) {
+export async function login(username, password) {
     return await fetch(apiURL + '/user/login', {
         method: 'POST',
         credentials: 'include',
@@ -67,9 +67,25 @@ export async function logout() {
     });
 }
 
-export async function checkAuth(){
+export async function checkAuth() {
     return await fetch(apiURL + '/user/auth', {
         method: 'GET',
         credentials: 'include'
+    });
+}
+
+export async function deleteUserDb(username) {
+    return await fetch(apiURL + '/user/delete', {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({username})
+    });
+}
+
+export async function editUser(username, password) {
+    return await fetch(apiURL + '/user/update', {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({username, password})
     });
 }
