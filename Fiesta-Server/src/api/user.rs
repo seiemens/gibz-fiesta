@@ -117,6 +117,7 @@ pub async fn change_user_state(
     db: &State<Connector>,
     u: Json<String>,
 ) -> Result<Status, Status> {
+    return Ok(Status::Accepted);
 }
 
 #[post("/user/delete", data = "<u>")]
