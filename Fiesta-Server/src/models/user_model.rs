@@ -1,9 +1,11 @@
+use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
 use super::skill_model::Skill;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct User {
+    pub _id: Option<ObjectId>,
     pub name: Option<String>,
     pub username: String, // mandatory
     pub password: String,

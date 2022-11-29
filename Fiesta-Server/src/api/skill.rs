@@ -16,6 +16,7 @@ use serde::{Deserialize, Serialize};
 /// NON - ENDPOINT related. Used to filter out / sort User form data easier.
 pub fn get_skill_data(s: Json<Skill>) -> Result<Skill, Error> {
     let data = Skill {
+        _id: s._id.to_owned(),
         name: s.name.to_owned(),
         recommended_group: s.recommended_group.to_owned(),
         subcategories: s.subcategories.to_owned(),
@@ -57,6 +58,15 @@ pub async fn mark_skill(
         Ok(skill) => Ok(Status::Accepted),
         Err(_) => Err(Status::ImATeapot),
     }
+}
+
+#[get("/skill/all")]
+pub async fn get_all_skills(
+    jar: &CookieJar<'_>,
+    db: &State<Connector>,
+) -> Result<Json<Vec<Skill>>, Status> {
+    let data = db.get_skills().await;
+    return Ok(Json(data.unwrap()));
 }
 
 // TODO: Delete Skill

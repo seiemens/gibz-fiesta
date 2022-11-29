@@ -7,9 +7,9 @@ mod models;
 extern crate rocket;
 
 //add imports below
-use crate::api::skill::{create_skill, mark_skill};
+use crate::api::skill::{create_skill, get_all_skills, mark_skill};
 use api::user::{
-    auth_user, create_user, delete_user, get_all, login_user, logout_user, update_user,
+    auth_user, create_user, delete_user, get_all_users, login_user, logout_user, test, update_user,
 };
 use data::mongo_connector::Connector;
 // imports needed for Cors struct
@@ -34,8 +34,10 @@ async fn rocket() -> _ {
                 delete_user,
                 auth_user,
                 create_skill,
-                get_all,
-                mark_skill
+                get_all_users,
+                get_all_skills,
+                mark_skill,
+                test
             ],
         )
         .attach(Cors)

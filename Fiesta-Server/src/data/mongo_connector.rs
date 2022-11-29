@@ -91,6 +91,7 @@ impl Connector {
     /// insert a new user into the DB
     pub async fn create_user(&self, u: User) -> Result<InsertOneResult, Error> {
         let new = User {
+            _id: u._id,
             name: u.name,
             username: u.username,
             password: u.password,
@@ -174,6 +175,7 @@ impl Connector {
 impl Connector {
     pub async fn create_skill(&self, s: Skill) -> Result<InsertOneResult, Error> {
         let new = Skill {
+            _id: s._id,
             name: s.name,
             recommended_group: s.recommended_group,
             subcategories: s.subcategories,
@@ -187,16 +189,20 @@ impl Connector {
         Ok(skill)
     }
 
-    pub async fn get_skills(&self) -> Result<Option<Skill>, Error> {
-        let result = self.skill_col.find_one(None, None).await?;
-        match result {
-            None => Ok(None),
-            Some(res) => Ok(Some(res)),
+    pub async fn get_skills(&self) -> Result<Vec<Skill>, Status> {
+        let mut cursor = self.skill_col.find(None, None).await.unwrap();
+
+        let mut array: Vec<Skill> = Vec::new();
+        while let Ok(Some(user)) = cursor.try_next().await {
+            println!("{:?}", user);
+            array.push(user);
         }
+
+        return Ok(array);
     }
 
     pub async fn update_skill(&self, s: String, n: Skill) -> Result<UpdateResult, Error> {
-        let filter = doc! { "_id":s };
+        let filter = doc! { "name":s }; // extract skill with objectID
         let update = doc! {"$set": {"name":n.name}};
         let result = self.skill_col.update_one(filter, update, None).await?;
         return Ok(result);

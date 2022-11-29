@@ -17,6 +17,7 @@ use crate::{
 use argon2::Error;
 use mongodb::results::InsertOneResult;
 use rocket::{
+    data::N,
     http::{Cookie, CookieJar, Status},
     response::content,
     serde::json::Json,
@@ -32,6 +33,7 @@ pub struct LoginData {
 /// NON - ENDPOINT related. Used to filter out / sort User form data easier.
 pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
     let data = User {
+        _id: u._id.to_owned(),
         name: u.name.to_owned(),
         username: u.username.to_owned(),
         password: endecr::encrypt(u.password.to_owned()),
@@ -159,7 +161,7 @@ pub async fn auth_user(
 }
 
 #[get("/user/all")]
-pub async fn get_all(
+pub async fn get_all_users(
     jar: &CookieJar<'_>,
     db: &State<Connector>,
 ) -> Result<Json<Vec<User>>, Status> {
@@ -173,6 +175,14 @@ pub async fn get_all(
     } else {
         return Err(Status::ImATeapot);
     }
+}
+
+// FOR TESTING
+#[post("/user/test", data = "<u>")]
+pub async fn test(db: &State<Connector>, u: Json<User>) -> Result<Json<User>, Status> {
+    let res = db.get_user(get_user_data(u).unwrap()).await;
+
+    return Ok(Json(res.unwrap().unwrap()));
 }
 
 /*
