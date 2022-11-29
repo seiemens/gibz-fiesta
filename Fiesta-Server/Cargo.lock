@@ -531,6 +531,7 @@ dependencies = [
  "rocket_cors",
  "rust-argon2",
  "serde",
+ "tokio",
 ]
 
 [[package]]

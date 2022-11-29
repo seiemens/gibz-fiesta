@@ -4,7 +4,11 @@
 */
 use crate::{
     data::{self, mongo_connector::Connector},
-    helpers::{endecr, grandmas_bakery::biscuit, token},
+    helpers::{
+        endecr,
+        grandmas_bakery::{biscuit, get_biscuit_recipe},
+        token,
+    },
     models::{
         skill_model::{Skill, SubSkill},
         user_model::User,
@@ -20,6 +24,11 @@ use rocket::{
 };
 use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct LoginData {
+    username: String,
+}
+
 /// NON - ENDPOINT related. Used to filter out / sort User form data easier.
 pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
     let data = User {
@@ -30,17 +39,11 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
         role: u.role.to_owned(),
         field: u.field.to_owned(),
         completed_skills: Some(Vec::<Skill>::new()),
-        //TODO: Had to change <Skill> to <String> cuz error. idk if thats correct or not but baggend did not start else
         marked_skills: Some(Vec::<Skill>::new()),
         auth_token: Some(token::generate(64)),
         active: Some(true),
     };
     return Ok(data);
-}
-
-/// NON - ENDPOINT related. Used to extract value from cookie.
-pub fn get_biscuit_recipe(jar: &CookieJar<'_>, name: String) -> String {
-    return String::from(jar.get(&name).map(|cookie| cookie.value()).unwrap());
 }
 
 #[post("/user/create", data = "<u>")]
@@ -108,11 +111,6 @@ pub async fn update_user(
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct LoginData {
-    username: String,
-}
-
 #[post("/user/delete", data = "<u>")]
 pub async fn delete_user(
     jar: &CookieJar<'_>,
@@ -150,6 +148,24 @@ pub async fn auth_user(
         return Err(Json(false));
     }
 }
+
+#[get("/user/all")]
+pub async fn get_all(
+    jar: &CookieJar<'_>,
+    db: &State<Connector>,
+) -> Result<Json<Vec<User>>, Status> {
+    let auth = db
+        .verify_admin(get_biscuit_recipe(jar, String::from("auth_biscuit")))
+        .await;
+
+    if auth.is_ok() {
+        let data = db.get_users().await;
+        return Ok(Json(data.unwrap()));
+    } else {
+        return Err(Status::ImATeapot);
+    }
+}
+
 /*
 --- GENERAL ROUTES ---
 */

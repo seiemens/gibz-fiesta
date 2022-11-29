@@ -1,6 +1,10 @@
 use crate::{
     data::{self, mongo_connector::Connector},
-    helpers::{endecr, grandmas_bakery::biscuit, token},
+    helpers::{
+        endecr,
+        grandmas_bakery::{biscuit, get_biscuit_recipe},
+        token,
+    },
     models::{skill_model::Skill, user_model::User},
 };
 use argon2::Error;
@@ -43,15 +47,29 @@ pub async fn complete_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Sta
 }
 
 #[post("/skill/mark", data = "<s>")]
-pub async fn mark_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Status, Status> {
-    return Ok(Status::Accepted);
+pub async fn mark_skill(
+    db: &State<Connector>,
+    jar: &CookieJar<'_>,
+    s: Json<Skill>,
+) -> Result<Status, Status> {
+    let data = get_skill_data(s).unwrap();
+    let auth = get_biscuit_recipe(jar, "auth_cookie".to_string());
+
+    let result = db.mark_skill(data.name, auth).await;
+
+    match result {
+        Ok(skill) => Ok(Status::Accepted),
+        Err(_) => Err(Status::ImATeapot),
+    }
 }
 
+// TODO: Delete Skill
 #[post("/skill/delete", data = "<s>")]
 pub async fn delete_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Status, Status> {
     return Ok(Status::Accepted);
 }
 
+// TODO: Update Skill
 #[post("/skill/update", data = "<s>")]
 pub async fn update_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Status, Status> {
     return Ok(Status::Accepted);

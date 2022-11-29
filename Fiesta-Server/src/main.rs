@@ -8,7 +8,9 @@ extern crate rocket;
 
 //add imports below
 use crate::api::skill::create_skill;
-use api::user::{auth_user, create_user, delete_user, login_user, logout_user, update_user};
+use api::user::{
+    auth_user, create_user, delete_user, get_all, login_user, logout_user, update_user,
+};
 use data::mongo_connector::Connector;
 // imports needed for Cors struct
 use rocket::fairing::{Fairing, Info, Kind};
@@ -21,18 +23,22 @@ async fn rocket() -> _ {
     let db = Connector::init().await;
 
     // .manage() -> makes the db accessible in other files.
-    rocket::build().manage(db).mount(
-        "/",
-        routes![
-            create_user,
-            login_user,
-            logout_user,
-            update_user,
-            delete_user,
-            auth_user,
-            create_skill
-        ],
-    ).attach(Cors)
+    rocket::build()
+        .manage(db)
+        .mount(
+            "/",
+            routes![
+                create_user,
+                login_user,
+                logout_user,
+                update_user,
+                delete_user,
+                auth_user,
+                create_skill,
+                get_all
+            ],
+        )
+        .attach(Cors)
 }
 
 // enable cors for rocket

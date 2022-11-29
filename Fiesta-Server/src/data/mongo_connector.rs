@@ -10,6 +10,7 @@ use crate::{
     models::{skill_model::Skill, user_model::User},
 };
 use dotenv::dotenv;
+use futures::stream::StreamExt;
 use mongodb::{
     bson::doc,
     error::Error,
@@ -17,9 +18,12 @@ use mongodb::{
     results::{DeleteResult, InsertOneResult, UpdateResult},
     Client, Collection, Cursor,
 };
-use rocket::http::{Cookie, CookieJar, Status};
-use std::{env, result};
-
+use rocket::{
+    futures::{self, TryStreamExt},
+    http::{Cookie, CookieJar, Status},
+    serde::json::Json,
+};
+use std::{env, result, vec};
 pub struct Connector {
     user_col: Collection<User>,
     skill_col: Collection<Skill>,
@@ -56,6 +60,19 @@ impl Connector {
     /// Verify the authenticity of a request.
     pub async fn verify_auth(&self, token: String) -> Result<User, bool> {
         let filter = doc! {"auth_token":token};
+
+        let result = self.user_col.find_one(filter, None).await;
+
+        if let Ok(None) = result {
+            return Err(false);
+        } else {
+            return Ok(result.unwrap().unwrap());
+        }
+    }
+
+    //verify that its an admin
+    pub async fn verify_admin(&self, token: String) -> Result<User, bool> {
+        let filter = doc! {"auth_token":token, "role":0};
 
         let result = self.user_col.find_one(filter, None).await;
 
@@ -119,6 +136,18 @@ impl Connector {
         let result = self.user_col.delete_one(filter, None).await?;
         return Ok(result);
     }
+
+    pub async fn get_users(&self) -> Result<Vec<User>, Status> {
+        let mut cursor = self.user_col.find(None, None).await.unwrap();
+
+        let mut array: Vec<User> = Vec::new();
+
+        while let Ok(Some(user)) = cursor.try_next().await {
+            array.push(user);
+        }
+
+        return Ok(array);
+    }
 }
 
 /*
@@ -166,6 +195,7 @@ impl Connector {
         let user = self.user_col.find_one(filter.clone(), None).await?;
         let skills_vec = user.unwrap().marked_skills.unwrap();
 
+        // TODO: Change this to search the _id (ObjectID) instead of name
         if skills_vec.iter().any(|i| i.name.to_string() != skill) {
             let result = self
                 .user_col
@@ -180,4 +210,8 @@ impl Connector {
             return Ok(result);
         }
     }
+
+    // TODO: Implement "Add Resource to Skill"
+    // TODO: Implement "Remove Resource from Skill"
+    // TODO: Implement "Complete Skill"
 }
