@@ -1,30 +1,11 @@
 <script>
-    import {
-        Accordion,
-        AccordionItem,
-        Button,
-        ButtonGroup,
-        Hr,
-        Input,
-        InputAddon,
-        Label,
-        Modal,
-        Spinner,
-        TableBody,
-        TableBodyCell,
-        TableBodyRow,
-        TableHead,
-        TableHeadCell,
-        TableSearch,
-        Textarea,
-        Toggle
-    } from "flowbite-svelte";
+    import {Accordion, AccordionItem, Button, ButtonGroup, Hr, Input, InputAddon, Label, Modal, Spinner, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, TableSearch, Textarea, Toggle} from "flowbite-svelte";
     import {onMount} from "svelte";
     import {isAdmin} from "$lib/stores.js";
     import {beforeNavigate, goto} from "$app/navigation";
     import {hideAccordion} from "$lib/utils.js";
     import {loadAllUsers, loadJobFields, loadSkills} from "$lib/apiCalls.js";
-    import {createUser, deleteUserDb, editUser, login} from "../../lib/apiCalls.js";
+    import {createUser, deleteUserDb, editUser} from "../../lib/apiCalls.js";
 
     let allUsers = []
     let jobFields = []
@@ -56,7 +37,7 @@
     let filteredUsers = [];
 
     $: try {
-        filteredUsers = allUsers.users.filter(
+        filteredUsers = allUsers.filter(
             (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
         );
     } catch (e) {
@@ -74,7 +55,7 @@
     function closeEditUserModal() {
         editUserModal = false;
         try {
-            filteredUsers = allUsers.users.filter(
+            filteredUsers = allUsers.filter(
                 (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
             );
         } catch (e) {
@@ -85,14 +66,13 @@
     }
 
     function deleteUser(email) {
-        for (let i = 0; i < allUsers.users.length; i++) {
-            if (allUsers.users[i].email == email) {
-                deleteUserDb(allUsers.users[i].username).then((res) => {
-                    console.log(res)
+        for (let i = 0; i < allUsers.length; i++) {
+            if (allUsers[i].email == email) {
+                deleteUserDb(allUsers[i].username).then((res) => {
                     if (res.status === 202) {
-                        allUsers.users.splice(i, 1);
+                        allUsers.splice(i, 1);
                         try {
-                            filteredUsers = allUsers.users.filter(
+                            filteredUsers = allUsers.filter(
                                 (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
                             );
                         } catch (e) {
@@ -114,18 +94,19 @@
         "active": true
     }
 
-    async function createNewUser() {
+    async function createNewUser(e) {
+        e.preventDefault()
         if (createNewUserData.role) {
             createNewUserData.role = 1;
         } else {
             createNewUserData.role = 0;
         }
 
-        allUsers.users.push(createNewUserData);
+        allUsers.push(createNewUserData);
         await createUser(createNewUserData);
 
         try {
-            filteredUsers = allUsers.users.filter(
+            filteredUsers = allUsers.filter(
                 (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
             );
         } catch (e) {
@@ -194,6 +175,8 @@
     async function saveChangesSkill(e, skillId) {
         e.stopPropagation();
         console.log(skills)
+        console.log(filteredUsers)
+        console.log(allUsers)
         //TODO: sync with db
     }
 
@@ -290,24 +273,23 @@
             <h2 class="text-2xl text-gray-700 dark:text-gray-300">User Management</h2>
             <Hr class="mb-4"/>
             <h2 class="text-xl text-gray-700 dark:text-gray-300 mb-8">Create New User</h2>
-            <div class="grid gap-6 mb-6 md:grid-cols-2">
+            <form class="grid gap-6 mb-6 md:grid-cols-2" on:submit={(e)=>{createNewUser(e)}}>
                 <div>
                     <Label class="space-y-2">
                         <span>Username</span>
-                        <Input bind:value={createNewUserData.username} placeholder="Peter.m" size="md" type="text"/>
+                        <Input bind:value={createNewUserData.username} placeholder="Peter.m" size="md" type="text" required/>
                     </Label>
                 </div>
                 <div>
                     <Label class="space-y-2">
                         <span>Name</span>
-                        <Input bind:value={createNewUserData.name} placeholder="Peter Meier" size="md" type="text"/>
+                        <Input bind:value={createNewUserData.name} placeholder="Peter Meier" size="md" type="text" required/>
                     </Label>
                 </div>
                 <div>
                     <Label class="space-y-2 min-w-min">
                         <span>E-Mail</span>
-                        <Input bind:value={createNewUserData.email} placeholder="peter@example.com" size="md"
-                               type="email"/>
+                        <Input bind:value={createNewUserData.email} placeholder="peter@example.com" size="md" type="email" required/>
                     </Label>
                 </div>
                 <div>
@@ -335,7 +317,7 @@
                             </button>
                         </InputAddon>
                         <Input id="show-password" placeholder="{showNewUserPw ? 'passw0rd' : '********'}"
-                               type={showNewUserPw ? 'text' : 'password'} bind:value={createNewUserData.password}/>
+                               type={showNewUserPw ? 'text' : 'password'} bind:value={createNewUserData.password} required/>
                     </ButtonGroup>
                 </div>
                 <div class="flex gap-4">
@@ -359,14 +341,15 @@
                                 color="green">{createNewUserData.active ? "Yes" : "No"}</Toggle>
                     </div>
                 </div>
-            </div>
-            <div class="flex flex-row gap-4">
-                <Button class="mt-5" color="green" gradient on:click={()=>{createNewUser()}} shadow="green">Create
-                </Button>
-                <Button class="mt-5" color="blue" gradient on:click={()=>{listUserModal= true}} shadow="blue">
-                    Show All Users
-                </Button>
-            </div>
+                <div></div>
+                <div class="flex flex-row gap-4">
+                    <Button class="mt-5" color="green" gradient type="submit" shadow="green">Create</Button>
+                    <Button class="mt-5" color="blue" gradient on:click={()=>{listUserModal= true}} shadow="blue">
+                        Show All Users
+                    </Button>
+                </div>
+            </form>
+
             <Modal autoclose={false} bind:open={listUserModal} size="xl" title="User List">
                 <TableSearch bind:inputValue={userSearchTerm} hoverable={true} placeholder="Search by username">
                     <TableHead>

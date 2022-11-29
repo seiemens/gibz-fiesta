@@ -11,11 +11,9 @@ export async function loadJobFields() {
 }
 
 export async function loadAllUsers() {
-    const response = await fetch('/testUserData.json', {
+    const response = await fetch(apiURL+"/user/all", {
         method: 'GET',
-        headers: {
-            'content-type': 'application/json'
-        }
+        credentials: 'include'
     });
     return await response.json();
 }
@@ -31,7 +29,7 @@ export async function loadSkills() {
 }
 
 export async function loadSpecificUser(username) {
-    let allUsers = (await loadAllUsers()).users;
+    let allUsers = await loadAllUsers();
     for (let i = 0; i < allUsers.length; i++) {
         if (allUsers[i].username === username) {
             return allUsers[i];

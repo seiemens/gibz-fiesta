@@ -48,6 +48,7 @@
                 <p class="text-xl text-gray-700 dark:text-gray-300">{user.field}</p>
             </div>
             <Heading tag="h2" customSize="text-xl font-semibold" class="text-gray-700 dark:text-gray-300">Finished Skills</Heading>
+            {#if user.completed_skills.length > 0}
             <List tag="ul" class="space-y-1" >
                 {#each user.completed_skills as skill}
                     <Li class="mb-2">
@@ -62,6 +63,12 @@
                     </Li>
                 {/each}
             </List>
+                {:else}
+                <div class="flex flex-row gap-2 items-center mb-6">
+                    <p class="text-lg text-gray-700 dark:text-gray-300">no skills completed yet</p>
+                </div>
+                {/if}
+
         {/if}
     {/if}
 </div>
