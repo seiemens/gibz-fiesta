@@ -1,4 +1,4 @@
-use rocket::http::Cookie;
+use rocket::http::{Cookie, CookieJar, SameSite};
 
 /*
 ----- BISCUIT GENERATOR -----

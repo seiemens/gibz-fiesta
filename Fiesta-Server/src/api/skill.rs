@@ -49,7 +49,7 @@ pub async fn mark_skill(
     s: Json<Skill>,
 ) -> Result<Status, Status> {
     let data = get_skill_data(s).unwrap();
-    let auth = get_biscuit_recipe(jar, "auth_cookie".to_string());
+    let auth = get_biscuit_recipe(jar, String::from("auth_biscuit"));
 
     let result = db.mark_skill(data.name, auth).await;
 

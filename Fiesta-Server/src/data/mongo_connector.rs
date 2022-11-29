@@ -72,7 +72,7 @@ impl Connector {
 
     //verify that its an admin
     pub async fn verify_admin(&self, token: String) -> Result<User, bool> {
-        let filter = doc! {"auth_token":token, "role":0};
+        let filter = doc! {"auth_token":token, "role":1};
 
         let result = self.user_col.find_one(filter, None).await;
 
@@ -147,6 +147,24 @@ impl Connector {
         }
 
         return Ok(array);
+    }
+
+    pub async fn deactivate_user(&self, id: String) -> Result<UpdateResult, Error> {
+        let filter = doc! { "_id":id };
+        let user = self.user_col.find_one(filter.clone(), None).await?;
+        let result;
+        if user.unwrap().active == Some(true) {
+            result = self
+                .user_col
+                .update_one(filter, doc! {"$set":{"active":false}}, None)
+                .await?;
+        } else {
+            result = self
+                .user_col
+                .update_one(filter, doc! {"$set":{"active":true}}, None)
+                .await?;
+        }
+        return Ok(result);
     }
 }
 

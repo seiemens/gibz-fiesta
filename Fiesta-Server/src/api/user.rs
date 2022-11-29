@@ -111,6 +111,14 @@ pub async fn update_user(
     }
 }
 
+#[post("/user/state", data = "<u>")]
+pub async fn change_user_state(
+    jar: &CookieJar<'_>,
+    db: &State<Connector>,
+    u: Json<String>,
+) -> Result<Status, Status> {
+}
+
 #[post("/user/delete", data = "<u>")]
 pub async fn delete_user(
     jar: &CookieJar<'_>,
@@ -167,41 +175,8 @@ pub async fn get_all(
 }
 
 /*
---- GENERAL ROUTES ---
-*/
-
-// Register new account
-// #[post("/register", format = "application/json", data = "<u>")]
-// pub fn new_user(u: Json<User<'_>>) -> status::Accepted<&str> {
-//     status::Accepted(Some(u.name))
-// }
-
-// #[post("/login", format = "application/json", data = "<u>")]
-// pub fn login_user(u: Json<User<'_>>) -> status::Accepted<&str> {
-//     status::Accepted(Some(u.name))
-// }
-
-/*
 --- ADMIN ROUTES ---
 */
-
-// [ADMIN] - Get all users in list for mgmt
-// #[get("/getUser")]
-// pub fn get_users() -> status::Accepted<&'static str> {
-//     status::Accepted(Some("yay"))
-// }
-
-// // [ADMIN] - Update user
-// #[post("/setUser", format = "application/json", data = "<u>")]
-// pub fn set_user(u: Json<User<'_>>) -> status::Accepted<&str> {
-//     status::Accepted(Some(u.name))
-// }
-
-// // [ADMIN] - Delete user
-// #[post("/delUser", format = "application/json", data = "<u>")]
-// pub fn del_user(u: Json<User<'_>>) -> status::Accepted<&str> {
-//     status::Accepted(Some(u.name))
-// }
 
 // // [ADMIN] - Deactivate user
 // #[post("/deactivateUser", format = "application/json", data = "<u>")]

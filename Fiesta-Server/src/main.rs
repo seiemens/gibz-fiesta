@@ -7,7 +7,7 @@ mod models;
 extern crate rocket;
 
 //add imports below
-use crate::api::skill::create_skill;
+use crate::api::skill::{create_skill, mark_skill};
 use api::user::{
     auth_user, create_user, delete_user, get_all, login_user, logout_user, update_user,
 };
@@ -34,7 +34,8 @@ async fn rocket() -> _ {
                 delete_user,
                 auth_user,
                 create_skill,
-                get_all
+                get_all,
+                mark_skill
             ],
         )
         .attach(Cors)
@@ -53,7 +54,10 @@ impl Fairing for Cors {
     }
 
     async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
-        response.set_header(Header::new("Access-Control-Allow-Origin", "http://localhost:5173"));
+        response.set_header(Header::new(
+            "Access-Control-Allow-Origin",
+            "http://localhost:5173",
+        ));
         response.set_header(Header::new(
             "Access-Control-Allow-Methods",
             "POST, PATCH, PUT, DELETE, HEAD, OPTIONS, GET",
