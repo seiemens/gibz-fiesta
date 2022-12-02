@@ -4,8 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct Skill {
     pub _id: Option<ObjectId>,
     pub name: String,
-    pub recommended_group: String, //[OPTIONAL] usage: to recommend certain skills / competences to certain teachers (e.g. IT Teachers)
-    pub subcategories: Vec<SubSkill>,
+    pub levels: Vec<SubSkill>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]

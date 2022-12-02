@@ -113,6 +113,7 @@ pub async fn update_user(
     }
 }
 
+// TODO: Activate / Deac User
 #[post("/user/state", data = "<u>")]
 pub async fn change_user_state(
     jar: &CookieJar<'_>,

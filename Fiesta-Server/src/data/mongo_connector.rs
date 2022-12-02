@@ -12,7 +12,7 @@ use crate::{
 use dotenv::dotenv;
 use futures::stream::StreamExt;
 use mongodb::{
-    bson::doc,
+    bson::{doc, oid::ObjectId, Bson},
     error::Error,
     options::{FindOneOptions, FindOptions},
     results::{DeleteResult, InsertOneResult, UpdateResult},
@@ -177,8 +177,7 @@ impl Connector {
         let new = Skill {
             _id: s._id,
             name: s.name,
-            recommended_group: s.recommended_group,
-            subcategories: s.subcategories,
+            levels: s.levels,
         };
         let skill = self
             .skill_col
@@ -201,26 +200,41 @@ impl Connector {
         return Ok(array);
     }
 
-    pub async fn update_skill(&self, s: String, n: Skill) -> Result<UpdateResult, Error> {
-        let filter = doc! { "name":s }; // extract skill with objectID
-        let update = doc! {"$set": {"name":n.name}};
-        let result = self.skill_col.update_one(filter, update, None).await?;
-        return Ok(result);
+    pub async fn update_skill(&self, s: Skill, auth: String) -> Result<InsertOneResult, Error> {
+        let new = Skill {
+            _id: s._id,
+            name: s.name,
+            levels: s.levels,
+        };
+
+        self.skill_col
+            .delete_one(doc! { "_id": s._id }, None)
+            .await?;
+
+        let res = self.skill_col.insert_one(new, None).await;
+
+        return Ok(res.unwrap());
     }
 
-    pub async fn delete_skill(&self, s: String) -> Result<DeleteResult, Error> {
-        let filter = doc! {"_id":s};
+    pub async fn delete_skill(&self, s: Skill) -> Result<DeleteResult, Error> {
+        let new = Skill {
+            _id: s._id,
+            name: s.name,
+            levels: s.levels,
+        };
+
+        let filter = doc! {"_id":new._id};
+
         let result = self.user_col.delete_one(filter, None).await?;
         return Ok(result);
     }
 
-    pub async fn mark_skill(&self, skill: String, auth: String) -> Result<UpdateResult, Error> {
+    pub async fn mark_skill(&self, skill: ObjectId, auth: String) -> Result<UpdateResult, Error> {
         let filter = doc! {"auth_token":auth};
         let user = self.user_col.find_one(filter.clone(), None).await?;
         let skills_vec = user.unwrap().marked_skills.unwrap();
 
-        // TODO: Change this to search the _id (ObjectID) instead of name
-        if skills_vec.iter().any(|i| i.name.to_string() != skill) {
+        if skills_vec.iter().any(|i| i._id.unwrap() != skill) {
             let result = self
                 .user_col
                 .update_one(filter, doc! {"$push":{"marked_skills":skill}}, None)
@@ -230,6 +244,31 @@ impl Connector {
             let result = self
                 .user_col
                 .update_one(filter, doc! {"$pull":{"marked_skills":skill}}, None)
+                .await?;
+            return Ok(result);
+        }
+    }
+
+    pub async fn complete_skill(
+        &self,
+        skill: ObjectId,
+        auth: String,
+    ) -> Result<UpdateResult, Error> {
+        let filter = doc! {"auth_token":auth};
+        let user = self.user_col.find_one(filter.clone(), None).await?;
+        let skills_vec = user.unwrap().completed_skills.unwrap();
+
+        // TODO: Change this to search the _id (ObjectID) instead of name
+        if skills_vec.iter().any(|i| i._id.unwrap() != skill) {
+            let result = self
+                .user_col
+                .update_one(filter, doc! {"$push":{"completed_skills":skill}}, None)
+                .await?;
+            return Ok(result);
+        } else {
+            let result = self
+                .user_col
+                .update_one(filter, doc! {"$pull":{"completed_skills":skill}}, None)
                 .await?;
             return Ok(result);
         }

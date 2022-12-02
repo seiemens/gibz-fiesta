@@ -4,7 +4,7 @@ use crate::{
     models::{skill_model::Skill, user_model::User},
 };
 use argon2::Error;
-use mongodb::results::InsertOneResult;
+use mongodb::results::{InsertOneResult, UpdateResult};
 use rocket::{
     http::{Cookie, CookieJar, Status},
     response::content,
@@ -18,8 +18,7 @@ pub fn get_skill_data(s: Json<Skill>) -> Result<Skill, Error> {
     let data = Skill {
         _id: s._id.to_owned(),
         name: s.name.to_owned(),
-        recommended_group: s.recommended_group.to_owned(),
-        subcategories: s.subcategories.to_owned(),
+        levels: s.levels.to_owned(),
     };
     return Ok(data);
 }
@@ -39,8 +38,20 @@ pub async fn create_skill(
 }
 
 #[post("/skill/complete", data = "<s>")]
-pub async fn complete_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Status, Status> {
-    return Ok(Status::Accepted);
+pub async fn complete_skill(
+    db: &State<Connector>,
+    jar: &CookieJar<'_>,
+    s: Json<Skill>,
+) -> Result<Json<UpdateResult>, Status> {
+    let data = get_skill_data(s).unwrap();
+    let auth = get_biscuit_recipe(jar, String::from("auth_biscuit"));
+
+    let result = db.complete_skill(data._id.unwrap(), auth).await;
+
+    match result {
+        Ok(skill) => Ok(Json(skill)),
+        Err(_) => Err(Status::ImATeapot),
+    }
 }
 
 #[post("/skill/mark", data = "<s>")]
@@ -52,7 +63,7 @@ pub async fn mark_skill(
     let data = get_skill_data(s).unwrap();
     let auth = get_biscuit_recipe(jar, String::from("auth_biscuit"));
 
-    let result = db.mark_skill(data.name, auth).await;
+    let result = db.mark_skill(data._id.unwrap(), auth).await;
 
     match result {
         Ok(skill) => Ok(Status::Accepted),
@@ -71,12 +82,42 @@ pub async fn get_all_skills(
 
 // TODO: Delete Skill
 #[post("/skill/delete", data = "<s>")]
-pub async fn delete_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Status, Status> {
-    return Ok(Status::Accepted);
+pub async fn delete_skill(
+    db: &State<Connector>,
+    jar: &CookieJar<'_>,
+    s: Json<Skill>,
+) -> Result<Status, Status> {
+    //authenticate user
+    let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string());
+    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
+        return Err(Status::Forbidden);
+    } else {
+        let data = get_skill_data(s).unwrap();
+
+        let res = db.delete_skill(data).await.unwrap();
+        //send error if not modifiable / not found
+        if res.deleted_count == 0 {
+            return Err(Status::ImATeapot);
+        } else {
+            return Ok(Status::Accepted);
+        }
+    }
 }
 
 // TODO: Update Skill
 #[post("/skill/update", data = "<s>")]
-pub async fn update_skill(db: &State<Connector>, s: Json<Skill>) -> Result<Status, Status> {
-    return Ok(Status::Accepted);
+pub async fn update_skill(
+    db: &State<Connector>,
+    jar: &CookieJar<'_>,
+    s: Json<Skill>,
+) -> Result<Json<InsertOneResult>, Status> {
+    let data = get_skill_data(s).unwrap();
+    let auth = get_biscuit_recipe(jar, String::from("auth_biscuit"));
+
+    let result = db.update_skill(data, auth).await;
+
+    match result {
+        Ok(skill) => Ok(Json(skill)),
+        Err(_) => Err(Status::ImATeapot),
+    }
 }
