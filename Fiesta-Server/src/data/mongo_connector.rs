@@ -258,7 +258,6 @@ impl Connector {
         let user = self.user_col.find_one(filter.clone(), None).await?;
         let skills_vec = user.unwrap().completed_skills.unwrap();
 
-        // TODO: Change this to search the _id (ObjectID) instead of name
         if skills_vec.iter().any(|i| i._id.unwrap() != skill) {
             let result = self
                 .user_col
@@ -276,5 +275,4 @@ impl Connector {
 
     // TODO: Implement "Add Resource to Skill"
     // TODO: Implement "Remove Resource from Skill"
-    // TODO: Implement "Complete Skill"
 }

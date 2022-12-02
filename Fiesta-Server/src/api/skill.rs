@@ -80,7 +80,6 @@ pub async fn get_all_skills(
     return Ok(Json(data.unwrap()));
 }
 
-// TODO: Delete Skill
 #[post("/skill/delete", data = "<s>")]
 pub async fn delete_skill(
     db: &State<Connector>,
@@ -104,7 +103,6 @@ pub async fn delete_skill(
     }
 }
 
-// TODO: Update Skill
 #[post("/skill/update", data = "<s>")]
 pub async fn update_skill(
     db: &State<Connector>,
