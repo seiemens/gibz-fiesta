@@ -71,7 +71,6 @@
         } catch (e) {
         }
         editUser(userToEdit.username, userToEditPw).then((res) => {
-            console.log(res)
         })
     }
 
@@ -139,7 +138,6 @@
         e.stopPropagation();
         for (let i = 0; i < skills.length; i++) {
             if (skills[i].id === skillId) {
-                console.log(skills)
                 skills.splice(i, 1);
                 skills = skills;
                 //TODO: DO DELETE

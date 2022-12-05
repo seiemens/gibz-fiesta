@@ -93,8 +93,6 @@
 
     async function changeMark(e, skillId, status) {
         e.stopPropagation();
-        console.log($user.completed_skills)
-        console.log($user.marked_skills)
         for (let i = 0; i < skills.length; i++) {
             if (skills[i].id === skillId) {
                 skills[i].marked = status;
