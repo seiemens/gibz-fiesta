@@ -7,6 +7,8 @@ export async function loadJobFields() {
             'content-type': 'application/json'
         }
     });
+    if(response.status===500)
+        return {}
     return await response.json();
 }
 
@@ -15,6 +17,8 @@ export async function loadAllUsers() {
         method: 'GET',
         credentials: 'include'
     });
+    if(response.status===500)
+        return {}
     return await response.json();
 }
 
@@ -25,6 +29,8 @@ export async function loadSkills() {
             'content-type': 'application/json'
         }
     });
+    if(response.status===500)
+        return {}
     return await response.json();
 }
 
@@ -46,6 +52,8 @@ export async function createUser(userData) {
         body: JSON.stringify(userData),
 
     });
+    if(response.status===500)
+        return {}
     return await response.json();
 }
 

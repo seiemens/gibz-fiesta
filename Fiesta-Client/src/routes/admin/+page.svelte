@@ -6,6 +6,8 @@
     import {hideAccordion} from "$lib/utils.js";
     import {loadAllUsers, loadJobFields, loadSkills} from "$lib/apiCalls.js";
     import {createUser, deleteUserDb, editUser} from "../../lib/apiCalls.js";
+    import {isLoggedIn, user} from "../../lib/stores.js";
+    import {checkSignIn} from "../../lib/utils.js";
 
     let allUsers = []
     let jobFields = []
@@ -21,10 +23,18 @@
     })
 
     onMount(async () => {
+        if($user === undefined)
+            $user = await checkSignIn();
+
+        if (!$isLoggedIn) {
+            goto("/skills")
+            return;
+        }
         if (!$isAdmin) {
             goto("/")
             return;
         }
+
         allUsers = await loadAllUsers();
         let x = await loadJobFields();
         jobFields = x.fields;

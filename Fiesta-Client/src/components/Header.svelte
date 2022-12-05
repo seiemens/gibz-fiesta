@@ -3,27 +3,14 @@
     import {DarkMode, Navbar, NavBrand, NavHamburger, NavLi, NavUl} from 'flowbite-svelte'
     import {isAdmin, isLoggedIn, secretCounter, user} from "../lib/stores.js";
     import {navigating} from "$app/stores";
-    import {checkAuth} from "../lib/apiCalls.js";
+    import {checkSignIn} from "../lib/utils.js";
 
     let btnClass = "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm 5 z-50";
 
     let links = []
 
-    function checkSignIn() {
-        if ($isLoggedIn === false) {
-            return {role: -1};
-        }
-        return checkAuth().then((res) => {
-            return res.json().then((j) => {
-                return j;
-            });
-        });
-    }
-
     async function generateNavLinks() {
-        let res = await checkSignIn();
-        isLoggedIn.update(() => res.role !== -1);
-        isAdmin.update(() => res.role === 1);
+        $user = await checkSignIn();
 
         links = []
         links = [...links, {label: "Home", href: "/"}];

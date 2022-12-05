@@ -6,6 +6,7 @@
     import {hideAccordion} from "$lib/utils.js";
     import {loadSkills} from "$lib/apiCalls.js";
     import {user} from "../../lib/stores.js";
+    import {checkSignIn} from "../../lib/utils.js";
 
     let skills;
     let filteredSkills = [];
@@ -14,11 +15,13 @@
 
     onMount(async () => {
 
+        if ($user === undefined)
+            $user = await checkSignIn();
+
         if (!$isLoggedIn) {
-            await goto("/login")
+            await goto("/")
         }
         skills = (await loadSkills()).skills;
-
         setupMarkings();
         loading = false;
     })
@@ -105,7 +108,7 @@
 <div class="container my-24" id="rootDiv">
     <div class="flex flex-row justify-between flex-wrap">
         <h1 class="text-4xl mb-8 text-gray-700 dark:text-gray-300 ml-auto">Skills</h1>
-        <Input bind:value={filterQuery} placeholder="Search" size="md" type="text" class="ml-auto w-2/6 h-1/2"/>
+        <Input bind:value={filterQuery} class="ml-auto w-2/6 h-1/2" placeholder="Search" size="md" type="text"/>
     </div>
     {#if loading}
         <div class="text-center">
