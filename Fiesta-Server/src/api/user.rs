@@ -93,7 +93,7 @@ pub async fn update_user(
     jar: &CookieJar<'_>,
     db: &State<Connector>,
     u: Json<User>, //contains username and new pw
-) -> Result<Status, Status> {
+) -> Result<Json<InsertOneResult>, Status> {
     //extract cookie from request and process it
     let auth_token = get_biscuit_recipe(jar, String::from("auth_biscuit"));
 
@@ -103,40 +103,28 @@ pub async fn update_user(
     if db.verify_auth(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
-        let res = db.update_user(data.username, data.password).await.unwrap();
-        //send error if not modifiable / not found
-        if res.modified_count == 0 || res.matched_count == 0 {
-            return Err(Status::ImATeapot);
-        } else {
-            return Ok(Status::Accepted);
+        let res = db.update_user(data).await;
+        match res {
+            Ok(user) => Ok(Json(user)),
+            Err(_) => Err(Status::ImATeapot),
         }
     }
-}
-
-// TODO: Activate / Deac User
-#[post("/user/state", data = "<u>")]
-pub async fn change_user_state(
-    jar: &CookieJar<'_>,
-    db: &State<Connector>,
-    u: Json<String>,
-) -> Result<Status, Status> {
-    return Ok(Status::Accepted);
 }
 
 #[post("/user/delete", data = "<u>")]
 pub async fn delete_user(
     jar: &CookieJar<'_>,
     db: &State<Connector>,
-    u: Json<LoginData>,
+    u: Json<User>,
 ) -> Result<Status, Status> {
     let auth_token = get_biscuit_recipe(jar, String::from("auth_biscuit"));
-    let data = u.username.to_owned();
+    let data = get_user_data(u);
 
     //authenticate user
     if db.verify_auth(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
-        let res = db.delete_user(data).await.unwrap();
+        let res = db.delete_user(data.unwrap()).await.unwrap();
         //send error if not modifiable / not found
         if res.deleted_count == 0 {
             return Err(Status::ImATeapot);

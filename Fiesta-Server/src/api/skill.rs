@@ -23,17 +23,22 @@ pub fn get_skill_data(s: Json<Skill>) -> Result<Skill, Error> {
     return Ok(data);
 }
 
-// TODO: Implement auth verification
 #[post("/skill/create", data = "<s>")]
 pub async fn create_skill(
     db: &State<Connector>,
+    jar: &CookieJar<'_>,
     s: Json<Skill>,
 ) -> Result<Json<InsertOneResult>, Status> {
-    let data = get_skill_data(s).unwrap();
-    let result = db.create_skill(data).await;
-    match result {
-        Ok(skill) => Ok(Json(skill)),
-        Err(_) => Err(Status::ImATeapot),
+    let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string());
+    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
+        return Err(Status::Forbidden);
+    } else {
+        let data = get_skill_data(s).unwrap();
+        let result = db.create_skill(data).await;
+        match result {
+            Ok(skill) => Ok(Json(skill)),
+            Err(_) => Err(Status::ImATeapot),
+        }
     }
 }
 

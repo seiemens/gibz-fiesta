@@ -124,16 +124,32 @@ impl Connector {
         }
     }
 
-    ///update password of specified user
-    pub async fn update_user(&self, u: String, pw: String) -> Result<UpdateResult, Error> {
-        let filter = doc! { "username":u };
-        let update = doc! {"$set": {"password":pw}};
-        let result = self.user_col.update_one(filter, update, None).await?;
-        return Ok(result);
+    pub async fn update_user(&self, u: User) -> Result<InsertOneResult, Error> {
+        let new = User {
+            _id: u._id,
+            username: u.username,
+            name: u.name,
+            password: u.password,
+            email: u.email,
+            role: u.role,
+            field: u.field,
+            completed_skills: u.completed_skills,
+            marked_skills: u.marked_skills,
+            auth_token: u.auth_token,
+            active: u.active,
+        };
+
+        self.user_col
+            .delete_one(doc! { "_id": u._id }, None)
+            .await?;
+
+        let res = self.user_col.insert_one(new, None).await.ok();
+
+        return Ok(res.unwrap());
     }
 
-    pub async fn delete_user(&self, u: String) -> Result<DeleteResult, Error> {
-        let filter = doc! {"username":u};
+    pub async fn delete_user(&self, u: User) -> Result<DeleteResult, Error> {
+        let filter = doc! {"_id":u._id};
         let result = self.user_col.delete_one(filter, None).await?;
         return Ok(result);
     }
@@ -272,7 +288,4 @@ impl Connector {
             return Ok(result);
         }
     }
-
-    // TODO: Implement "Add Resource to Skill"
-    // TODO: Implement "Remove Resource from Skill"
 }
