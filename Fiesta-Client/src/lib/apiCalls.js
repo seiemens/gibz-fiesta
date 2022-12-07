@@ -107,3 +107,11 @@ export async function deleteSkillDb(skill) {
         body: JSON.stringify(skill)
     });
 }
+
+export async function markSkill(skill) {
+    return await fetch(apiURL + '/skill/mark', {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify(skill)
+    });
+}

@@ -7,6 +7,7 @@
     import {loadSkills} from "$lib/apiCalls.js";
     import {user} from "../../lib/stores.js";
     import {checkSignIn} from "../../lib/utils.js";
+    import {markSkill} from "../../lib/apiCalls.js";
 
     let skills;
     let filteredSkills = [];
@@ -91,15 +92,18 @@
         }
     }
 
-    async function changeMark(e, skillId, status) {
+    async function changeMark(e, skill, status) {
         e.stopPropagation();
-        for (let i = 0; i < skills.length; i++) {
-            if (skills[i].display_id === skillId) {
-                skills[i].marked = status;
-                //TODO: SYNC WITH DB
-                break;
+        markSkill(skill).then((res) => {
+            if (res.status === 202) {
+                for (let i = 0; i < skills.length; i++) {
+                    if (skills[i].display_id === skill.display_id) {
+                        skills[i].marked = status;
+                        break;
+                    }
+                }
             }
-        }
+        });
     }
 
 </script>
@@ -131,9 +135,9 @@
                         </p>
                         <div class="ml-auto">
                             {#if skill.marked}
-                                <Button outline color="yellow" class="scale-75" on:click={(e)=>{changeMark(e,skill.display_id,false)}}>Unmark</Button>
+                                <Button outline color="yellow" class="scale-75" on:click={(e)=>{changeMark(e,skill,false)}}>Unmark</Button>
                             {:else}
-                                <Button outline color="yellow" class="scale-75" on:click={(e)=>{changeMark(e,skill.display_id,true)}}>Mark</Button>
+                                <Button outline color="yellow" class="scale-75" on:click={(e)=>{changeMark(e,skill,true)}}>Mark</Button>
                             {/if}
                         </div>
                     </div>
