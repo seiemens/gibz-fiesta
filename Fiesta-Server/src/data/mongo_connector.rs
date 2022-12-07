@@ -224,7 +224,10 @@ impl Connector {
         return Ok(array);
     }
 
-    pub async fn update_skill(&self, s: Skill, auth: String) -> Result<InsertOneResult, Error> {
+    pub async fn update_skill(&self, mut s: Skill, auth: String) -> Result<InsertOneResult, Error> {
+        if s._id == None {
+            s._id = Some(ObjectId::new());
+        }
         let new = Skill {
             _id: s._id,
             display_id: s.display_id,
