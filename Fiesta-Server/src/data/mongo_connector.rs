@@ -89,7 +89,11 @@ impl Connector {
 */
 impl Connector {
     /// insert a new user into the DB
-    pub async fn create_user(&self, u: User) -> Result<InsertOneResult, Error> {
+    pub async fn create_user(&self, mut u: User) -> Result<InsertOneResult, Error> {
+        if u._id == None {
+            u._id = Some(ObjectId::new());
+        }
+
         let new = User {
             _id: u._id,
             name: u.name,
