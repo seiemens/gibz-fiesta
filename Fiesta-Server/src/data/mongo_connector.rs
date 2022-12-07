@@ -251,7 +251,7 @@ impl Connector {
 
         let filter = doc! {"_id":new._id};
 
-        let result = self.user_col.delete_one(filter, None).await?;
+        let result = self.skill_col.delete_one(filter, None).await?;
         return Ok(result);
     }
 
