@@ -13,7 +13,7 @@ pub struct SubSkill {
     pub id: i32,
     pub name: Option<String>,
     pub description: Option<String>,
-    pub resources: Option<Resources>,
+    pub resources: Option<Vec<Resources>>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
