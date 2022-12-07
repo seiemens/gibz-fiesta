@@ -7,8 +7,8 @@
     import {hideAccordion, setCookie} from "../../lib/utils.js";
 
     let showPW = false;
-    let username = "admin";
-    let password = "123456";
+    let username = "";
+    let password = "";
     let alertHidden = "hidden"
 
     async function doLogin() {
