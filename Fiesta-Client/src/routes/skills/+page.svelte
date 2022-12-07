@@ -21,7 +21,7 @@
         if (!$isLoggedIn) {
             await goto("/")
         }
-        skills = (await loadSkills()).skills;
+        skills = await loadSkills();
         setupMarkings();
         loading = false;
     })
@@ -33,7 +33,7 @@
 
     $: try {
         filteredSkills = skills.filter(
-            (item) => item.display_name.toLowerCase().indexOf(filterQuery.toLowerCase()) !== -1
+            (item) => item.name.toLowerCase().indexOf(filterQuery.toLowerCase()) !== -1
         );
     } catch (e) {
     }
@@ -42,14 +42,14 @@
         for (let i = 0; i < skills.length; i++) {
             //set markings
             let tmp;
-            tmp = $user.marked_skills.find((item) => item.id === skills[i].id);
+            tmp = $user.marked_skills.find((item) => item.display_id === skills[i].display_id);
             skills[i].marked = tmp !== undefined;
 
             //set completed levels
             for (let j = 0; j < skills[i].levels.length; j++) {
-                tmp = $user.completed_skills.find((item) => item.id === skills[i].id)
+                tmp = $user.completed_skills.find((item) => item.display_id === skills[i].display_id)
                 if (tmp !== undefined) {
-                    tmp = tmp.levels.find((item) => item.index === skills[i].levels[j].index)
+                    tmp = tmp.levels.find((item) => item.id === skills[i].levels[j].id)
                 }
                 skills[i].levels[j].completed = tmp !== undefined;
             }
@@ -72,9 +72,9 @@
     async function changeComplete(e, skillId, levelIndex, status) {
         e.stopPropagation();
         for (let i = 0; i < skills.length; i++) {
-            if (skills[i].id === skillId) {
+            if (skills[i].display_id === skillId) {
                 for (let j = 0; j < skills[i].levels.length; j++) {
-                    if (skills[i].levels[j].index === levelIndex) {
+                    if (skills[i].levels[j].id === levelIndex) {
                         skills[i].levels[j].completed = status;
                         //TODO: SYNC WITH DB
                         break;
@@ -94,7 +94,7 @@
     async function changeMark(e, skillId, status) {
         e.stopPropagation();
         for (let i = 0; i < skills.length; i++) {
-            if (skills[i].id === skillId) {
+            if (skills[i].display_id === skillId) {
                 skills[i].marked = status;
                 //TODO: SYNC WITH DB
                 break;
@@ -121,9 +121,9 @@
                     <div slot="header" class="flex items-center w-full">
                         <p>
                             {#if skill.marked}
-                                <span class="px-2 text-white rounded bg-yellow-300 dark:bg-yellow-400">{skill.display_name}</span>
+                                <span class="px-2 text-white rounded bg-yellow-300 dark:bg-yellow-400">{skill.name}</span>
                             {:else}
-                                {skill.display_name}
+                                {skill.name}
                             {/if}
                             {#if skill.all_completed}
                                 <span class="px-2 text-white rounded bg-green-500 dark:bg-green-700">Done!</span>
@@ -131,9 +131,9 @@
                         </p>
                         <div class="ml-auto">
                             {#if skill.marked}
-                                <Button outline color="yellow" class="scale-75" on:click={(e)=>{changeMark(e,skill.id,false)}}>Unmark</Button>
+                                <Button outline color="yellow" class="scale-75" on:click={(e)=>{changeMark(e,skill.display_id,false)}}>Unmark</Button>
                             {:else}
-                                <Button outline color="yellow" class="scale-75" on:click={(e)=>{changeMark(e,skill.id,true)}}>Mark</Button>
+                                <Button outline color="yellow" class="scale-75" on:click={(e)=>{changeMark(e,skill.display_id,true)}}>Mark</Button>
                             {/if}
                         </div>
                     </div>
@@ -145,16 +145,16 @@
                                 <div slot="header" class="flex items-center w-full">
                                     <p>
                                         {#if level.completed}
-                                            <span class="px-2 text-white rounded bg-green-500 dark:bg-green-700">{level.display_name}</span>
+                                            <span class="px-2 text-white rounded bg-green-500 dark:bg-green-700">{level.name}</span>
                                         {:else}
-                                            {level.display_name}
+                                            {level.name}
                                         {/if}
                                     </p>
                                     <div class="ml-auto">
                                         {#if level.completed}
-                                            <Button gradient shadow="red" color="red" class="scale-75" on:click={(e)=>{changeComplete(e,skill.id, level.index, false)}}>Uncomplete</Button>
+                                            <Button gradient shadow="red" color="red" class="scale-75" on:click={(e)=>{changeComplete(e,skill.display_id, level.id, false)}}>Uncomplete</Button>
                                         {:else}
-                                            <Button gradient shadow="green" color="green" class="scale-75" on:click={(e)=>{changeComplete(e,skill.id, level.index, true)}}>Complete</Button>
+                                            <Button gradient shadow="green" color="green" class="scale-75" on:click={(e)=>{changeComplete(e,skill.display_id, level.id, true)}}>Complete</Button>
 
                                         {/if}
                                     </div>
@@ -162,7 +162,7 @@
                                 <p class="mb-2 text-gray-500 dark:text-gray-400">{level.description}</p>
                                 <Hr class="my-8" height="h-px"/>
                                 {#each level.resources as resource}
-                                    <Button gradient color="purpleToBlue" shadow="blue" href="{resource.url}" class="ml-2 mb-2">{resource.display_name}</Button>
+                                    <Button gradient color="purpleToBlue" shadow="blue" href="{resource.url}" class="ml-2 mb-2">{resource.name}</Button>
                                 {/each}
                             </AccordionItem>
                         {/each}

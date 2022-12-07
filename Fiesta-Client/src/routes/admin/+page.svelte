@@ -5,7 +5,7 @@
     import {beforeNavigate, goto} from "$app/navigation";
     import {hideAccordion} from "$lib/utils.js";
     import {loadAllUsers, loadJobFields, loadSkills} from "$lib/apiCalls.js";
-    import {createUser, deleteUserDb, editUser} from "../../lib/apiCalls.js";
+    import {createSkill, createUser, deleteSkillDb, deleteUserDb, editUser} from "../../lib/apiCalls.js";
     import {isLoggedIn, user} from "../../lib/stores.js";
     import {checkSignIn} from "../../lib/utils.js";
 
@@ -23,7 +23,7 @@
     })
 
     onMount(async () => {
-        if($user === undefined)
+        if ($user === undefined)
             $user = await checkSignIn();
 
         if (!$isLoggedIn) {
@@ -38,7 +38,7 @@
         allUsers = await loadAllUsers();
         let x = await loadJobFields();
         jobFields = x.fields;
-        skills = (await loadSkills()).skills;
+        skills = await loadSkills();
         loading = false;
     })
 
@@ -70,27 +70,23 @@
             );
         } catch (e) {
         }
-        editUser(userToEdit.username, userToEditPw).then((res) => {
+        userToEdit.password = userToEditPw;
+        editUser(userToEdit).then((res) => {
         })
     }
 
-    function deleteUser(email) {
-        for (let i = 0; i < allUsers.length; i++) {
-            if (allUsers[i].email == email) {
-                deleteUserDb(allUsers[i].username).then((res) => {
-                    if (res.status === 202) {
-                        allUsers.splice(i, 1);
-                        try {
-                            filteredUsers = allUsers.filter(
-                                (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
-                            );
-                        } catch (e) {
-                        }
-                    }
-                })
-                break;
+    async function deleteUser(item) {
+        deleteUserDb(item).then((res) => {
+            if (res.status === 202) {
+                allUsers = allUsers.filter((x) => x != item)
+                try {
+                    filteredUsers = allUsers.filter(
+                        (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
+                    );
+                } catch (e) {
+                }
             }
-        }
+        });
     }
 
     let createNewUserData = {
@@ -121,8 +117,6 @@
         } catch (e) {
         }
 
-        //TODO: ADD IN DB
-
         createNewUserData = {
             "username": "",
             "name": "",
@@ -134,25 +128,22 @@
         }
     }
 
-    async function deleteSkill(e, skillId) {
+    async function deleteSkill(e,skill) {
         e.stopPropagation();
-        for (let i = 0; i < skills.length; i++) {
-            if (skills[i].id === skillId) {
-                skills.splice(i, 1);
-                skills = skills;
-                //TODO: DO DELETE
-                //TODO: SYNC WITH DB
-                break;
+        deleteSkillDb(skill).then((res) => {
+            if (res.status === 202) {
+                skills = skills.filter((x) => x != skill)
             }
-        }
+        });
     }
+
 
     async function deleteLevel(e, skillId, levelIndex) {
         e.stopPropagation();
         for (let i = 0; i < skills.length; i++) {
-            if (skills[i].id === skillId) {
+            if (skills[i].display_id === skillId) {
                 for (let j = 0; j < skills[i].levels.length; j++) {
-                    if (skills[i].levels[j].index === levelIndex) {
+                    if (skills[i].levels[j].id === levelIndex) {
                         skills[i].levels.splice(j, 1);
                         skills = skills;
                         break;
@@ -164,9 +155,9 @@
 
     async function deleteResource(skillId, levelIndex, resId) {
         for (let i = 0; i < skills.length; i++) {
-            if (skills[i].id === skillId) {
+            if (skills[i].display_id === skillId) {
                 for (let j = 0; j < skills[i].levels.length; j++) {
-                    if (skills[i].levels[j].index === levelIndex) {
+                    if (skills[i].levels[j].id === levelIndex) {
                         for (let l = 0; l < skills[i].levels[j].resources.length; l++) {
                             if (skills[i].levels[j].resources[l].id === resId) {
                                 skills[i].levels[j].resources.splice(l, 1);
@@ -180,25 +171,29 @@
         }
     }
 
-    async function saveChangesSkill(e, skillId) {
+    function saveChangesSkill(e, skill) {
         e.stopPropagation();
-        console.log(skills)
-        console.log(filteredUsers)
-        console.log(allUsers)
-        //TODO: sync with db
+        createSkill(skill).then((res) => {
+            if (res.status === 200) {
+                res.json().then((json) => {
+                    skill._id = {}
+                    skill._id.$oid = json.insertedId.$oid;
+                })
+            }
+        });
     }
 
     let newResourceData = {
         "id": -1,
-        "display_name": "",
+        "name": "",
         "url": ""
     }
 
     async function addNewResource(skillId, levelIndex) {
         for (let i = 0; i < skills.length; i++) {
-            if (skills[i].id === skillId) {
+            if (skills[i].display_id === skillId) {
                 for (let j = 0; j < skills[i].levels.length; j++) {
-                    if (skills[i].levels[j].index === levelIndex) {
+                    if (skills[i].levels[j].id === levelIndex) {
                         newResourceData.id = skills[i].levels[j].resources.length
                         skills[i].levels[j].resources.push(structuredClone(newResourceData))
                         //yes looks stupid but else svelte does not update the accordion
@@ -206,7 +201,7 @@
                         isNewResourceModalOpen = false;
                         newResourceData = {
                             "id": -1,
-                            "display_name": "",
+                            "name": "",
                             "url": ""
                         }
                         break;
@@ -217,16 +212,16 @@
     }
 
     let newLevelData = {
-        "index": -1,
-        "display_name": "",
+        "id": -1,
+        "name": "",
         "description": "",
         "resources": []
     }
 
     async function addNewlevel(skillId) {
         for (let i = 0; i < skills.length; i++) {
-            if (skills[i].id === skillId) {
-                newLevelData.index = skills[i].levels.length
+            if (skills[i].display_id === skillId) {
+                newLevelData.id = skills[i].levels.length
                 skills[i].levels.push(structuredClone(newLevelData))
                 //yes looks stupid but else svelte does not update the accordion
                 skills = skills;
@@ -237,8 +232,8 @@
     }
 
     let newSkillData = {
-        "id": -1,
-        "display_name": "",
+        "display_id": -1,
+        "name": "",
         "levels": []
     }
     let resourceParent = {
@@ -247,7 +242,7 @@
     }
 
     async function addNewSkill() {
-        newSkillData.id = skills.length
+        newSkillData.display_id = skills.length
         skills.push(structuredClone(newSkillData))
         //yes looks stupid but else svelte does not update the accordion
         skills = skills;
@@ -386,7 +381,7 @@
                                             on:click={()=>{openEditUserModal(item)}}><i class="material-icons">edit</i>
                                     </Button>
                                     <Button gradient shadow="red" color="red" class="scale-75"
-                                            on:click={()=>deleteUser(item.email)}><i
+                                            on:click={()=>deleteUser(item)}><i
                                             class="material-icons">delete_forever</i></Button>
                                 </TableBodyCell>
                             </TableBodyRow>
@@ -483,13 +478,16 @@
                 {#each skills as skill}
                     <AccordionItem>
                         <div slot="header" class="flex items-center w-full">
-                            <Input bind:value={skill.display_name} size="sm" class="w-1/2" type="text"
+                            <Input bind:value={skill.name} size="sm" class="w-1/2" type="text"
                                    placeholder="Skill Title" on:click={(e)=>{e.stopPropagation()}}/>
-                            <ButtonGroup class="ml-auto scale-75">
-                                <Button gradient color="red" shadow="red" on:click={(e)=>{deleteSkill(e,skill.id)}}>
+                            <div class="ml-auto scale-75 gap-4 flex flex-row">
+                                <Button gradient color="blue" shadow="blue" on:click={(e)=>{saveChangesSkill(e,skill)}}>
+                                    Save Skill
+                                </Button>
+                                <Button gradient color="red" shadow="red" on:click={(e)=>{deleteSkill(e,skill)}}>
                                     Delete
                                 </Button>
-                            </ButtonGroup>
+                            </div>
                         </div>
                         <Accordion
                                 activeClasses="bg-blue-100 dark:bg-gray-700 text-blue-600 dark:text-white"
@@ -497,11 +495,11 @@
                             {#each skill.levels as level}
                                 <AccordionItem>
                                     <div slot="header" class="flex items-center w-full">
-                                        <Input bind:value={level.display_name} size="sm" class="w-1/2" type="text"
+                                        <Input bind:value={level.name} size="sm" class="w-1/2" type="text"
                                                placeholder="Level Title" on:click={(e)=>{e.stopPropagation()}}/>
                                         <ButtonGroup class="ml-auto scale-75">
                                             <Button gradient shadow="red" color="red"
-                                                    on:click={(e)=>{deleteLevel(e,skill.id, level.index)}}>Delete
+                                                    on:click={(e)=>{deleteLevel(e,skill.display_id, level.id)}}>Delete
                                             </Button>
                                         </ButtonGroup>
                                     </div>
@@ -510,15 +508,15 @@
                                     {#each level.resources as resource}
                                         <ButtonGroup class="ml-2">
                                             <Button gradient color="purpleToBlue" shadow="blue" href="{resource.url}"
-                                                    class="mb-2">{resource.display_name}</Button>
+                                                    class="mb-2">{resource.name}</Button>
                                             <Button gradient shadow="red" color="red" class="mb-2"
-                                                    on:click={()=>{deleteResource(skill.id,level.index,resource.id)}}>
+                                                    on:click={()=>{deleteResource(skill.display_id,level.id,resource.id)}}>
                                                 Delete
                                             </Button>
                                         </ButtonGroup>
                                     {/each}
                                     <Button gradient color="green" shadow="green" class="ml-2 mb-2"
-                                            on:click={()=>{openNewResourceModal(skill.id, level.index)}}>Add New
+                                            on:click={()=>{openNewResourceModal(skill.display_id, level.id)}}>Add New
                                         Resource
                                     </Button>
                                 </AccordionItem>
@@ -526,7 +524,7 @@
                         </Accordion>
                         <div class="flex justify-items-center">
                             <Button gradient color="green" shadow="green" class="mx-auto mt-4"
-                                    on:click={()=>{addNewlevel(skill.id)}}>Add New Level
+                                    on:click={()=>{addNewlevel(skill.display_id)}}>Add New Level
                             </Button>
                         </div>
                     </AccordionItem>
@@ -536,9 +534,6 @@
                 <Button gradient color="green" shadow="green" class="mx-auto mt-4" on:click={()=>{addNewSkill()}}>Add
                     New Skill
                 </Button>
-                <Button gradient color="blue" shadow="blue" class="mx-auto mt-4" on:click={(e)=>{saveChangesSkill(e)}}>
-                    Save all changes
-                </Button>
             </div>
 
             <Modal on:hide={()=>{closeNewResourceModal()}} bind:open={isNewResourceModalOpen} size="lg"
@@ -547,7 +542,7 @@
                     <div>
                         <Label class="space-y-2 min-w-min">
                             <span>Display Name</span>
-                            <Input bind:value={newResourceData.display_name} placeholder="PDF File" size="md"
+                            <Input bind:value={newResourceData.name} placeholder="PDF File" size="md"
                                    type="text"/>
                         </Label>
                     </div>

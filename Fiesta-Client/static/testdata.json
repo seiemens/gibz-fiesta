@@ -1,73 +1,73 @@
 {
   "skills": [
     {
-      "id": 0,
-      "display_name": "basics",
+      "display_id": 0,
+      "name": "basics",
       "levels": [
         {
-          "index": 0,
-          "display_name": "Turn pc on",
+          "id": 0,
+          "name": "Turn pc on",
           "description": "You are able to turn a pc on correctly!",
           "resources": [
             {
               "id": 0,
-              "display_name": "pdf guide",
+              "name": "pdf guide",
               "url": "https://example.com/download/file1"
             },
             {
               "id": 1,
-              "display_name": "video guide",
+              "name": "video guide",
               "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             }
           ]
         },
         {
-          "index": 1,
-          "display_name": "Turn pc off",
+          "id": 1,
+          "name": "Turn pc off",
           "description": "You are able to turn a pc off correctly!",
           "resources": [
             {
               "id": 0,
-              "display_name": "pdf guide",
+              "name": "pdf guide",
               "url": "https://example.com/download/file2"
             },
             {
               "id": 1,
-              "display_name": "video guide",
+              "name": "video guide",
               "url": "https://www.youtube.com/watch?v=Rbgw_rduQpM"
             }
           ]
         },
         {
-          "index": 2,
-          "display_name": "Plug power cord",
+          "id": 2,
+          "name": "Plug power cord",
           "description": "You are able to plug a power cord fast enough in case the pc catches fire.",
           "resources": [
             {
               "id": 0,
-              "display_name": "pdf guide",
+              "name": "pdf guide",
               "url": "https://example.com/download/file3"
             },
             {
               "id": 1,
-              "display_name": "video guide",
+              "name": "video guide",
               "url": "https://www.youtube.com/watch?v=zCeQdBCZklo"
             }
           ]
         },
         {
-          "index": 3,
-          "display_name": "Send PC swimming",
+          "id": 3,
+          "name": "Send PC swimming",
           "description": "If it ever comes to this stage, you're having a big problem. But that's why we train this.\n\nIf you master this stage of the basic training, you successfully completed the first chapter. Mark this skill as completed, if you can throw a pc in a pool, in case its already burning!",
           "resources": [
             {
               "id": 0,
-              "display_name": "pdf guide",
+              "name": "pdf guide",
               "url": "https://example.com/download/file4"
             },
             {
               "id": 1,
-              "display_name": "video guide",
+              "name": "video guide",
               "url": "https://www.youtube.com/watch?v=xsRPz9PF1EE"
             }
           ]
@@ -75,24 +75,24 @@
       ]
     },
     {
-      "id": 1,
-      "display_name": "intermediate",
+      "display_id": 1,
+      "name": "intermediate",
       "levels": [
         {
-          "index": 0,
-          "display_name": "level 2.1",
+          "id": 0,
+          "name": "level 2.1",
           "description": "level 2.1 desc",
           "resources": [
             {
               "id": 0,
-              "display_name": "video guide",
+              "name": "video guide",
               "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             }
           ]
         },
         {
-          "index": 1,
-          "display_name": "level 2.2",
+          "id": 1,
+          "name": "level 2.2",
           "description": "level 2.2 desc",
           "resources": [
           ]

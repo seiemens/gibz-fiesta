@@ -53,11 +53,11 @@
                 {#each user.completed_skills as skill}
                     <Li class="mb-2">
 <!--                        get display name from skill from id from skill-->
-                        {skills.filter((item) => item.id === skill.id)[0].display_name}
+                        {skills.filter((item) => item.id === skill.id)[0].name}
                         <List tag="ol" class="pl-5 mt space-y-1">
                             {#each skill.levels as level}
 <!--                                get display name from index from level-->
-                                <Li>{skills.filter((item) => item.id === skill.id)[0].levels.filter((item) => item.index === level.index)[0].display_name}</Li>
+                                <Li>{skills.filter((item) => item.id === skill.id)[0].levels.filter((item) => item.index === level.index)[0].name}</Li>
                             {/each}
                         </List>
                     </Li>

@@ -23,11 +23,8 @@ export async function loadAllUsers() {
 }
 
 export async function loadSkills() {
-    const response = await fetch('/testdata.json', {
+    const response = await fetch(apiURL+"/skill/all", {
         method: 'GET',
-        headers: {
-            'content-type': 'application/json'
-        }
     });
     if(response.status===500)
         return {}
@@ -45,7 +42,6 @@ export async function loadSpecificUser(username) {
 }
 
 export async function createUser(userData) {
-    console.log(JSON.stringify(userData))
     const response = await fetch(apiURL + '/user/create', {
         method: 'POST',
         credentials: 'include',
@@ -80,18 +76,34 @@ export async function checkAuth() {
     });
 }
 
-export async function deleteUserDb(username) {
+export async function deleteUserDb(user) {
     return await fetch(apiURL + '/user/delete', {
         method: 'POST',
         credentials: 'include',
-        body: JSON.stringify({username})
+        body: JSON.stringify(user)
     });
 }
 
-export async function editUser(username, password) {
+export async function editUser(user) {
     return await fetch(apiURL + '/user/update', {
         method: 'POST',
         credentials: 'include',
-        body: JSON.stringify({username, password})
+        body: JSON.stringify(user)
+    });
+}
+
+export async function createSkill(skill) {
+    return await fetch(apiURL + '/skill/update', {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify(skill)
+    });
+}
+
+export async function deleteSkillDb(skill) {
+    return await fetch(apiURL + '/skill/delete', {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify(skill)
     });
 }
