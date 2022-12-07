@@ -128,7 +128,7 @@
         }
     }
 
-    async function deleteSkill(e,skill) {
+    async function deleteSkill(e, skill) {
         e.stopPropagation();
         deleteSkillDb(skill).then((res) => {
             if (res.status === 202) {
@@ -536,7 +536,7 @@
                 </Button>
             </div>
 
-            <Modal on:hide={()=>{closeNewResourceModal()}} bind:open={isNewResourceModalOpen} size="lg"
+            <Modal bind:open={isNewResourceModalOpen} size="lg"
                    title="">
                 <div class="grid gap-6 mb-6 md:grid-cols-2">
                     <div>
@@ -555,7 +555,7 @@
                     </div>
                 </div>
                 <svelte:fragment slot='footer'>
-                    <Button>Save</Button>
+                    <Button on:click={()=>{closeNewResourceModal()}}>Save</Button>
                 </svelte:fragment>
             </Modal>
         {/if}
