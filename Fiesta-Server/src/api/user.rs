@@ -43,7 +43,7 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
         completed_skills: Some(Vec::<Skill>::new()),
         marked_skills: Some(Vec::<Skill>::new()),
         auth_token: Some(token::generate(64)),
-        active: Some(true),
+        active: u.active.to_owned(),
     };
     return Ok(data);
 }
