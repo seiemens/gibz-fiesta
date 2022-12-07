@@ -1,0 +1,113 @@
+{
+  "users": [
+    {
+      "username": "pedda",
+      "name": "Peter Meier",
+      "email": "peter@peter.com",
+      "field": "IT",
+      "role": 1,
+      "auth_token": "aswdefrgthzujkiolö0o9786543ewsadfghjz",
+      "active": true,
+      "completed_skills": [
+        {
+          "id": 0,
+          "levels": [
+            {
+              "index": 0
+            },
+            {
+              "index": 1
+            },
+            {
+              "index": 2
+            }
+          ]
+        }
+      ],
+      "marked_skills": [
+        {
+          "id": 1
+        }
+      ]
+    },
+    {
+      "username": "erika",
+      "name": "Erika Iten",
+      "email": "Erika@Iten.com",
+      "field": "IT",
+      "role": 0,
+      "auth_token": "aswdefrgthzujkiolö0o9786543ewsadfghjz",
+      "active": false,
+      "completed_skills": [
+        {
+          "id": 0,
+          "levels": [
+            {
+              "index": 1
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "levels": [
+            {
+              "index": 1
+            }
+          ]
+        }
+      ],
+      "marked_skills": [
+        {
+          "id": 1
+        }
+      ]
+    },
+    {
+      "username": "admin",
+      "name": "Admin Hug",
+      "email": "Admin@hug.com",
+      "field": "KV",
+      "role": 1,
+      "auth_token": "aswdefrgthzujkiolö0o9786543ewsadfghjz",
+      "active": true,
+      "completed_skills": [
+        {
+          "id": 0,
+          "levels": [
+            {
+              "index": 0
+            },
+            {
+              "index": 1
+            },
+            {
+              "index": 2
+            },
+            {
+              "index": 3
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "levels": [
+            {
+              "index": 0
+            },
+            {
+              "index": 1
+            }
+          ]
+        }
+      ],
+      "marked_skills": [
+        {
+          "id": 0
+        },
+        {
+          "id": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "skills": [
+    {
+      "display_id": 0,
+      "name": "basics",
+      "levels": [
+        {
+          "id": 0,
+          "name": "Turn pc on",
+          "description": "You are able to turn a pc on correctly!",
+          "resources": [
+            {
+              "id": 0,
+              "name": "pdf guide",
+              "url": "https://example.com/download/file1"
+            },
+            {
+              "id": 1,
+              "name": "video guide",
+              "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Turn pc off",
+          "description": "You are able to turn a pc off correctly!",
+          "resources": [
+            {
+              "id": 0,
+              "name": "pdf guide",
+              "url": "https://example.com/download/file2"
+            },
+            {
+              "id": 1,
+              "name": "video guide",
+              "url": "https://www.youtube.com/watch?v=Rbgw_rduQpM"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Plug power cord",
+          "description": "You are able to plug a power cord fast enough in case the pc catches fire.",
+          "resources": [
+            {
+              "id": 0,
+              "name": "pdf guide",
+              "url": "https://example.com/download/file3"
+            },
+            {
+              "id": 1,
+              "name": "video guide",
+              "url": "https://www.youtube.com/watch?v=zCeQdBCZklo"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Send PC swimming",
+          "description": "If it ever comes to this stage, you're having a big problem. But that's why we train this.\n\nIf you master this stage of the basic training, you successfully completed the first chapter. Mark this skill as completed, if you can throw a pc in a pool, in case its already burning!",
+          "resources": [
+            {
+              "id": 0,
+              "name": "pdf guide",
+              "url": "https://example.com/download/file4"
+            },
+            {
+              "id": 1,
+              "name": "video guide",
+              "url": "https://www.youtube.com/watch?v=xsRPz9PF1EE"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "display_id": 1,
+      "name": "intermediate",
+      "levels": [
+        {
+          "id": 0,
+          "name": "level 2.1",
+          "description": "level 2.1 desc",
+          "resources": [
+            {
+              "id": 0,
+              "name": "video guide",
+              "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "level 2.2",
+          "description": "level 2.2 desc",
+          "resources": [
+          ]
+        }
+      ]
+    }
+  ]
+}
