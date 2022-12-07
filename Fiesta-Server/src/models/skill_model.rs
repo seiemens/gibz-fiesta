@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct Skill {
     pub _id: Option<ObjectId>,
     pub name: String,
-    pub levels: Vec<SubSkill>,
+    pub levels: Option<Vec<SubSkill>>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -17,6 +17,7 @@ pub struct SubSkill {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Resources {
+    pub id: i32,
     pub name: Option<String>,
     pub url: Option<String>,
 }

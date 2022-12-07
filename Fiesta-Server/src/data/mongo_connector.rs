@@ -193,7 +193,10 @@ impl Connector {
 ----- SKILLS - RELATED FUNCTIONS -----
 */
 impl Connector {
-    pub async fn create_skill(&self, s: Skill) -> Result<InsertOneResult, Error> {
+    pub async fn create_skill(&self, mut s: Skill) -> Result<InsertOneResult, Error> {
+        if s._id == None {
+            s._id = Some(ObjectId::new());
+        }
         let new = Skill {
             _id: s._id,
             name: s.name,
