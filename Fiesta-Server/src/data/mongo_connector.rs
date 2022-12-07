@@ -199,6 +199,7 @@ impl Connector {
         }
         let new = Skill {
             _id: s._id,
+            display_id: s.display_id,
             name: s.name,
             levels: s.levels,
         };
@@ -226,6 +227,7 @@ impl Connector {
     pub async fn update_skill(&self, s: Skill, auth: String) -> Result<InsertOneResult, Error> {
         let new = Skill {
             _id: s._id,
+            display_id: s.display_id,
             name: s.name,
             levels: s.levels,
         };
@@ -242,6 +244,7 @@ impl Connector {
     pub async fn delete_skill(&self, s: Skill) -> Result<DeleteResult, Error> {
         let new = Skill {
             _id: s._id,
+            display_id: s.display_id,
             name: s.name,
             levels: s.levels,
         };

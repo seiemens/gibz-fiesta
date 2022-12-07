@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct Skill {
     pub _id: Option<ObjectId>,
+    pub display_id: Option<String>,
     pub name: String,
     pub levels: Option<Vec<SubSkill>>,
 }

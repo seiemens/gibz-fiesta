@@ -17,6 +17,7 @@ use serde::{Deserialize, Serialize};
 pub fn get_skill_data(s: Json<Skill>) -> Result<Skill, Error> {
     let data = Skill {
         _id: s._id.to_owned(),
+        display_id: s.display_id.to_owned(),
         name: s.name.to_owned(),
         levels: s.levels.to_owned(),
     };
