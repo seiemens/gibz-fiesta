@@ -5,6 +5,9 @@
     import {beforeNavigate, goto} from "$app/navigation";
     import {hideAccordion} from "$lib/utils.js";
     import {loadAllUsers, loadJobFields, loadSkills} from "$lib/apiCalls.js";
+    import {createSkill, createUser, deleteSkillDb, deleteUserDb, editUser} from "../../lib/apiCalls.js";
+    import {isLoggedIn, user} from "../../lib/stores.js";
+    import {checkSignIn} from "../../lib/utils.js";
 
     let allUsers = []
     let jobFields = []
@@ -20,14 +23,22 @@
     })
 
     onMount(async () => {
+        if ($user === undefined)
+            $user = await checkSignIn();
+
+        if (!$isLoggedIn) {
+            goto("/skills")
+            return;
+        }
         if (!$isAdmin) {
             goto("/")
             return;
         }
+
         allUsers = await loadAllUsers();
         let x = await loadJobFields();
         jobFields = x.fields;
-        skills = (await loadSkills()).skills;
+        skills = await loadSkills();
         loading = false;
     })
 
@@ -36,7 +47,7 @@
     let filteredUsers = [];
 
     $: try {
-        filteredUsers = allUsers.users.filter(
+        filteredUsers = allUsers.filter(
             (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
         );
     } catch (e) {
@@ -54,29 +65,28 @@
     function closeEditUserModal() {
         editUserModal = false;
         try {
-            filteredUsers = allUsers.users.filter(
+            filteredUsers = allUsers.filter(
                 (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
             );
         } catch (e) {
         }
-
-        //TODO: EDIT IN DB
+        userToEdit.password = userToEditPw;
+        editUser(userToEdit).then((res) => {
+        })
     }
 
-    function deleteUser(email) {
-        for (let i = 0; i < allUsers.users.length; i++) {
-            if (allUsers.users[i].email == email) {
-                allUsers.users.splice(i, 1);
+    async function deleteUser(item) {
+        deleteUserDb(item).then((res) => {
+            if (res.status === 202) {
+                allUsers = allUsers.filter((x) => x != item)
                 try {
-                    filteredUsers = allUsers.users.filter(
+                    filteredUsers = allUsers.filter(
                         (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
                     );
                 } catch (e) {
                 }
-                //TODO: DELETE FROM DB
-                break;
             }
-        }
+        });
     }
 
     let createNewUserData = {
@@ -89,22 +99,23 @@
         "active": true
     }
 
-    function createNewUser() {
+    async function createNewUser(e) {
+        e.preventDefault()
         if (createNewUserData.role) {
             createNewUserData.role = 1;
         } else {
             createNewUserData.role = 0;
         }
 
-        allUsers.users.push(createNewUserData);
+        allUsers.push(createNewUserData);
+        await createUser(createNewUserData);
+
         try {
-            filteredUsers = allUsers.users.filter(
+            filteredUsers = allUsers.filter(
                 (item) => item.name.toLowerCase().indexOf(userSearchTerm.toLowerCase()) !== -1
             );
         } catch (e) {
         }
-
-        //TODO: ADD IN DB
 
         createNewUserData = {
             "username": "",
@@ -117,26 +128,22 @@
         }
     }
 
-    async function deleteSkill(e, skillId) {
+    async function deleteSkill(e,skill) {
         e.stopPropagation();
-        for (let i = 0; i < skills.length; i++) {
-            if (skills[i].id === skillId) {
-                console.log(skills)
-                skills.splice(i, 1);
-                skills = skills;
-                //TODO: DO DELETE
-                //TODO: SYNC WITH DB
-                break;
+        deleteSkillDb(skill).then((res) => {
+            if (res.status === 202) {
+                skills = skills.filter((x) => x != skill)
             }
-        }
+        });
     }
+
 
     async function deleteLevel(e, skillId, levelIndex) {
         e.stopPropagation();
         for (let i = 0; i < skills.length; i++) {
-            if (skills[i].id === skillId) {
+            if (skills[i].display_id === skillId) {
                 for (let j = 0; j < skills[i].levels.length; j++) {
-                    if (skills[i].levels[j].index === levelIndex) {
+                    if (skills[i].levels[j].id === levelIndex) {
                         skills[i].levels.splice(j, 1);
                         skills = skills;
                         break;
@@ -148,9 +155,9 @@
 
     async function deleteResource(skillId, levelIndex, resId) {
         for (let i = 0; i < skills.length; i++) {
-            if (skills[i].id === skillId) {
+            if (skills[i].display_id === skillId) {
                 for (let j = 0; j < skills[i].levels.length; j++) {
-                    if (skills[i].levels[j].index === levelIndex) {
+                    if (skills[i].levels[j].id === levelIndex) {
                         for (let l = 0; l < skills[i].levels[j].resources.length; l++) {
                             if (skills[i].levels[j].resources[l].id === resId) {
                                 skills[i].levels[j].resources.splice(l, 1);
@@ -164,23 +171,29 @@
         }
     }
 
-    async function saveChangesSkill(e, skillId) {
+    function saveChangesSkill(e, skill) {
         e.stopPropagation();
-        console.log(skills)
-        //TODO: sync with db
+        createSkill(skill).then((res) => {
+            if (res.status === 200) {
+                res.json().then((json) => {
+                    skill._id = {}
+                    skill._id.$oid = json.insertedId.$oid;
+                })
+            }
+        });
     }
 
     let newResourceData = {
         "id": -1,
-        "display_name": "",
+        "name": "",
         "url": ""
     }
 
     async function addNewResource(skillId, levelIndex) {
         for (let i = 0; i < skills.length; i++) {
-            if (skills[i].id === skillId) {
+            if (skills[i].display_id === skillId) {
                 for (let j = 0; j < skills[i].levels.length; j++) {
-                    if (skills[i].levels[j].index === levelIndex) {
+                    if (skills[i].levels[j].id === levelIndex) {
                         newResourceData.id = skills[i].levels[j].resources.length
                         skills[i].levels[j].resources.push(structuredClone(newResourceData))
                         //yes looks stupid but else svelte does not update the accordion
@@ -188,7 +201,7 @@
                         isNewResourceModalOpen = false;
                         newResourceData = {
                             "id": -1,
-                            "display_name": "",
+                            "name": "",
                             "url": ""
                         }
                         break;
@@ -199,16 +212,16 @@
     }
 
     let newLevelData = {
-        "index": -1,
-        "display_name": "",
+        "id": -1,
+        "name": "",
         "description": "",
         "resources": []
     }
 
     async function addNewlevel(skillId) {
         for (let i = 0; i < skills.length; i++) {
-            if (skills[i].id === skillId) {
-                newLevelData.index = skills[i].levels.length
+            if (skills[i].display_id === skillId) {
+                newLevelData.id = skills[i].levels.length
                 skills[i].levels.push(structuredClone(newLevelData))
                 //yes looks stupid but else svelte does not update the accordion
                 skills = skills;
@@ -219,8 +232,8 @@
     }
 
     let newSkillData = {
-        "id": -1,
-        "display_name": "",
+        "display_id": -1,
+        "name": "",
         "levels": []
     }
     let resourceParent = {
@@ -229,7 +242,7 @@
     }
 
     async function addNewSkill() {
-        newSkillData.id = skills.length
+        newSkillData.display_id = skills.length
         skills.push(structuredClone(newSkillData))
         //yes looks stupid but else svelte does not update the accordion
         skills = skills;
@@ -250,7 +263,8 @@
 
 </script>
 
-<div class="container mx-auto w-full sm:w-2/3 sm:mt-24 sm:mb-24 outline outline-offset-2 outline-1 outline-gray-200 dark:outline-gray-700 p-10 sm:rounded-lg" id="rootDiv">
+<div class="container mx-auto w-full sm:w-2/3 sm:mt-24 sm:mb-24 outline outline-offset-2 outline-1 outline-gray-200 dark:outline-gray-700 p-10 sm:rounded-lg"
+     id="rootDiv">
     <div>
         <h1 class="text-4xl text-center mb-8 text-gray-700 dark:text-gray-300">Admin Panel</h1>
         {#if loading}
@@ -262,23 +276,23 @@
             <h2 class="text-2xl text-gray-700 dark:text-gray-300">User Management</h2>
             <Hr class="mb-4"/>
             <h2 class="text-xl text-gray-700 dark:text-gray-300 mb-8">Create New User</h2>
-            <div class="grid gap-6 mb-6 md:grid-cols-2">
+            <form class="grid gap-6 mb-6 md:grid-cols-2" on:submit={(e)=>{createNewUser(e)}}>
                 <div>
                     <Label class="space-y-2">
                         <span>Username</span>
-                        <Input bind:value={createNewUserData.username} placeholder="Peter.m" size="md" type="text"/>
+                        <Input bind:value={createNewUserData.username} placeholder="Peter.m" size="md" type="text" required/>
                     </Label>
                 </div>
                 <div>
                     <Label class="space-y-2">
                         <span>Name</span>
-                        <Input bind:value={createNewUserData.name} placeholder="Peter Meier" size="md" type="text"/>
+                        <Input bind:value={createNewUserData.name} placeholder="Peter Meier" size="md" type="text" required/>
                     </Label>
                 </div>
                 <div>
                     <Label class="space-y-2 min-w-min">
                         <span>E-Mail</span>
-                        <Input bind:value={createNewUserData.email} placeholder="peter@example.com" size="md" type="email"/>
+                        <Input bind:value={createNewUserData.email} placeholder="peter@example.com" size="md" type="email" required/>
                     </Label>
                 </div>
                 <div>
@@ -306,7 +320,7 @@
                             </button>
                         </InputAddon>
                         <Input id="show-password" placeholder="{showNewUserPw ? 'passw0rd' : '********'}"
-                               type={showNewUserPw ? 'text' : 'password'}/>
+                               type={showNewUserPw ? 'text' : 'password'} bind:value={createNewUserData.password} required/>
                     </ButtonGroup>
                 </div>
                 <div class="flex gap-4">
@@ -330,13 +344,15 @@
                                 color="green">{createNewUserData.active ? "Yes" : "No"}</Toggle>
                     </div>
                 </div>
-            </div>
-            <div class="flex flex-row gap-4">
-                <Button class="mt-5" color="green" gradient on:click={()=>{createNewUser()}} shadow="green">Create</Button>
-                <Button class="mt-5" color="blue" gradient on:click={()=>{listUserModal= true}} shadow="blue">
-                    Show All Users
-                </Button>
-            </div>
+                <div></div>
+                <div class="flex flex-row gap-4">
+                    <Button class="mt-5" color="green" gradient type="submit" shadow="green">Create</Button>
+                    <Button class="mt-5" color="blue" gradient on:click={()=>{listUserModal= true}} shadow="blue">
+                        Show All Users
+                    </Button>
+                </div>
+            </form>
+
             <Modal autoclose={false} bind:open={listUserModal} size="xl" title="User List">
                 <TableSearch bind:inputValue={userSearchTerm} hoverable={true} placeholder="Search by username">
                     <TableHead>
@@ -350,17 +366,22 @@
                     <TableBody class="divide-y">
                         {#each filteredUsers as item}
                             <TableBodyRow>
-                                <TableBodyCell class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.username}</TableBodyCell>
-                                <TableBodyCell class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.name}</TableBodyCell>
-                                <TableBodyCell class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.email}</TableBodyCell>
-                                <TableBodyCell class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.field}</TableBodyCell>
-                                <TableBodyCell class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.role ? "Yes" : "No"}</TableBodyCell>
+                                <TableBodyCell
+                                        class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.username}</TableBodyCell>
+                                <TableBodyCell
+                                        class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.name}</TableBodyCell>
+                                <TableBodyCell
+                                        class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.email}</TableBodyCell>
+                                <TableBodyCell
+                                        class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.field}</TableBodyCell>
+                                <TableBodyCell
+                                        class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">{item.role ? "Yes" : "No"}</TableBodyCell>
                                 <TableBodyCell class="{item.active ? '': 'text-gray-400 dark:text-gray-500'}">
                                     <Button gradient shadow="blue" color="blue" class="scale-75"
                                             on:click={()=>{openEditUserModal(item)}}><i class="material-icons">edit</i>
                                     </Button>
                                     <Button gradient shadow="red" color="red" class="scale-75"
-                                            on:click={()=>deleteUser(item.email)}><i
+                                            on:click={()=>deleteUser(item)}><i
                                             class="material-icons">delete_forever</i></Button>
                                 </TableBodyCell>
                             </TableBodyRow>
@@ -389,7 +410,8 @@
                     <div>
                         <Label class="space-y-2 min-w-min">
                             <span>E-Mail</span>
-                            <Input bind:value={userToEdit.email} placeholder="peter@example.com" size="md" type="email"/>
+                            <Input bind:value={userToEdit.email} placeholder="peter@example.com" size="md"
+                                   type="email"/>
                         </Label>
                     </div>
                     <div>
@@ -418,7 +440,7 @@
                             </InputAddon>
                             <Input id="show-password-edit"
                                    placeholder="{showNewUserPw ? 'cannot view password, only change' : '********'}"
-                                   type={showNewUserPw ? 'text' : 'password'}/>
+                                   type={showNewUserPw ? 'text' : 'password'} bind:value={userToEditPw}/>
                         </ButtonGroup>
                     </div>
                     <div class="flex gap-4">
@@ -456,10 +478,16 @@
                 {#each skills as skill}
                     <AccordionItem>
                         <div slot="header" class="flex items-center w-full">
-                            <Input bind:value={skill.display_name} size="sm" class="w-1/2" type="text" placeholder="Skill Title" on:click={(e)=>{e.stopPropagation()}}/>
-                            <ButtonGroup class="ml-auto scale-75">
-                                <Button gradient color="red" shadow="red" on:click={(e)=>{deleteSkill(e,skill.id)}}>Delete</Button>
-                            </ButtonGroup>
+                            <Input bind:value={skill.name} size="sm" class="w-1/2" type="text"
+                                   placeholder="Skill Title" on:click={(e)=>{e.stopPropagation()}}/>
+                            <div class="ml-auto scale-75 gap-4 flex flex-row">
+                                <Button gradient color="blue" shadow="blue" on:click={(e)=>{saveChangesSkill(e,skill)}}>
+                                    Save Skill
+                                </Button>
+                                <Button gradient color="red" shadow="red" on:click={(e)=>{deleteSkill(e,skill)}}>
+                                    Delete
+                                </Button>
+                            </div>
                         </div>
                         <Accordion
                                 activeClasses="bg-blue-100 dark:bg-gray-700 text-blue-600 dark:text-white"
@@ -467,32 +495,45 @@
                             {#each skill.levels as level}
                                 <AccordionItem>
                                     <div slot="header" class="flex items-center w-full">
-                                        <Input bind:value={level.display_name} size="sm" class="w-1/2" type="text" placeholder="Level Title" on:click={(e)=>{e.stopPropagation()}}/>
+                                        <Input bind:value={level.name} size="sm" class="w-1/2" type="text"
+                                               placeholder="Level Title" on:click={(e)=>{e.stopPropagation()}}/>
                                         <ButtonGroup class="ml-auto scale-75">
-                                            <Button gradient shadow="red" color="red" on:click={(e)=>{deleteLevel(e,skill.id, level.index)}}>Delete</Button>
+                                            <Button gradient shadow="red" color="red"
+                                                    on:click={(e)=>{deleteLevel(e,skill.display_id, level.id)}}>Delete
+                                            </Button>
                                         </ButtonGroup>
                                     </div>
                                     <Textarea rows="4" bind:value={level.description} placeholder="Level Description"/>
                                     <Hr class="my-8" height="h-px"/>
                                     {#each level.resources as resource}
                                         <ButtonGroup class="ml-2">
-                                            <Button gradient color="purpleToBlue" shadow="blue" href="{resource.url}" class="mb-2">{resource.display_name}</Button>
-                                            <Button gradient shadow="red" color="red" class="mb-2" on:click={()=>{deleteResource(skill.id,level.index,resource.id)}}>Delete</Button>
+                                            <Button gradient color="purpleToBlue" shadow="blue" href="{resource.url}"
+                                                    class="mb-2">{resource.name}</Button>
+                                            <Button gradient shadow="red" color="red" class="mb-2"
+                                                    on:click={()=>{deleteResource(skill.display_id,level.id,resource.id)}}>
+                                                Delete
+                                            </Button>
                                         </ButtonGroup>
                                     {/each}
-                                    <Button gradient color="green" shadow="green" class="ml-2 mb-2" on:click={()=>{openNewResourceModal(skill.id, level.index)}}>Add New Resource</Button>
+                                    <Button gradient color="green" shadow="green" class="ml-2 mb-2"
+                                            on:click={()=>{openNewResourceModal(skill.display_id, level.id)}}>Add New
+                                        Resource
+                                    </Button>
                                 </AccordionItem>
                             {/each}
                         </Accordion>
                         <div class="flex justify-items-center">
-                            <Button gradient color="green" shadow="green" class="mx-auto mt-4" on:click={()=>{addNewlevel(skill.id)}}>Add New Level</Button>
+                            <Button gradient color="green" shadow="green" class="mx-auto mt-4"
+                                    on:click={()=>{addNewlevel(skill.display_id)}}>Add New Level
+                            </Button>
                         </div>
                     </AccordionItem>
                 {/each}
             </Accordion>
             <div class="flex justify-items-center">
-                <Button gradient color="green" shadow="green" class="mx-auto mt-4" on:click={()=>{addNewSkill()}}>Add New Skill</Button>
-                <Button gradient color="blue" shadow="blue" class="mx-auto mt-4" on:click={(e)=>{saveChangesSkill(e)}}>Save all changes</Button>
+                <Button gradient color="green" shadow="green" class="mx-auto mt-4" on:click={()=>{addNewSkill()}}>Add
+                    New Skill
+                </Button>
             </div>
 
             <Modal on:hide={()=>{closeNewResourceModal()}} bind:open={isNewResourceModalOpen} size="lg"
@@ -501,13 +542,15 @@
                     <div>
                         <Label class="space-y-2 min-w-min">
                             <span>Display Name</span>
-                            <Input bind:value={newResourceData.display_name} placeholder="PDF File" size="md" type="text"/>
+                            <Input bind:value={newResourceData.name} placeholder="PDF File" size="md"
+                                   type="text"/>
                         </Label>
                     </div>
                     <div>
                         <Label class="space-y-2 min-w-min">
                             <span>Link</span>
-                            <Input bind:value={newResourceData.url} placeholder="https://example.com" size="md" type="text"/>
+                            <Input bind:value={newResourceData.url} placeholder="https://example.com" size="md"
+                                   type="text"/>
                         </Label>
                     </div>
                 </div>

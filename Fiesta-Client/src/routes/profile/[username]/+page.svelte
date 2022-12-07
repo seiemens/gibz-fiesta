@@ -48,20 +48,27 @@
                 <p class="text-xl text-gray-700 dark:text-gray-300">{user.field}</p>
             </div>
             <Heading tag="h2" customSize="text-xl font-semibold" class="text-gray-700 dark:text-gray-300">Finished Skills</Heading>
+            {#if user.completed_skills.length > 0}
             <List tag="ul" class="space-y-1" >
                 {#each user.completed_skills as skill}
                     <Li class="mb-2">
 <!--                        get display name from skill from id from skill-->
-                        {skills.filter((item) => item.id === skill.id)[0].display_name}
+                        {skills.filter((item) => item.id === skill.id)[0].name}
                         <List tag="ol" class="pl-5 mt space-y-1">
                             {#each skill.levels as level}
 <!--                                get display name from index from level-->
-                                <Li>{skills.filter((item) => item.id === skill.id)[0].levels.filter((item) => item.index === level.index)[0].display_name}</Li>
+                                <Li>{skills.filter((item) => item.id === skill.id)[0].levels.filter((item) => item.index === level.index)[0].name}</Li>
                             {/each}
                         </List>
                     </Li>
                 {/each}
             </List>
+                {:else}
+                <div class="flex flex-row gap-2 items-center mb-6">
+                    <p class="text-lg text-gray-700 dark:text-gray-300">no skills completed yet</p>
+                </div>
+                {/if}
+
         {/if}
     {/if}
 </div>
