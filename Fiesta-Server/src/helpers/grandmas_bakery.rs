@@ -1,4 +1,6 @@
+use std::time::Duration;
 use rocket::http::{Cookie, CookieJar, SameSite};
+use rocket::time::OffsetDateTime;
 
 /*
 ----- BISCUIT GENERATOR -----
@@ -9,7 +11,7 @@ use rocket::http::{Cookie, CookieJar, SameSite};
 pub fn biscuit(name: String, value: String) -> Cookie<'static> {
     return Cookie::build(name, value)
         .path("/")
-        .expires(None)
+        .expires(OffsetDateTime::now_utc()+Duration::from_secs(3600*24*2))
         .secure(true)
         .same_site(SameSite::None)
         .finish(); // Setting the expiry date to 'None' sets it to expire when the session gets closed.
