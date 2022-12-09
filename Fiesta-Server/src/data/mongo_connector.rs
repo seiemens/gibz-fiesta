@@ -302,7 +302,7 @@ impl Connector {
         let user = self.user_col.find_one(filter.clone(), None).await?;
         let skills_vec = user.unwrap().completed_skills.unwrap();
 
-        if skills_vec.iter().any(|i| i._id.unwrap() != skill) {
+        if skills_vec.iter().find(|f| f._id == Some(skill)).is_some() {
             let result = self
                 .user_col
                 .update_one(filter, doc! {"$push":{"completed_skills":skill}}, None)
