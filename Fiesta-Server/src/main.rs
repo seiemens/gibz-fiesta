@@ -10,11 +10,10 @@ use api::user::{
     auth_user, create_user, delete_user, get_all_users, login_user, logout_user, test, update_user,
 };
 use data::mongo_connector::Connector;
-
-//add imports below
-use crate::api::skill::{
-    complete_skill, create_skill, delete_skill, get_all_skills, mark_skill, update_skill,
-};
+use rocket::fairing::Info;
+use rocket::fairing::{Fairing, Kind};
+use rocket::http::Header;
+use rocket::{Request, Response};
 
 mod api;
 mod data;
