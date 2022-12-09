@@ -1,8 +1,3 @@
-mod api;
-mod data;
-mod helpers;
-mod models;
-
 #[macro_use]
 extern crate rocket;
 
@@ -15,10 +10,16 @@ use api::user::{
     auth_user, create_user, delete_user, get_all_users, login_user, logout_user, test, update_user,
 };
 use data::mongo_connector::Connector;
-// imports needed for Cors struct
-use rocket::fairing::{Fairing, Info, Kind};
-use rocket::http::{Header, Method};
-use rocket::{Request, Response};
+
+//add imports below
+use crate::api::skill::{
+    complete_skill, create_skill, delete_skill, get_all_skills, mark_skill, update_skill,
+};
+
+mod api;
+mod data;
+mod helpers;
+mod models;
 
 #[launch]
 async fn rocket() -> _ {
@@ -63,7 +64,7 @@ impl Fairing for Cors {
     async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
         response.set_header(Header::new(
             "Access-Control-Allow-Origin",
-            "http://localhost:5173",
+            _request.headers().get("origin").next().unwrap(),
         ));
         response.set_header(Header::new(
             "Access-Control-Allow-Methods",
