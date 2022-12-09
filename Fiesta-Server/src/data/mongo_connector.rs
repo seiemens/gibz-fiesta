@@ -47,6 +47,21 @@ impl Connector {
             skill_col,
         }
     }
+
+    pub async fn init_test() -> Self {
+        dotenv().ok();
+        //change the var 'key' to change the uri (check your .env file)
+        let uri = env::var("MONGOURI").expect("MONGOURI HAS TO BE SET");
+
+        let client = Client::with_uri_str(uri).await.unwrap();
+        let db = client.database("fiesta_test");
+        let user_col: Collection<User> = db.collection("users");
+        let skill_col: Collection<Skill> = db.collection("skills");
+        Connector {
+            user_col,
+            skill_col,
+        }
+    }
 }
 
 /*
@@ -263,7 +278,7 @@ impl Connector {
         let user = self.user_col.find_one(filter.clone(), None).await?;
         let skills_vec = user.unwrap().marked_skills.unwrap();
 
-        if skills_vec.iter().any(|i| i._id.unwrap() != skill) {
+        if skills_vec.iter().find(|f| f._id == Some(skill)).is_some() {
             let result = self
                 .user_col
                 .update_one(filter, doc! {"$push":{"marked_skills":skill}}, None)
