@@ -37,7 +37,7 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
         role: u.role.to_owned(),
         field: u.field.to_owned(),
         completed_skills: Some(Vec::new()),
-        marked_skills: u.marked_skills.to_owned(),
+        marked_skills: Some(Vec::new()),
         auth_token: Some(token::generate(64)),
         active: u.active.to_owned(),
     };
