@@ -8,8 +8,6 @@ pub mod test {
     use mongodb::bson::oid::ObjectId;
     use mongodb::bson::Bson;
 
-    use crate::rocket;
-
     async fn init_testing_env() -> Connector {
         Connector::init_test().await
     }

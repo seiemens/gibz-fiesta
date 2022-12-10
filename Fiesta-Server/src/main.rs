@@ -5,7 +5,6 @@ extern crate rocket;
 use crate::api::skill::{
     complete_skill, create_skill, delete_skill, get_all_skills, mark_skill, update_skill,
 };
-use crate::models::user_model::User;
 use api::user::{
     auth_user, create_user, delete_user, get_all_users, login_user, logout_user, test, update_user,
 };

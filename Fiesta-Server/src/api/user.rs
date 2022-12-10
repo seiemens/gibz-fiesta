@@ -5,25 +5,20 @@
 use argon2::Error;
 use mongodb::results::InsertOneResult;
 use rocket::{
-    data::N,
     http::{Cookie, CookieJar, Status},
-    Request,
-    Response,
-    response::content, serde::json::Json, State,
+    serde::json::Json,
+    State,
 };
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    data::{self, mongo_connector::Connector},
+    data::mongo_connector::Connector,
     helpers::{
         endecr,
         grandmas_bakery::{biscuit, get_biscuit_recipe},
         token,
     },
-    models::{
-        skill_model::{Skill, SubSkill},
-        user_model::{User,SkillsDone},
-    },
+    models::user_model::User,
 };
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -41,7 +36,7 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
         email: u.email.to_owned(),
         role: u.role.to_owned(),
         field: u.field.to_owned(),
-        completed_skills: Some(Vec::<SkillsDone>::new()),
+        completed_skills: Some(Vec::new()),
         marked_skills: u.marked_skills.to_owned(),
         auth_token: Some(token::generate(64)),
         active: u.active.to_owned(),

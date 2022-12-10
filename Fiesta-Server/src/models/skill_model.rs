@@ -10,7 +10,7 @@ pub struct Skill {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct SubSkill {
-    pub id: i32,
+    pub id: String,
     pub name: Option<String>,
     pub description: Option<String>,
     pub resources: Option<Vec<Resources>>,

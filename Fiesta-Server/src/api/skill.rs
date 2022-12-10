@@ -1,19 +1,15 @@
 use argon2::Error;
 use mongodb::results::{InsertOneResult, UpdateResult};
 use rocket::{
-    http::{Cookie, CookieJar, Status},
-    Request,
-    Response,
-    response::content, serde::json::{Json, serde_json}, State,
+    http::{CookieJar, Status},
+    serde::json::Json,
+    State,
 };
-use serde::{Deserialize, Serialize};
 
 use crate::{
-    data::mongo_connector::Connector,
-    helpers::{endecr, grandmas_bakery::get_biscuit_recipe, token},
-    models::{skill_model::Skill, user_model::User},
+    data::mongo_connector::Connector, helpers::grandmas_bakery::get_biscuit_recipe,
+    models::skill_model::Skill,
 };
-use crate::models::user_model::SkillsDone;
 
 /// NON - ENDPOINT related. Used to filter out / sort User form data easier.
 pub fn get_skill_data(s: Json<Skill>) -> Result<Skill, Error> {
@@ -21,14 +17,6 @@ pub fn get_skill_data(s: Json<Skill>) -> Result<Skill, Error> {
         _id: s._id.to_owned(),
         display_id: s.display_id.to_owned(),
         name: s.name.to_owned(),
-        levels: s.levels.to_owned(),
-    };
-    return Ok(data);
-}
-
-pub fn get_skills_done_data(s: Json<SkillsDone>) -> Result<SkillsDone, Error> {
-    let data = SkillsDone {
-        _id: s._id.to_owned(),
         levels: s.levels.to_owned(),
     };
     return Ok(data);
@@ -57,12 +45,11 @@ pub async fn create_skill(
 pub async fn complete_skill(
     db: &State<Connector>,
     jar: &CookieJar<'_>,
-    s: Json<SkillsDone>,
+    s: Json<String>,
 ) -> Result<Json<UpdateResult>, Status> {
-    let data = get_skills_done_data(s).unwrap();
     let auth = get_biscuit_recipe(jar, String::from("auth_biscuit"));
 
-    let result = db.complete_skill(data, auth).await;
+    let result = db.complete_skill(s.to_string(), auth).await;
 
     match result {
         Ok(skill) => Ok(Json(skill)),
@@ -82,14 +69,14 @@ pub async fn mark_skill(
     let result = db.mark_skill(data._id.unwrap(), auth).await;
 
     match result {
-        Ok(skill) => Ok(Status::Accepted),
+        Ok(_skill) => Ok(Status::Accepted),
         Err(_) => Err(Status::ImATeapot),
     }
 }
 
 #[get("/skill/all")]
 pub async fn get_all_skills(
-    jar: &CookieJar<'_>,
+    _jar: &CookieJar<'_>,
     db: &State<Connector>,
 ) -> Result<Json<Vec<Skill>>, Status> {
     let data = db.get_skills().await;
@@ -128,7 +115,7 @@ pub async fn update_skill(
     let data = get_skill_data(s).unwrap();
     let auth = get_biscuit_recipe(jar, String::from("auth_biscuit"));
 
-    let result = db.update_skill(data, auth).await;
+    let result = db.update_skill(data).await;
 
     match result {
         Ok(skill) => Ok(Json(skill)),

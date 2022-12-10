@@ -5,28 +5,18 @@
 
 extern crate dotenv;
 
-use std::{env, result, vec};
+use std::env;
 
 use dotenv::dotenv;
-use futures::stream::StreamExt;
 use mongodb::{
-    bson::{Bson, doc, oid::ObjectId},
-    Client,
-    Collection,
-    Cursor,
-    error::Error, options::{FindOneOptions, FindOptions}, results::{DeleteResult, InsertOneResult, UpdateResult},
+    bson::{doc, oid::ObjectId},
+    error::Error,
+    results::{DeleteResult, InsertOneResult, UpdateResult},
+    Client, Collection,
 };
-use rocket::{
-    futures::{self, TryStreamExt},
-    http::{Cookie, CookieJar, Status},
-    serde::json::Json,
-};
+use rocket::{futures::TryStreamExt, http::Status};
 
-use crate::{
-    helpers::{endecr, grandmas_bakery::biscuit},
-    models::{skill_model::Skill, user_model::User},
-};
-use crate::models::user_model::SkillsDone;
+use crate::models::{skill_model::Skill, user_model::User};
 
 pub struct Connector {
     user_col: Collection<User>,
@@ -243,7 +233,7 @@ impl Connector {
         return Ok(array);
     }
 
-    pub async fn update_skill(&self, mut s: Skill, auth: String) -> Result<InsertOneResult, Error> {
+    pub async fn update_skill(&self, mut s: Skill) -> Result<InsertOneResult, Error> {
         if s._id == None {
             s._id = Some(ObjectId::new());
         }
@@ -282,7 +272,11 @@ impl Connector {
         let user = self.user_col.find_one(filter.clone(), None).await?;
         let skills_vec = user.unwrap().marked_skills.unwrap();
 
-        if skills_vec.iter().find(|f: &&ObjectId| f.to_string() == skill.to_string()).is_some() {
+        if skills_vec
+            .iter()
+            .find(|f: &&ObjectId| f.to_string() == skill.to_string())
+            .is_some()
+        {
             let result = self
                 .user_col
                 .update_one(filter, doc! {"$pull":{"marked_skills":skill}}, None)
@@ -297,33 +291,23 @@ impl Connector {
         }
     }
 
-    pub async fn complete_skill(
-        &self,
-        skill: SkillsDone,
-        auth: String,
-    ) -> Result<UpdateResult, Error> {
+    pub async fn complete_skill(&self, skill: String, auth: String) -> Result<UpdateResult, Error> {
         let filter = doc! {"auth_token":auth};
         let user = self.user_col.find_one(filter.clone(), None).await?;
         let skills_vec = user.unwrap().completed_skills.unwrap();
 
-        for item in skills_vec.iter()
-        {
-            if item._id == Some(skill._id.unwrap()) {
-                // found obj with oID in vector.
-
-                //now checking if the level is also stored
-                for level in item.levels.iter() {
-                    if level == Some(skill.levels.to_owned()[0]) {
-                        //found level id -> remove level id from db
-                    }
-                };
-            } else {}
-        };
-
-        let result = self
-            .user_col
-            .update_one(filter, doc! {"$pull":{"completed_skills":Bson::ObjectId(skill)}}, None)
-            .await?;
-        return Ok(result);
+        if skills_vec.iter().find(|f| f.to_string() == skill).is_some() {
+            let result = self
+                .user_col
+                .update_one(filter, doc! {"$pull":{"completed_skills":skill}}, None)
+                .await?;
+            return Ok(result);
+        } else {
+            let result = self
+                .user_col
+                .update_one(filter, doc! {"$push":{"completed_skills":skill}}, None)
+                .await?;
+            return Ok(result);
+        }
     }
 }
