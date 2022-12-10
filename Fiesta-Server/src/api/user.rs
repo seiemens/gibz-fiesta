@@ -22,7 +22,7 @@ use crate::{
     },
     models::{
         skill_model::{Skill, SubSkill},
-        user_model::User,
+        user_model::{User,SkillsDone},
     },
 };
 
@@ -41,7 +41,7 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
         email: u.email.to_owned(),
         role: u.role.to_owned(),
         field: u.field.to_owned(),
-        completed_skills: Some(Vec::<Skill>::new()),
+        completed_skills: Some(Vec::<SkillsDone>::new()),
         marked_skills: u.marked_skills.to_owned(),
         auth_token: Some(token::generate(64)),
         active: u.active.to_owned(),
