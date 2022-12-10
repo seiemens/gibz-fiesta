@@ -43,12 +43,12 @@
         for (let i = 0; i < skills.length; i++) {
             //set markings
             let tmp;
-            tmp = $user.marked_skills.find((item) => item.display_id === skills[i].display_id);
+            tmp = $user.marked_skills.find((item) => item.$oid === skills[i]._id.$oid);
             skills[i].marked = tmp !== undefined;
 
             //set completed levels
             for (let j = 0; j < skills[i].levels.length; j++) {
-                tmp = $user.completed_skills.find((item) => item.display_id === skills[i].display_id)
+                tmp = $user.completed_skills.find((item) => item.$oid === skills[i]._id.$oid)
                 if (tmp !== undefined) {
                     tmp = tmp.levels.find((item) => item.id === skills[i].levels[j].id)
                 }
