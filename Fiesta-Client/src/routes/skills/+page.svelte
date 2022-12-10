@@ -76,7 +76,7 @@
                     if (skills[i].levels[j].id === levelIndex) {
                         skills[i].levels[j].completed = status;
                         let hash = (skills[i]._id.$oid + levelIndex).toString().hashCode();
-                        completeSkill(hash);
+                        await completeSkill(hash);
                         break;
                     }
                 }
