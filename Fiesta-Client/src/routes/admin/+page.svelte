@@ -221,7 +221,7 @@
     async function addNewlevel(skillId) {
         for (let i = 0; i < skills.length; i++) {
             if (skills[i].display_id === skillId) {
-                newLevelData.id = skills[i].levels.length
+                newLevelData.id = skills[i].levels.length.toString()
                 skills[i].levels.push(structuredClone(newLevelData))
                 //yes looks stupid but else svelte does not update the accordion
                 skills = skills;
