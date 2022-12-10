@@ -232,7 +232,7 @@ impl Connector {
 
         let mut array: Vec<Skill> = Vec::new();
         while let Ok(Some(user)) = cursor.try_next().await {
-            println!("{:?}", user);
+            // println!("{:?}", user);
             array.push(user);
         }
 
@@ -278,16 +278,16 @@ impl Connector {
         let user = self.user_col.find_one(filter.clone(), None).await?;
         let skills_vec = user.unwrap().marked_skills.unwrap();
 
-        if skills_vec.iter().find(|f| f._id == Some(skill)).is_some() {
+        if skills_vec.iter().find(|f: &&ObjectId| f.to_string() == skill.to_string()).is_some() {
             let result = self
                 .user_col
-                .update_one(filter, doc! {"$push":{"marked_skills":skill}}, None)
+                .update_one(filter, doc! {"$pull":{"marked_skills":skill}}, None)
                 .await?;
             return Ok(result);
         } else {
             let result = self
                 .user_col
-                .update_one(filter, doc! {"$pull":{"marked_skills":skill}}, None)
+                .update_one(filter, doc! {"$push":{"marked_skills":skill}}, None)
                 .await?;
             return Ok(result);
         }

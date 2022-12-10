@@ -2,6 +2,17 @@
 --- IMPORTANT NOTICE ---
     auth_token: used for API authentication to prohibit access from unauthorized sources.
 */
+use argon2::Error;
+use mongodb::results::InsertOneResult;
+use rocket::{
+    data::N,
+    http::{Cookie, CookieJar, Status},
+    Request,
+    Response,
+    response::content, serde::json::Json, State,
+};
+use serde::{Deserialize, Serialize};
+
 use crate::{
     data::{self, mongo_connector::Connector},
     helpers::{
@@ -14,16 +25,6 @@ use crate::{
         user_model::User,
     },
 };
-use argon2::Error;
-use mongodb::results::InsertOneResult;
-use rocket::{
-    data::N,
-    http::{Cookie, CookieJar, Status},
-    response::content,
-    serde::json::Json,
-    Request, Response, State,
-};
-use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct LoginData {
@@ -41,7 +42,7 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
         role: u.role.to_owned(),
         field: u.field.to_owned(),
         completed_skills: Some(Vec::<Skill>::new()),
-        marked_skills: Some(Vec::<Skill>::new()),
+        marked_skills: u.marked_skills.to_owned(),
         auth_token: Some(token::generate(64)),
         active: u.active.to_owned(),
     };
