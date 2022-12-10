@@ -8,6 +8,7 @@
     import {user} from "../../lib/stores.js";
     import {checkSignIn} from "../../lib/utils.js";
     import {markSkill} from "../../lib/apiCalls.js";
+    import {completeSkill} from "../../lib/apiCalls";
 
     let skills;
     let filteredSkills = [];
@@ -43,16 +44,13 @@
         for (let i = 0; i < skills.length; i++) {
             //set markings
             let tmp;
-            tmp = $user.marked_skills.find((item) => item.display_id === skills[i].display_id);
+            tmp = $user.marked_skills.find((item) => item.$oid === skills[i]._id.$oid);
             skills[i].marked = tmp !== undefined;
 
             //set completed levels
             for (let j = 0; j < skills[i].levels.length; j++) {
-                tmp = $user.completed_skills.find((item) => item.display_id === skills[i].display_id)
-                if (tmp !== undefined) {
-                    tmp = tmp.levels.find((item) => item.id === skills[i].levels[j].id)
-                }
-                skills[i].levels[j].completed = tmp !== undefined;
+                let hash = (skills[i]._id.$oid + skills[i].levels[j].id).toString().hashCode();
+                skills[i].levels[j].completed = !!$user.completed_skills.includes(hash.toString());
             }
 
             //set done mark
@@ -77,7 +75,8 @@
                 for (let j = 0; j < skills[i].levels.length; j++) {
                     if (skills[i].levels[j].id === levelIndex) {
                         skills[i].levels[j].completed = status;
-                        //TODO: SYNC WITH DB
+                        let hash = (skills[i]._id.$oid + levelIndex).toString().hashCode();
+                        completeSkill(hash);
                         break;
                     }
                 }

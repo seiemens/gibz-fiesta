@@ -3,8 +3,8 @@
     import {isAdmin, isLoggedIn, secretCounter, user} from "../../lib/stores.js";
     import {beforeNavigate, goto} from "$app/navigation";
     import {onMount} from "svelte";
-    import {loadSpecificUser, login} from "../../lib/apiCalls.js";
-    import {hideAccordion, setCookie} from "../../lib/utils.js";
+    import {login} from "../../lib/apiCalls.js";
+    import {hideAccordion} from "../../lib/utils.js";
 
     let showPW = false;
     let username = "";

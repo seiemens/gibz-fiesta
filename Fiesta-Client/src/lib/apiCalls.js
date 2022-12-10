@@ -7,26 +7,26 @@ export async function loadJobFields() {
             'content-type': 'application/json'
         }
     });
-    if(response.status===500)
+    if (response.status === 500)
         return {}
     return await response.json();
 }
 
 export async function loadAllUsers() {
-    const response = await fetch(apiURL+"/user/all", {
+    const response = await fetch(apiURL + "/user/all", {
         method: 'GET',
         credentials: 'include'
     });
-    if(response.status===500)
+    if (response.status === 500)
         return {}
     return await response.json();
 }
 
 export async function loadSkills() {
-    const response = await fetch(apiURL+"/skill/all", {
+    const response = await fetch(apiURL + "/skill/all", {
         method: 'GET',
     });
-    if(response.status===500)
+    if (response.status === 500)
         return {}
     return await response.json();
 }
@@ -48,7 +48,7 @@ export async function createUser(userData) {
         body: JSON.stringify(userData),
 
     });
-    if(response.status===500)
+    if (response.status === 500)
         return {}
     return await response.json();
 }
@@ -113,5 +113,13 @@ export async function markSkill(skill) {
         method: 'POST',
         credentials: 'include',
         body: JSON.stringify(skill)
+    });
+}
+
+export async function completeSkill(hash) {
+    return await fetch(apiURL + '/skill/complete', {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify(hash.toString())
     });
 }
