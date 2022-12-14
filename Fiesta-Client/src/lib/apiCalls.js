@@ -1,4 +1,4 @@
-export const apiURL = "http://127.0.0.1:4200"
+export const apiURL = "http://127.0.0.1:8000"
 
 export async function loadJobFields() {
     const response = await fetch('/testJobFieldData.json', {
