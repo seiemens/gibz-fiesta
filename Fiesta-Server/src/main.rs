@@ -60,6 +60,11 @@ impl Fairing for Cors {
     }
 
     async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
+        /*
+        ----- IMPORTANT NOTE -----
+        -> For some odd reason we didn't figure out yet, the unit tests don't work if this part is uncommented.
+           There does not seem to be a fix for it, just live with it! :D
+        */
         response.set_header(Header::new(
             "Access-Control-Allow-Origin",
             _request.headers().get("origin").next().unwrap(),

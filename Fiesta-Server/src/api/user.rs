@@ -4,7 +4,6 @@
 */
 use argon2::Error;
 use mongodb::results::InsertOneResult;
-use serde::{Deserialize, Serialize};
 use rocket::{
     http::{Cookie, CookieJar, Status},
     serde::json::Json,
