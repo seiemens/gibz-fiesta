@@ -78,7 +78,7 @@ impl Connector {
 }
 
 /*
------ USER - RELATED FUNCTIONS -----
+----- USER - RELATED METHODS -----
 */
 impl Connector {
     /// insert a new user into the DB
@@ -140,7 +140,8 @@ impl Connector {
             .delete_one(doc! { "_id": u._id }, None)
             .await?;
 
-        let res = self.user_col.insert_one(new, None).await.ok();
+        let res = 
+        self.user_col.insert_one(new, None).await.ok();
 
         return Ok(res.unwrap());
     }
@@ -177,7 +178,7 @@ impl Connector {
 }
 
 /*
------ SKILLS - RELATED FUNCTIONS -----
+----- SKILLS - RELATED METHODS -----
 */
 impl Connector {
     /// create a skill based on properties
@@ -218,18 +219,20 @@ impl Connector {
         if s._id == None {
             s._id = Some(ObjectId::new());
         }
+        // create an Object with the new Data - but keeping the "_id"
         let new = Skill {
             _id: s._id,
             display_id: s.display_id,
             name: s.name,
             levels: s.levels,
         };
-
+        // delete the whole object
         self.skill_col
             .delete_one(doc! { "_id": s._id }, None)
             .await?;
-
-        let res = self.skill_col.insert_one(new, None).await;
+        // insert the new one
+        let res = 
+        self.skill_col.insert_one(new, None).await;
 
         return Ok(res.unwrap());
     }
