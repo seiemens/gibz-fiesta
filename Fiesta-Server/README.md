@@ -26,8 +26,8 @@ Contains the Database Models, currently 2: `Skill` & `User`.
 
 
 ## Endpoints
-<p align="center">IMPORTANT: <br/> ERROR CODE FOR ALL FAILURES IS <br/> <b>318.</b></p>
-<p align="center"><>Note: Most requests can be done with solely the <b>ObjectId</b> of said Skill / User.</i></p>
+<p align="center">IMPORTANT: <br/> ERROR CODE FOR ALL FAILURES IS <br/> <b>418.</b></p>
+<p align="center">Note: Most requests can be done with solely the <b>ObjectId</b> of said Skill / User.</i></p>
 
 ### User - Related
 User - Related Endpoints are accessible through the `/user/` proxy.
@@ -51,7 +51,7 @@ Skill - Related Endpoints are accessible through the `/skill/` proxy.
 | /all         |          Nothing          |  GET | Arrray containing all skills |
 | /mark        | [Skill Json](#skill-json) | POST |                          200 |
 | /delete      |    `ObjectId` of skill    | POST |                          200 |
-| /complete    |    `ObjectId` of skill    |  GET | Arrrray containing all users |
+| /complete    |    `ObjectId` of skill    |  GET |200 |
 | coming soon? |       banana bread        | MONK |                          WIP |
 #### User Json
 ```json
