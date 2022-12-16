@@ -6,7 +6,7 @@ use crate::api::skill::{
     complete_skill, create_skill, delete_skill, get_all_skills, mark_skill, update_skill,
 };
 use api::user::{
-    auth_user, create_user, delete_user, get_all_users, login_user, logout_user, test, update_user,
+    auth_user, create_user, delete_user, get_all_users, login_user, logout_user, update_user, get_user_profile,
 };
 use data::mongo_connector::Connector;
 use rocket::fairing::Info;
@@ -37,12 +37,12 @@ async fn rocket() -> _ {
                 auth_user,
                 create_skill,
                 get_all_users,
+                get_user_profile,
                 get_all_skills,
                 mark_skill,
                 update_skill,
                 complete_skill,
-                delete_skill,
-                test
+                delete_skill
             ],
         )
         .attach(Cors)

@@ -6,13 +6,14 @@
 extern crate dotenv;
 
 use std::env;
+use std::ffi::CString;
 
 use dotenv::dotenv;
 use mongodb::{
     bson::{doc, oid::ObjectId},
-    error::Error,
-    results::{DeleteResult, InsertOneResult, UpdateResult},
-    Client, Collection,
+    Client,
+    Collection,
+    error::Error, results::{DeleteResult, InsertOneResult, UpdateResult},
 };
 use rocket::{futures::TryStreamExt, http::Status};
 
@@ -177,6 +178,17 @@ impl Connector {
         }
 
         return Ok(array);
+    }
+
+    pub async fn get_user_profile(&self, username: String) -> Result<Option<User>, Error> {
+        // println!("{} {}", u.username, u.password);
+        let filter = doc! { "username": username};
+        let result = self.user_col.find_one(filter, None).await?;
+        // println!("{:?}", user);
+        match result {
+            None => Ok(None),
+            Some(res) => Ok(Some(res)),
+        }
     }
 
     pub async fn deactivate_user(&self, id: String) -> Result<UpdateResult, Error> {

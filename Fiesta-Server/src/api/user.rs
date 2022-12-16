@@ -162,12 +162,32 @@ pub async fn get_all_users(
     }
 }
 
-// FOR TESTING
-#[post("/user/test", data = "<u>")]
-pub async fn test(db: &State<Connector>, u: Json<User>) -> Result<Json<User>, Status> {
-    let res = db.get_user(get_user_data(u).unwrap()).await;
-
-    return Ok(Json(res.unwrap().unwrap()));
+#[get("/user/profile/<username>")]
+pub async fn get_user_profile(
+    db: &State<Connector>,
+    username: String,
+) -> Result<Json<User>, Status> {
+    let user = db.get_user_profile(username).await;
+    if let Ok(None) = user {
+        return Err(Status::ImATeapot);
+    } else {
+        let temp = user.clone().unwrap().unwrap();
+        let new = User {
+            _id: temp._id,
+            name: temp.name,
+            username: temp.username,
+            password: temp.password,
+            email: temp.email,
+            role: temp.role,
+            field: temp.field,
+            auth_token: Option::from(String::from("redacted")),
+            completed_skills: temp.completed_skills,
+            marked_skills: temp.marked_skills,
+            active: temp.active,
+        };
+        println!("{:?}", new);
+        return Ok(Json(new));
+    }
 }
 
 /*
