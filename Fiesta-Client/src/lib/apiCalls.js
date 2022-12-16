@@ -32,13 +32,13 @@ export async function loadSkills() {
 }
 
 export async function loadSpecificUser(username) {
-    let allUsers = await loadAllUsers();
-    for (let i = 0; i < allUsers.length; i++) {
-        if (allUsers[i].username === username) {
-            return allUsers[i];
-        }
-    }
-    return null;
+    const response = await fetch(apiURL + "/user/profile/" + username, {
+        method: 'GET',
+        credentials: 'include'
+    });
+    if (response.status === 500)
+        return {}
+    return await response.json();
 }
 
 export async function createUser(userData) {

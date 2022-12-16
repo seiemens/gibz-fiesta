@@ -1,5 +1,24 @@
 <script>
-    import {Accordion, AccordionItem, Button, ButtonGroup, Hr, Input, InputAddon, Label, Modal, Spinner, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell, TableSearch, Textarea, Toggle} from "flowbite-svelte";
+    import {
+        Accordion,
+        AccordionItem,
+        Button,
+        ButtonGroup,
+        Hr,
+        Input,
+        InputAddon,
+        Label,
+        Modal,
+        Spinner,
+        TableBody,
+        TableBodyCell,
+        TableBodyRow,
+        TableHead,
+        TableHeadCell,
+        TableSearch,
+        Textarea,
+        Toggle
+    } from "flowbite-svelte";
     import {onMount} from "svelte";
     import {isAdmin} from "$lib/stores.js";
     import {beforeNavigate, goto} from "$app/navigation";
@@ -76,6 +95,9 @@
     }
 
     async function deleteUser(item) {
+        // workaround for problem in backend with this particular route
+        item.username = ""
+        item.password = ""
         deleteUserDb(item).then((res) => {
             if (res.status === 202) {
                 allUsers = allUsers.filter((x) => x != item)
@@ -280,19 +302,22 @@
                 <div>
                     <Label class="space-y-2">
                         <span>Username</span>
-                        <Input bind:value={createNewUserData.username} placeholder="Peter.m" size="md" type="text" required/>
+                        <Input bind:value={createNewUserData.username} placeholder="Peter.m" size="md" type="text"
+                               required/>
                     </Label>
                 </div>
                 <div>
                     <Label class="space-y-2">
                         <span>Name</span>
-                        <Input bind:value={createNewUserData.name} placeholder="Peter Meier" size="md" type="text" required/>
+                        <Input bind:value={createNewUserData.name} placeholder="Peter Meier" size="md" type="text"
+                               required/>
                     </Label>
                 </div>
                 <div>
                     <Label class="space-y-2 min-w-min">
                         <span>E-Mail</span>
-                        <Input bind:value={createNewUserData.email} placeholder="peter@example.com" size="md" type="email" required/>
+                        <Input bind:value={createNewUserData.email} placeholder="peter@example.com" size="md"
+                               type="email" required/>
                     </Label>
                 </div>
                 <div>
@@ -320,7 +345,8 @@
                             </button>
                         </InputAddon>
                         <Input id="show-password" placeholder="{showNewUserPw ? 'passw0rd' : '********'}"
-                               type={showNewUserPw ? 'text' : 'password'} bind:value={createNewUserData.password} required/>
+                               type={showNewUserPw ? 'text' : 'password'} bind:value={createNewUserData.password}
+                               required/>
                     </ButtonGroup>
                 </div>
                 <div class="flex gap-4">

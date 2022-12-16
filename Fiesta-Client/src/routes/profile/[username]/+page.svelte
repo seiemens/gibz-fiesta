@@ -12,7 +12,6 @@
     let preparedSkills = [];
 
     onMount(async () => {
-        //TODO: DONT LOAD AUTH TOKEN!!! INSECURE AF
         user = await loadSpecificUser(username);
         skills = await loadSkills();
         loading = false;
@@ -25,6 +24,7 @@
                 }
             }
             preparedSkills.push({name: skills[i].name, levels: levels})
+
         }
     })
 
@@ -39,7 +39,8 @@
     {:else}
         {#if user === null}
             <div class="flex flex-row gap-2 items-center justify-center">
-                <p class="font-semibold text-xl text-center text-gray-700 dark:text-gray-300 border-b border-red-400">User Not Found!</p>
+                <p class="font-semibold text-xl text-center text-gray-700 dark:text-gray-300 border-b border-red-400">
+                    User Not Found!</p>
             </div>
         {:else}
             <div class="flex flex-row gap-2 items-center">
@@ -58,7 +59,9 @@
                 <p class="font-semibold text-xl text-gray-700 dark:text-gray-300">Field: </p>
                 <p class="text-xl text-gray-700 dark:text-gray-300">{user.field}</p>
             </div>
-            <Heading tag="h2" customSize="text-xl font-semibold" class="text-gray-700 dark:text-gray-300">Finished Skills</Heading>
+            <Heading tag="h2" customSize="text-xl font-semibold" class="text-gray-700 dark:text-gray-300">Finished
+                Skills
+            </Heading>
             {#if preparedSkills.length > 0}
                 <List tag="ul" class="space-y-1">
                     {#each preparedSkills as skill}
@@ -71,6 +74,7 @@
                                     {/each}
                                 </List>
                             </Li>
+                        {:else}
                         {/if}
 
                     {/each}
