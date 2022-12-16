@@ -48,7 +48,7 @@
         <h1 class="text-4xl text-center mb-8 text-gray-700 dark:text-gray-300" on:click={()=>{secret()}}>Login</h1>
         <Label class="space-y-2 mb-5">
             <span>Username</span>
-            <Input bind:value={username} placeholder="Peter.m" size="md" type="text"/>
+            <Input bind:value={username} placeholder="johnny" size="md" type="text"/>
         </Label>
         <Label class="mb-2 dark:text-gray-400" for="show-password">Your password</Label>
         <ButtonGroup class="w-full">

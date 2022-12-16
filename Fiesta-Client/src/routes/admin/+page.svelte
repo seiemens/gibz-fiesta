@@ -302,21 +302,21 @@
                 <div>
                     <Label class="space-y-2">
                         <span>Username</span>
-                        <Input bind:value={createNewUserData.username} placeholder="Peter.m" size="md" type="text"
+                        <Input bind:value={createNewUserData.username} placeholder="johnny" size="md" type="text"
                                required/>
                     </Label>
                 </div>
                 <div>
                     <Label class="space-y-2">
                         <span>Name</span>
-                        <Input bind:value={createNewUserData.name} placeholder="Peter Meier" size="md" type="text"
+                        <Input bind:value={createNewUserData.name} placeholder="John Doe" size="md" type="text"
                                required/>
                     </Label>
                 </div>
                 <div>
                     <Label class="space-y-2 min-w-min">
                         <span>E-Mail</span>
-                        <Input bind:value={createNewUserData.email} placeholder="peter@example.com" size="md"
+                        <Input bind:value={createNewUserData.email} placeholder="john.doe@example.com" size="md"
                                type="email" required/>
                     </Label>
                 </div>
@@ -324,7 +324,7 @@
                     <Label class="mb-2 dark:text-gray-400" for="show-password">Password</Label>
                     <ButtonGroup class="w-full">
                         <InputAddon>
-                            <button on:click={() => (showNewUserPw = !showNewUserPw)}>
+                            <button on:click={(e) => {e.preventDefault(); showNewUserPw = !showNewUserPw;}}>
                                 {#if showNewUserPw}
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                          stroke-width="1.5"
