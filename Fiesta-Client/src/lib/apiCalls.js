@@ -1,5 +1,6 @@
 export const apiURL = "http://127.0.0.1:4200"
 
+//test data load
 export async function loadJobFields() {
     const response = await fetch('/testJobFieldData.json', {
         method: 'GET',
@@ -12,19 +13,11 @@ export async function loadJobFields() {
     return await response.json();
 }
 
+//<editor-fold desc="User API Calls">
 export async function loadAllUsers() {
     const response = await fetch(apiURL + "/user/all", {
         method: 'GET',
         credentials: 'include'
-    });
-    if (response.status === 500)
-        return {}
-    return await response.json();
-}
-
-export async function loadSkills() {
-    const response = await fetch(apiURL + "/skill/all", {
-        method: 'GET',
     });
     if (response.status === 500)
         return {}
@@ -40,6 +33,7 @@ export async function loadSpecificUser(username) {
         return {}
     return await response.json();
 }
+
 
 export async function createUser(userData) {
     const response = await fetch(apiURL + '/user/create', {
@@ -91,6 +85,17 @@ export async function editUser(user) {
         body: JSON.stringify(user)
     });
 }
+//</editor-fold>
+
+//<editor-fold desc="Skill API Calls">
+export async function loadSkills() {
+    const response = await fetch(apiURL + "/skill/all", {
+        method: 'GET',
+    });
+    if (response.status === 500)
+        return {}
+    return await response.json();
+}
 
 export async function createSkill(skill) {
     return await fetch(apiURL + '/skill/update', {
@@ -123,3 +128,4 @@ export async function completeSkill(hash) {
         body: JSON.stringify(hash.toString())
     });
 }
+//</editor-fold>

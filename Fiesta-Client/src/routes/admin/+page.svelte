@@ -62,6 +62,7 @@
     })
 
 
+    // search for a particular user and update the list every keystroke
     let userSearchTerm = '';
     let filteredUsers = [];
 
@@ -182,6 +183,7 @@
                     if (skills[i].levels[j].id === levelIndex) {
                         for (let l = 0; l < skills[i].levels[j].resources.length; l++) {
                             if (skills[i].levels[j].resources[l].id === resId) {
+                                //remove the desired resource from the array
                                 skills[i].levels[j].resources.splice(l, 1);
                                 skills = skills;
                                 break;
@@ -379,6 +381,7 @@
                 </div>
             </form>
 
+            <!--<editor-fold desc="User Edit Modal">-->
             <Modal autoclose={false} bind:open={listUserModal} size="xl" title="User List">
                 <TableSearch bind:inputValue={userSearchTerm} hoverable={true} placeholder="Search by username">
                     <TableHead>
@@ -495,6 +498,7 @@
                     <Button on:click={()=>{closeEditUserModal()}}>Save</Button>
                 </svelte:fragment>
             </Modal>
+            <!--</editor-fold>-->
             <!--</editor-fold>-->
             <h2 class="text-2xl text-gray-700 dark:text-gray-300 mt-8">Skills Management</h2>
             <Hr class="mb-4"/>

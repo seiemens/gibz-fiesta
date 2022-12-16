@@ -4,7 +4,7 @@
     import {loadSkills, loadSpecificUser} from "$lib/apiCalls.js";
     import {Heading, Hr, Li, List, Spinner} from "flowbite-svelte";
 
-
+    // get the username from the url. /profile/<username>
     let username = $page.params.username;
     let loading = true;
     let user;
@@ -15,6 +15,7 @@
         user = await loadSpecificUser(username);
         skills = await loadSkills();
         loading = false;
+        //decide if user has completed a level for the skill. if yes, display it in the list, if no, do nothing
         for (let i = 0; i < skills.length; i++) {
             let levels = []
             for (let j = 0; j < skills[i].levels.length; j++) {

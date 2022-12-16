@@ -30,6 +30,7 @@
 
     $: if ($navigating) generateNavLinks();
 
+    // easter egg :)
     secretCounter.subscribe(value => {
         if (value === 11) {
             let i = 0;

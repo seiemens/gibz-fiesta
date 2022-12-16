@@ -4,6 +4,7 @@
     let timer = 7;
 
     onMount(async () => {
+        // timer for countdown. set time in s above in the timer variable
         let i = timer * 2;
         let interval = setInterval(() => {
             i--;
