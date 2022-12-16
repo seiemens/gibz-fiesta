@@ -53,7 +53,7 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
 #[post("/user/create", data = "<u>")]
 pub async fn create_user(
     db: &State<Connector>,
-    jar: &CookieJar<'_>,
+    jar: &CookieJar<'_>, 
     u: Json<User>,
 ) -> Result<Json<InsertOneResult>, Status> {
     let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string());

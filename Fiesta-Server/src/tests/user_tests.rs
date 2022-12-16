@@ -1,13 +1,17 @@
 #[cfg(test)]
 mod tests {
-use std::{thread, time};
+use std::{thread, time, env};
 use crate::rocket;
 use rocket::local::asynchronous::Client;
-use rocket::http::{Status, Cookie, Header};
+use rocket::http::{Status, Cookie};
 use rocket::serde::json::json;
+use dotenv::dotenv;
 
     #[tokio::test]
     async fn test_create_user() {
+        dotenv().ok();
+        //change the var 'key' to change the uri (check your .env file)
+        let token = env::var("TESTAUTHTOKEN").expect("TESTAUTHTOKEN HAS TO BE SET TO USE UNIT TESTS");
 
         let client = Client::tracked(rocket().await).await.expect("valid rocket instance");     
         let user_data = json!({
@@ -24,6 +28,7 @@ use rocket::serde::json::json;
         let response = client
             .post("/user/create")
             .body(user_data.to_string())
+            .cookie(Cookie::new("auth_biscuit", token))
             .dispatch();
             assert_eq!(response.await.status(), Status::Ok);
     }
@@ -42,6 +47,7 @@ use rocket::serde::json::json;
 
         let response = client
         .post("/user/login")
+        .cookie(Cookie::new("auth_biscuit", "TOKENTOKENTOKENTOKEN"))
         .body(user_data.to_string())
         .dispatch();
         assert_eq!(response.await.status(), Status::Ok);
