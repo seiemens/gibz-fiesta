@@ -1,17 +1,15 @@
-use crate::{
-    data::mongo_connector::Connector,
-    helpers::{endecr, grandmas_bakery::get_biscuit_recipe, token},
-    models::{skill_model::Skill, user_model::User},
-};
 use argon2::Error;
 use mongodb::results::{InsertOneResult, UpdateResult};
 use rocket::{
-    http::{Cookie, CookieJar, Status},
-    response::content,
-    serde::json::{serde_json, Json},
-    Request, Response, State,
+    http::{CookieJar, Status},
+    serde::json::Json,
+    State,
 };
-use serde::{Deserialize, Serialize};
+
+use crate::{
+    data::mongo_connector::Connector, helpers::grandmas_bakery::get_biscuit_recipe,
+    models::skill_model::Skill,
+};
 
 /// NON - ENDPOINT related. Used to filter out / sort User form data easier.
 pub fn get_skill_data(s: Json<Skill>) -> Result<Skill, Error> {
@@ -30,8 +28,8 @@ pub async fn create_skill(
     jar: &CookieJar<'_>,
     s: Json<Skill>,
 ) -> Result<Json<InsertOneResult>, Status> {
-    let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string());
-    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
+    let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string()); // only accessible to admins.
+    if db.verify_admin(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
         let data = get_skill_data(s).unwrap();
@@ -47,12 +45,12 @@ pub async fn create_skill(
 pub async fn complete_skill(
     db: &State<Connector>,
     jar: &CookieJar<'_>,
-    s: Json<Skill>,
+    s: Json<String>,
 ) -> Result<Json<UpdateResult>, Status> {
-    let data = get_skill_data(s).unwrap();
     let auth = get_biscuit_recipe(jar, String::from("auth_biscuit"));
 
-    let result = db.complete_skill(data._id.unwrap(), auth).await;
+    // bit of a crux, see 'complete_skill()' in mongo_connector.rs
+    let result = db.complete_skill(s.to_string(), auth).await;
 
     match result {
         Ok(skill) => Ok(Json(skill)),
@@ -66,22 +64,24 @@ pub async fn mark_skill(
     jar: &CookieJar<'_>,
     s: Json<Skill>,
 ) -> Result<Status, Status> {
+
+    // no need to authenticate this route, as its using the 'auth_token' as auth already
     let data = get_skill_data(s).unwrap();
     let auth = get_biscuit_recipe(jar, String::from("auth_biscuit"));
-
     let result = db.mark_skill(data._id.unwrap(), auth).await;
 
     match result {
-        Ok(skill) => Ok(Status::Accepted),
+        Ok(_skill) => Ok(Status::Accepted),
         Err(_) => Err(Status::ImATeapot),
     }
 }
 
 #[get("/skill/all")]
 pub async fn get_all_skills(
-    jar: &CookieJar<'_>,
+    _jar: &CookieJar<'_>,
     db: &State<Connector>,
 ) -> Result<Json<Vec<Skill>>, Status> {
+    // accessible for everyone, as it does not contain sensitive data.
     let data = db.get_skills().await;
     return Ok(Json(data.unwrap()));
 }
@@ -94,7 +94,7 @@ pub async fn delete_skill(
 ) -> Result<Status, Status> {
     //authenticate user
     let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string());
-    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
+    if db.verify_admin(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
         let data = get_skill_data(s).unwrap();
@@ -116,12 +116,17 @@ pub async fn update_skill(
     s: Json<Skill>,
 ) -> Result<Json<InsertOneResult>, Status> {
     let data = get_skill_data(s).unwrap();
-    let auth = get_biscuit_recipe(jar, String::from("auth_biscuit"));
 
-    let result = db.update_skill(data, auth).await;
+    let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string());
+    if db.verify_admin(auth_token.to_owned()).await == Err(false) {
+        return Err(Status::Forbidden);
+    } else {
+        // been reworked with ramon's idea to replace the whole object instead of modifying single parts of it.
+        let result = db.update_skill(data).await;
 
-    match result {
-        Ok(skill) => Ok(Json(skill)),
-        Err(_) => Err(Status::ImATeapot),
+        match result {
+            Ok(skill) => Ok(Json(skill)),
+            Err(_) => Err(Status::ImATeapot),
+        }
     }
 }

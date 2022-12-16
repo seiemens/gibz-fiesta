@@ -5,25 +5,18 @@
 
 extern crate dotenv;
 
-use crate::{
-    helpers::{endecr, grandmas_bakery::biscuit},
-    models::{skill_model::Skill, user_model::User},
-};
+use std::env;
 use dotenv::dotenv;
-use futures::stream::StreamExt;
 use mongodb::{
-    bson::{doc, oid::ObjectId, Bson},
-    error::Error,
-    options::{FindOneOptions, FindOptions},
-    results::{DeleteResult, InsertOneResult, UpdateResult},
-    Client, Collection, Cursor,
+    bson::{doc, oid::ObjectId},
+    Client,
+    Collection,
+    error::Error, results::{DeleteResult, InsertOneResult, UpdateResult},
 };
-use rocket::{
-    futures::{self, TryStreamExt},
-    http::{Cookie, CookieJar, Status},
-    serde::json::Json,
-};
-use std::{env, result, vec};
+use rocket::{futures::TryStreamExt, http::Status};
+
+use crate::models::{skill_model::Skill, user_model::User};
+
 pub struct Connector {
     user_col: Collection<User>,
     skill_col: Collection<Skill>,
@@ -35,7 +28,7 @@ impl Connector {
     */
     pub async fn init() -> Self {
         dotenv().ok();
-        //change the var 'key' to change the uri (check your .env file)
+        //change the var 'key' to change the uri (contained in .env file)
         let uri = env::var("MONGOURI").expect("MONGOURI HAS TO BE SET");
 
         let client = Client::with_uri_str(uri).await.unwrap();
@@ -70,7 +63,7 @@ impl Connector {
         }
     }
 
-    //verify that its an admin
+    /// verify that its an admin
     pub async fn verify_admin(&self, token: String) -> Result<User, bool> {
         let filter = doc! {"auth_token":token, "role":1};
 
@@ -90,6 +83,7 @@ impl Connector {
 impl Connector {
     /// insert a new user into the DB
     pub async fn create_user(&self, mut u: User) -> Result<InsertOneResult, Error> {
+        // 'oid switch' -> Generate an ObjectId if its empty.
         if u._id == None {
             u._id = Some(ObjectId::new());
         }
@@ -116,18 +110,17 @@ impl Connector {
         Ok(user)
     }
 
-    /// get user based on password & username
+    /// get user based on password & username | used for login (mainly).
     pub async fn get_user(&self, u: User) -> Result<Option<User>, Error> {
-        // println!("{} {}", u.username, u.password);
-        let filter = doc! { "username": u.username, "password": u.password };
+        let filter = doc! { "username": u.username, "password": u.password, "active":true };
         let result = self.user_col.find_one(filter, None).await?;
-        // println!("{:?}", user);
         match result {
             None => Ok(None),
             Some(res) => Ok(Some(res)),
         }
     }
 
+    /// Update a user based on its ObjectId - Property
     pub async fn update_user(&self, u: User) -> Result<InsertOneResult, Error> {
         let new = User {
             _id: u._id,
@@ -158,6 +151,7 @@ impl Connector {
         return Ok(result);
     }
 
+    /// [ADMIN] - Return a vector containing all users for management.
     pub async fn get_users(&self) -> Result<Vec<User>, Status> {
         let mut cursor = self.user_col.find(None, None).await.unwrap();
 
@@ -170,22 +164,15 @@ impl Connector {
         return Ok(array);
     }
 
-    pub async fn deactivate_user(&self, id: String) -> Result<UpdateResult, Error> {
-        let filter = doc! { "_id":id };
-        let user = self.user_col.find_one(filter.clone(), None).await?;
-        let result;
-        if user.unwrap().active == Some(true) {
-            result = self
-                .user_col
-                .update_one(filter, doc! {"$set":{"active":false}}, None)
-                .await?;
-        } else {
-            result = self
-                .user_col
-                .update_one(filter, doc! {"$set":{"active":true}}, None)
-                .await?;
+    /// Return a user based on params in the url.
+    pub async fn get_user_profile(&self, username: String) -> Result<Option<User>, Error> {
+        let filter = doc! { "username": username};
+        let result = self.user_col.find_one(filter, None).await?;
+
+        match result {
+            None => Ok(None),
+            Some(res) => Ok(Some(res)),
         }
-        return Ok(result);
     }
 }
 
@@ -193,6 +180,7 @@ impl Connector {
 ----- SKILLS - RELATED FUNCTIONS -----
 */
 impl Connector {
+    /// create a skill based on properties
     pub async fn create_skill(&self, mut s: Skill) -> Result<InsertOneResult, Error> {
         if s._id == None {
             s._id = Some(ObjectId::new());
@@ -212,19 +200,21 @@ impl Connector {
         Ok(skill)
     }
 
+    /// [ADMIN] - Return a vector containing all skills.
     pub async fn get_skills(&self) -> Result<Vec<Skill>, Status> {
         let mut cursor = self.skill_col.find(None, None).await.unwrap();
 
         let mut array: Vec<Skill> = Vec::new();
         while let Ok(Some(user)) = cursor.try_next().await {
-            println!("{:?}", user);
+            // println!("{:?}", user);
             array.push(user);
         }
 
         return Ok(array);
     }
 
-    pub async fn update_skill(&self, mut s: Skill, auth: String) -> Result<InsertOneResult, Error> {
+    /// [ADMIN] - Replace an existing Object with a new one, keeping the ObjectId
+    pub async fn update_skill(&self, mut s: Skill) -> Result<InsertOneResult, Error> {
         if s._id == None {
             s._id = Some(ObjectId::new());
         }
@@ -243,7 +233,7 @@ impl Connector {
 
         return Ok(res.unwrap());
     }
-
+    /// Delete a Skill based on its ObjectId.
     pub async fn delete_skill(&self, s: Skill) -> Result<DeleteResult, Error> {
         let new = Skill {
             _id: s._id,
@@ -257,46 +247,52 @@ impl Connector {
         let result = self.skill_col.delete_one(filter, None).await?;
         return Ok(result);
     }
-
+    /// Mark a skill, again using the ObjectId and Auth Token of the User -> Cannot be manipulated by admin.
     pub async fn mark_skill(&self, skill: ObjectId, auth: String) -> Result<UpdateResult, Error> {
         let filter = doc! {"auth_token":auth};
         let user = self.user_col.find_one(filter.clone(), None).await?;
         let skills_vec = user.unwrap().marked_skills.unwrap();
 
-        if skills_vec.iter().any(|i| i._id.unwrap() != skill) {
-            let result = self
-                .user_col
-                .update_one(filter, doc! {"$push":{"marked_skills":skill}}, None)
-                .await?;
-            return Ok(result);
-        } else {
+        // iterate over 'skills_vec' and check if it contains the skill
+        if skills_vec
+            .iter()
+            .find(|f: &&ObjectId| f.to_string() == skill.to_string())
+            .is_some()
+        {
+            // either remove it from 'marked_skills' if already present...
             let result = self
                 .user_col
                 .update_one(filter, doc! {"$pull":{"marked_skills":skill}}, None)
                 .await?;
             return Ok(result);
+        } else {
+            // ...or add it if not.
+            let result = self
+                .user_col
+                .update_one(filter, doc! {"$push":{"marked_skills":skill}}, None)
+                .await?;
+            return Ok(result);
         }
     }
 
-    pub async fn complete_skill(
-        &self,
-        skill: ObjectId,
-        auth: String,
-    ) -> Result<UpdateResult, Error> {
+    /// Complete a skill using the ObjectId and Auth Token of the User -> Cannot be manipulated by admin.
+    pub async fn complete_skill(&self, skill: String, auth: String) -> Result<UpdateResult, Error> {
         let filter = doc! {"auth_token":auth};
         let user = self.user_col.find_one(filter.clone(), None).await?;
         let skills_vec = user.unwrap().completed_skills.unwrap();
 
-        if skills_vec.iter().any(|i| i._id.unwrap() != skill) {
+        // same principle as with 'mark()', iterating over the 'completed_skills' array on the user object
+        if skills_vec.iter().find(|f| f.to_string() == skill).is_some() {
+            // and remove / add it if present / not present.
             let result = self
                 .user_col
-                .update_one(filter, doc! {"$push":{"completed_skills":skill}}, None)
+                .update_one(filter, doc! {"$pull":{"completed_skills":skill}}, None)
                 .await?;
             return Ok(result);
         } else {
             let result = self
                 .user_col
-                .update_one(filter, doc! {"$pull":{"completed_skills":skill}}, None)
+                .update_one(filter, doc! {"$push":{"completed_skills":skill}}, None)
                 .await?;
             return Ok(result);
         }

@@ -1,3 +1,4 @@
+// TODO: Explain fields.
 use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -10,7 +11,7 @@ pub struct Skill {
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct SubSkill {
-    pub id: i32,
+    pub id: String,
     pub name: Option<String>,
     pub description: Option<String>,
     pub resources: Option<Vec<Resources>>,

@@ -2,36 +2,33 @@
 --- IMPORTANT NOTICE ---
     auth_token: used for API authentication to prohibit access from unauthorized sources.
 */
+use argon2::Error;
+use mongodb::results::InsertOneResult;
+use rocket::{
+    http::{Cookie, CookieJar, Status},
+    serde::json::Json,
+    State,
+};
 use crate::{
-    data::{self, mongo_connector::Connector},
+    data::mongo_connector::Connector,
     helpers::{
         endecr,
         grandmas_bakery::{biscuit, get_biscuit_recipe},
         token,
     },
-    models::{
-        skill_model::{Skill, SubSkill},
-        user_model::User,
-    },
+    models::user_model::User,
 };
-use argon2::Error;
-use mongodb::results::InsertOneResult;
-use rocket::{
-    data::N,
-    http::{Cookie, CookieJar, Status},
-    response::content,
-    serde::json::Json,
-    Request, Response, State,
-};
-use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct LoginData {
-    username: String,
-}
 
 /// NON - ENDPOINT related. Used to filter out / sort User form data easier.
 pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
+    
+    // generate a token if no token has been supplied.
+    let token:String;
+    if u.auth_token == None {
+        token = token::generate(64);
+    }else{
+        token = u.auth_token.clone().unwrap();
+    }
     let data = User {
         _id: u._id.to_owned(),
         name: u.name.to_owned(),
@@ -40,9 +37,9 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
         email: u.email.to_owned(),
         role: u.role.to_owned(),
         field: u.field.to_owned(),
-        completed_skills: Some(Vec::<Skill>::new()),
-        marked_skills: Some(Vec::<Skill>::new()),
-        auth_token: Some(token::generate(64)),
+        completed_skills: Some(Vec::new()),
+        marked_skills: Some(Vec::new()),
+        auth_token:Some(token.to_owned()),
         active: u.active.to_owned(),
     };
     return Ok(data);
@@ -51,13 +48,21 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
 #[post("/user/create", data = "<u>")]
 pub async fn create_user(
     db: &State<Connector>,
+    jar: &CookieJar<'_>, 
     u: Json<User>,
 ) -> Result<Json<InsertOneResult>, Status> {
-    let data = get_user_data(u).unwrap();
-    let user_detail = db.create_user(data).await;
-    match user_detail {
-        Ok(user) => Ok(Json(user)),
-        Err(_) => Err(Status::ImATeapot),
+    let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string()); // uses 'grandmas_bakery' helper to parse cookie
+    
+    // only admins should be able to create users - reject all others.
+    if db.verify_admin(auth_token.to_owned()).await == Err(false) {
+        return Err(Status::Forbidden);
+    } else {
+        let data = get_user_data(u).unwrap();
+        let user_detail = db.create_user(data).await;
+        match user_detail {
+            Ok(user) => Ok(Json(user)),
+            Err(_) => Err(Status::ImATeapot),
+        }
     }
 }
 
@@ -70,9 +75,11 @@ pub async fn login_user(
     let data = get_user_data(u).unwrap();
     let user = db.get_user(data).await;
 
+    // recurring if statement - used to check if a user exists
     if let Ok(None) = user {
         return Err(Status::ImATeapot);
     } else {
+        // and return a biscuit if it does.
         let temp = user.clone();
         jar.add(biscuit(
             String::from("auth_biscuit"),
@@ -100,7 +107,7 @@ pub async fn update_user(
     let data = get_user_data(u).unwrap();
 
     //authenticate user && check if pw isn't none
-    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
+    if db.verify_admin(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
         let res = db.update_user(data).await;
@@ -121,7 +128,7 @@ pub async fn delete_user(
     let data = get_user_data(u);
 
     //authenticate user
-    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
+    if db.verify_admin(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
         let res = db.delete_user(data.unwrap()).await.unwrap();
@@ -134,6 +141,7 @@ pub async fn delete_user(
     }
 }
 
+/// Used to verify already existing sessions.
 #[get("/user/auth")]
 pub async fn auth_user(
     jar: &CookieJar<'_>,
@@ -149,6 +157,7 @@ pub async fn auth_user(
     }
 }
 
+// only accessible for Admins, to prevent unauthorized access.
 #[get("/user/all")]
 pub async fn get_all_users(
     jar: &CookieJar<'_>,
@@ -166,20 +175,30 @@ pub async fn get_all_users(
     }
 }
 
-// FOR TESTING
-#[post("/user/test", data = "<u>")]
-pub async fn test(db: &State<Connector>, u: Json<User>) -> Result<Json<User>, Status> {
-    let res = db.get_user(get_user_data(u).unwrap()).await;
-
-    return Ok(Json(res.unwrap().unwrap()));
+// get a user and send it to the frontend - used for guest accounts.
+#[get("/user/profile/<username>")]
+pub async fn get_user_profile(
+    db: &State<Connector>,
+    username: String,
+) -> Result<Json<User>, Status> {
+    let user = db.get_user_profile(username).await;
+    if let Ok(None) = user {
+        return Err(Status::ImATeapot);
+    } else {
+        let temp = user.clone().unwrap().unwrap();
+        let new = User {
+            _id: temp._id,
+            name: temp.name,
+            username: temp.username,
+            password: temp.password,
+            email: temp.email,
+            role: temp.role,
+            field: temp.field,
+            auth_token: Option::from(String::from("[REDACTED]")),
+            completed_skills: temp.completed_skills,
+            marked_skills: temp.marked_skills,
+            active: temp.active,
+        };
+        return Ok(Json(new));
+    }
 }
-
-/*
---- ADMIN ROUTES ---
-*/
-
-// // [ADMIN] - Deactivate user
-// #[post("/deactivateUser", format = "application/json", data = "<u>")]
-// pub fn deac_user(u: Json<User<'_>>) -> status::Accepted<&str> {
-//     status::Accepted(Some(u.name))
-// }
