@@ -28,6 +28,12 @@ pub struct LoginData {
 
 /// NON - ENDPOINT related. Used to filter out / sort User form data easier.
 pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
+    let token:String;
+    if u.auth_token == None {
+        token = token::generate(64);
+    }else{
+        token = u.auth_token.clone().unwrap();
+    }
     let data = User {
         _id: u._id.to_owned(),
         name: u.name.to_owned(),
@@ -38,7 +44,7 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
         field: u.field.to_owned(),
         completed_skills: Some(Vec::new()),
         marked_skills: Some(Vec::new()),
-        auth_token: Some(token::generate(64)),
+        auth_token:Some(token.to_owned()),
         active: u.active.to_owned(),
     };
     return Ok(data);
@@ -180,22 +186,11 @@ pub async fn get_user_profile(
             email: temp.email,
             role: temp.role,
             field: temp.field,
-            auth_token: Option::from(String::from("redacted")),
+            auth_token: Option::from(String::from("[REDACTED]")),
             completed_skills: temp.completed_skills,
             marked_skills: temp.marked_skills,
             active: temp.active,
         };
-        println!("{:?}", new);
         return Ok(Json(new));
     }
 }
-
-/*
---- ADMIN ROUTES ---
-*/
-
-// // [ADMIN] - Deactivate user
-// #[post("/deactivateUser", format = "application/json", data = "<u>")]
-// pub fn deac_user(u: Json<User<'_>>) -> status::Accepted<&str> {
-//     status::Accepted(Some(u.name))
-// }

@@ -113,12 +113,16 @@ pub async fn update_skill(
     s: Json<Skill>,
 ) -> Result<Json<InsertOneResult>, Status> {
     let data = get_skill_data(s).unwrap();
-    let auth = get_biscuit_recipe(jar, String::from("auth_biscuit"));
 
-    let result = db.update_skill(data).await;
+    let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string());
+    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
+        return Err(Status::Forbidden);
+    } else {
+        let result = db.update_skill(data).await;
 
-    match result {
-        Ok(skill) => Ok(Json(skill)),
-        Err(_) => Err(Status::ImATeapot),
+        match result {
+            Ok(skill) => Ok(Json(skill)),
+            Err(_) => Err(Status::ImATeapot),
+        }
     }
 }

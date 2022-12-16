@@ -6,8 +6,6 @@
 extern crate dotenv;
 
 use std::env;
-use std::ffi::CString;
-
 use dotenv::dotenv;
 use mongodb::{
     bson::{doc, oid::ObjectId},
@@ -35,21 +33,6 @@ impl Connector {
 
         let client = Client::with_uri_str(uri).await.unwrap();
         let db = client.database("fiesta");
-        let user_col: Collection<User> = db.collection("users");
-        let skill_col: Collection<Skill> = db.collection("skills");
-        Connector {
-            user_col,
-            skill_col,
-        }
-    }
-
-    pub async fn init_test() -> Self {
-        dotenv().ok();
-        //change the var 'key' to change the uri (check your .env file)
-        let uri = env::var("MONGOURI").expect("MONGOURI HAS TO BE SET");
-
-        let client = Client::with_uri_str(uri).await.unwrap();
-        let db = client.database("fiesta_test");
         let user_col: Collection<User> = db.collection("users");
         let skill_col: Collection<Skill> = db.collection("skills");
         Connector {
@@ -129,7 +112,7 @@ impl Connector {
     /// get user based on password & username
     pub async fn get_user(&self, u: User) -> Result<Option<User>, Error> {
         // println!("{} {}", u.username, u.password);
-        let filter = doc! { "username": u.username, "password": u.password };
+        let filter = doc! { "username": u.username, "password": u.password, "active":true };
         let result = self.user_col.find_one(filter, None).await?;
         // println!("{:?}", user);
         match result {
@@ -189,24 +172,6 @@ impl Connector {
             None => Ok(None),
             Some(res) => Ok(Some(res)),
         }
-    }
-
-    pub async fn deactivate_user(&self, id: String) -> Result<UpdateResult, Error> {
-        let filter = doc! { "_id":id };
-        let user = self.user_col.find_one(filter.clone(), None).await?;
-        let result;
-        if user.unwrap().active == Some(true) {
-            result = self
-                .user_col
-                .update_one(filter, doc! {"$set":{"active":false}}, None)
-                .await?;
-        } else {
-            result = self
-                .user_col
-                .update_one(filter, doc! {"$set":{"active":true}}, None)
-                .await?;
-        }
-        return Ok(result);
     }
 }
 
