@@ -102,7 +102,7 @@ pub async fn update_user(
     let data = get_user_data(u).unwrap();
 
     //authenticate user && check if pw isn't none
-    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
+    if db.verify_admin(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
         let res = db.update_user(data).await;
@@ -123,7 +123,7 @@ pub async fn delete_user(
     let data = get_user_data(u);
 
     //authenticate user
-    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
+    if db.verify_admin(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
         let res = db.delete_user(data.unwrap()).await.unwrap();

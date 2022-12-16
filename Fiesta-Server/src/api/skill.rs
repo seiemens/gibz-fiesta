@@ -29,7 +29,7 @@ pub async fn create_skill(
     s: Json<Skill>,
 ) -> Result<Json<InsertOneResult>, Status> {
     let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string());
-    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
+    if db.verify_admin(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
         let data = get_skill_data(s).unwrap();
@@ -91,7 +91,7 @@ pub async fn delete_skill(
 ) -> Result<Status, Status> {
     //authenticate user
     let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string());
-    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
+    if db.verify_admin(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
         let data = get_skill_data(s).unwrap();
@@ -115,7 +115,7 @@ pub async fn update_skill(
     let data = get_skill_data(s).unwrap();
 
     let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string());
-    if db.verify_auth(auth_token.to_owned()).await == Err(false) {
+    if db.verify_admin(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
         let result = db.update_skill(data).await;
