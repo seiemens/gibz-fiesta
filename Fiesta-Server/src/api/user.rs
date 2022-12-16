@@ -53,13 +53,19 @@ pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
 #[post("/user/create", data = "<u>")]
 pub async fn create_user(
     db: &State<Connector>,
+    jar: &CookieJar<'_>,
     u: Json<User>,
 ) -> Result<Json<InsertOneResult>, Status> {
-    let data = get_user_data(u).unwrap();
-    let user_detail = db.create_user(data).await;
-    match user_detail {
-        Ok(user) => Ok(Json(user)),
-        Err(_) => Err(Status::ImATeapot),
+    let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string());
+    if db.verify_admin(auth_token.to_owned()).await == Err(false) {
+        return Err(Status::Forbidden);
+    } else {
+        let data = get_user_data(u).unwrap();
+        let user_detail = db.create_user(data).await;
+        match user_detail {
+            Ok(user) => Ok(Json(user)),
+            Err(_) => Err(Status::ImATeapot),
+        }
     }
 }
 
