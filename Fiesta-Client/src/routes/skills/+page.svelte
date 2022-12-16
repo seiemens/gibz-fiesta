@@ -25,6 +25,7 @@
         }
         skills = await loadSkills();
         setupMarkings();
+        // hide loading spinner
         loading = false;
     })
 

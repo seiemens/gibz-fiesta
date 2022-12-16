@@ -4,6 +4,7 @@
     import {isAdmin, isLoggedIn} from "../../lib/stores.js";
     import {logout} from "../../lib/apiCalls.js";
 
+    //Delete Cookies and Reset all Stores.
     onMount(async ()=>{
         await logout();
         localStorage.clear();

@@ -27,6 +27,7 @@
         }
     }
 
+    // easter egg counter :)
     function secret() {
         secretCounter.update(n => n + 1)
     }
