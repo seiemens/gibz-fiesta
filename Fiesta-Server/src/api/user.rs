@@ -4,13 +4,12 @@
 */
 use argon2::Error;
 use mongodb::results::InsertOneResult;
+use serde::{Deserialize, Serialize};
 use rocket::{
     http::{Cookie, CookieJar, Status},
     serde::json::Json,
     State,
 };
-use serde::{Deserialize, Serialize};
-
 use crate::{
     data::mongo_connector::Connector,
     helpers::{
@@ -21,13 +20,10 @@ use crate::{
     models::user_model::User,
 };
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct LoginData {
-    username: String,
-}
-
 /// NON - ENDPOINT related. Used to filter out / sort User form data easier.
 pub fn get_user_data(u: Json<User>) -> Result<User, Error> {
+    
+    // generate a token if no token has been supplied.
     let token:String;
     if u.auth_token == None {
         token = token::generate(64);
@@ -56,7 +52,9 @@ pub async fn create_user(
     jar: &CookieJar<'_>, 
     u: Json<User>,
 ) -> Result<Json<InsertOneResult>, Status> {
-    let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string());
+    let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string()); // uses 'grandmas_bakery' helper to parse cookie
+    
+    // only admins should be able to create users - reject all others.
     if db.verify_admin(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
@@ -78,9 +76,11 @@ pub async fn login_user(
     let data = get_user_data(u).unwrap();
     let user = db.get_user(data).await;
 
+    // recurring if statement - used to check if a user exists
     if let Ok(None) = user {
         return Err(Status::ImATeapot);
     } else {
+        // and return a biscuit if it does.
         let temp = user.clone();
         jar.add(biscuit(
             String::from("auth_biscuit"),
@@ -142,6 +142,7 @@ pub async fn delete_user(
     }
 }
 
+/// Used to verify already existing sessions.
 #[get("/user/auth")]
 pub async fn auth_user(
     jar: &CookieJar<'_>,
@@ -157,6 +158,7 @@ pub async fn auth_user(
     }
 }
 
+// only accessible for Admins, to prevent unauthorized access.
 #[get("/user/all")]
 pub async fn get_all_users(
     jar: &CookieJar<'_>,
@@ -174,6 +176,7 @@ pub async fn get_all_users(
     }
 }
 
+// get a user and send it to the frontend - used for guest accounts.
 #[get("/user/profile/<username>")]
 pub async fn get_user_profile(
     db: &State<Connector>,

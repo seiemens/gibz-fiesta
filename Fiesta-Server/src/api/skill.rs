@@ -28,7 +28,7 @@ pub async fn create_skill(
     jar: &CookieJar<'_>,
     s: Json<Skill>,
 ) -> Result<Json<InsertOneResult>, Status> {
-    let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string());
+    let auth_token = get_biscuit_recipe(jar, "auth_biscuit".to_string()); // only accessible to admins.
     if db.verify_admin(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
@@ -49,6 +49,7 @@ pub async fn complete_skill(
 ) -> Result<Json<UpdateResult>, Status> {
     let auth = get_biscuit_recipe(jar, String::from("auth_biscuit"));
 
+    // bit of a crux, see 'complete_skill()' in mongo_connector.rs
     let result = db.complete_skill(s.to_string(), auth).await;
 
     match result {
@@ -63,9 +64,10 @@ pub async fn mark_skill(
     jar: &CookieJar<'_>,
     s: Json<Skill>,
 ) -> Result<Status, Status> {
+
+    // no need to authenticate this route, as its using the 'auth_token' as auth already
     let data = get_skill_data(s).unwrap();
     let auth = get_biscuit_recipe(jar, String::from("auth_biscuit"));
-
     let result = db.mark_skill(data._id.unwrap(), auth).await;
 
     match result {
@@ -79,6 +81,7 @@ pub async fn get_all_skills(
     _jar: &CookieJar<'_>,
     db: &State<Connector>,
 ) -> Result<Json<Vec<Skill>>, Status> {
+    // accessible for everyone, as it does not contain sensitive data.
     let data = db.get_skills().await;
     return Ok(Json(data.unwrap()));
 }
@@ -118,6 +121,7 @@ pub async fn update_skill(
     if db.verify_admin(auth_token.to_owned()).await == Err(false) {
         return Err(Status::Forbidden);
     } else {
+        // been reworked with ramon's idea to replace the whole object instead of modifying single parts of it.
         let result = db.update_skill(data).await;
 
         match result {
