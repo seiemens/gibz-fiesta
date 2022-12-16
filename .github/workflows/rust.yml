@@ -18,12 +18,12 @@ jobs:
     - name: Build
       run: cd Fiesta-Server && rustup override set nightly && cargo build --verbose
     - name: Build
-      run: ls -a
+      run: ls -Ra
     - name: Upload Build
       uses: actions/upload-artifact@v2
       with:
         name: Build Artifact
-        path: ./Fiesta-Server/target/debug/fiesta-server
+        path: Fiesta-Server/target/debug/fiesta_server
       
   test:
     runs-on: ubuntu-latest
