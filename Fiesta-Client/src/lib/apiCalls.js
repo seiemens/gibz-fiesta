@@ -1,4 +1,4 @@
-export const apiURL = "http://127.0.0.1:4200"
+export const apiURL = "http://mc.ramon.cc:8744"
 
 //test data load
 export async function loadJobFields() {
